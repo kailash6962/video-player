@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>My Netflix Clone</title>
+  <style>
+    body { 
+      font-family: Arial, sans-serif; 
+      margin: 0; 
+      padding: 20px; 
+      background: #141414; 
+      color: #fff;
+    }
+    h1 {
+      text-align: center;
+    }
+    /* Cards container */
+    #videoList {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+    /* Video card style */
+    .video-card {
+      background: #222;
+      width: 200px;
+      border-radius: 8px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    .video-card:hover {
+      transform: scale(1.05);
+    }
+    .video-card img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    .video-card .card-title {
+      padding: 10px;
+      text-align: center;
+      font-size: 16px;
+    }
+    /* Video player container */
+    #playerContainer {
+      display: none;
+      text-align: center;
+      margin-top: 20px;
+    }
+    video { 
+      width: 100%; 
+      max-width: 800px; 
+      display: block; 
+      margin: 0 auto; 
+    }
+  </style>
+</head>
+<body>
+  <h1>My Netflix Clone</h1>
+  <div id="videoList"></div>
+  <div id="playerContainer">
+    <video id="videoPlayer" controls preload="metadata"></video>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
