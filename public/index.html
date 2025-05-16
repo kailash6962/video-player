@@ -297,6 +297,9 @@
                 grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
             }
         }
+        .thumbnail{
+            width: 100%;
+        }
     </style>
 </head>
 
@@ -327,10 +330,10 @@
             </div>
             <!-- Video info -->
             <div class="video-info">
-                <h2 class="video-title">Counter Part 2</h2>
+                <h2 class="video-title" id="video-title">No Video</h2>
                 <div class="video-meta">
-                    <span>509KB</span>
-                    <span>Last viewed: May 16, 2025</span>
+                    <span id="main-video-size">0KB</span>
+                    <span id="main-video-lastviewed">Last viewed: - </span>
                 </div>
             </div>
         </div>

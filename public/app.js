@@ -18,6 +18,7 @@ let currentVideoId = null;
 let progressUpdateTimeout = null;
 
 function renderVideoCard(video) {
+    console.log("📢[:21]: video: ", video);
     const div = document.createElement('div');
     div.className = 'video';
     div.id = video.id;
@@ -27,12 +28,9 @@ function renderVideoCard(video) {
     thumbnailContainer.className = 'video-thumbnail-container';
 
     // Create the video element
-    const videoElement = document.createElement('video');
-    videoElement.controls = false;
-    const source = document.createElement('source');
-    source.src = video.url;
-    source.type = 'video/mp4';
-    videoElement.appendChild(source);
+    const imageElement = document.createElement('img');
+    imageElement.className = `thumbnail`;
+    imageElement.src = `thumbnail/${video.id}`;
 
     // Create the watched time redline
     const watchedTime = document.createElement('div');
@@ -41,7 +39,7 @@ function renderVideoCard(video) {
     watchedTime.style.width = '0%';
 
     // Append video and redline to thumbnail container
-    thumbnailContainer.appendChild(videoElement);
+    thumbnailContainer.appendChild(imageElement);
     thumbnailContainer.appendChild(watchedTime);
 
     // Create the details section
@@ -74,27 +72,30 @@ function renderVideoCard(video) {
 
     // Event listeners
     div.addEventListener('click', () => playVideo(video));
-    div.addEventListener('click', () => manualDuration = videoElement.duration);
-
+    // console.log("📢[:78]: videoElement.duration: ", videoElement.duration);
+    const sizeAndStatus = document.createElement('span');
+    sizeAndStatus.textContent = `${Math.round(video.size / 1024)}KB • ${video.isPlaying ? 'Now playing' : ''} ${video.duration<=video.current_time ? 'Watched' : ''}`;
+    stats.appendChild(sizeAndStatus);
+    // Initial watched time update
+    const currentTime = video.current_time || 0;
+    const watchedPercentage = (currentTime / video.duration) * 100;
+    watchedTime.style.width = watchedPercentage + '%';
+    
     // Handle duration and watched bar
-    videoElement.addEventListener('loadedmetadata', () => {
-        const duration = videoElement.duration;
+    // videoElement.addEventListener('loadedmetadata', () => {
+    //     console.log("📢[:82]: loadedmetadata drsn: ", video.duration);
+    //     console.log("📢[:82]: video.current_time: ", video.current_time);
+    //     // div.addEventListener('click', () => manualDuration = videoElement.duration);
+    //     // const duration = videoElement.duration;
 
-        const sizeAndStatus = document.createElement('span');
-        sizeAndStatus.textContent = `${Math.round(video.size / 1024)}KB • ${video.isPlaying ? 'Now playing' : ''} ${duration<=video.current_time ? 'Watched' : ''}`;
-        stats.appendChild(sizeAndStatus);
 
-        videoElement.addEventListener('timeupdate', () => {
-            const currentTime = video.current_time || videoElement.currentTime;
-            const watchedPercentage = (currentTime / duration) * 100;
-            watchedTime.style.width = watchedPercentage + '%';
-        });
+    //     videoElement.addEventListener('timeupdate', () => {
+    //         const currentTime = video.current_time || videoElement.currentTime;
+    //         const watchedPercentage = (currentTime / video.duration) * 100;
+    //         watchedTime.style.width = watchedPercentage + '%';
+    //     });
 
-        // Initial watched time update
-        const currentTime = video.current_time || videoElement.currentTime;
-        const watchedPercentage = (currentTime / duration) * 100;
-        watchedTime.style.width = watchedPercentage + '%';
-    });
+    // });
 
     return div;
 }
@@ -113,27 +114,39 @@ fetch('/api/videos')
     .catch(err => console.error('Error loading videos:', err));
 
 function playVideo(videodata,play=true) {
+  console.log("📢[:116]: videodata: ", videodata);
+  document.getElementById('video-title').innerText = videodata.title;
+  document.getElementById('main-video-size').innerText = videodata.size+'KB';
+  document.getElementById('main-video-lastviewed').innerText = 'Last viewed: '+videodata.lastOpened;
   currentVideoId = videodata.id;
   // Show the player container
   playerContainer.style.display = 'block';
   // Set the video source. Note: We are using our API to stream the video.
   videoPlayer.src = `/api/video/${videodata.id}`;
-  videoPlayer.load();
+//   videoPlayer.load();
+//   videoPlayer.play();
+manualDuration = videodata.duration;
   
   // Fetch the saved watch progress for this video
   fetch(`/api/watch-progress/${videodata.id}`)
     .then(response => response.json())
     .then(data => {
+      console.log("📢[:127]: data: ", data);
       if (data.current_time && data.current_time > 0) {
          startTime = data.current_time;
          const url = new URL(video.src);
           url.searchParams.set('start', data.current_time); // update or add start param
           video.src = url.toString();
-          video.load();                            // reload video with new source
-          // video.play();
+          
+        } else {
+        const url = new URL(video.src);
+          url.searchParams.set('start', data.current_time); // update or add start param
+          video.src = url.toString();
         }
-        if(play)
-        videoPlayer.play();
+
+        video.load();                            // reload video with new source
+        video.play();
+        // if(play)
 
 
      
@@ -193,6 +206,7 @@ video.addEventListener('ended', () => {
         // if (!isFinite(video.duration) || video.duration === Infinity) {
         isManual = true;
         durationEl.textContent = formatTime(manualDuration);
+        console.log("📢[:198]: manualDuration: ", manualDuration);
         seek.max = manualDuration;
         // } else {
         //   durationEl.textContent = formatTime(video.duration);

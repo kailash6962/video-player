@@ -8,7 +8,7 @@ const ffmpeg = require("fluent-ffmpeg");
 
 
 const app = express();
-const PORT = process.env.PORT || 4512;
+const PORT = process.env.PORT || 5555;
 
 // Use JSON parser middleware
 app.use(express.json());
@@ -18,7 +18,7 @@ app.use(cors());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Folder where your video files are stored
-const VIDEOS_DIR = "/home/administrator/Videos/Counter";
+const VIDEOS_DIR = "/var/lib/qbittorrent/Downloads/AdolescenceS01";
 
 // --- Database Setup ---
 const db = new sqlite3.Database('./db.sqlite3', (err) => {
@@ -63,6 +63,8 @@ async function getVideosList() {
       
       const videoDetails = await getVideoDetails(file);
       console.log("📢[:65]: videoDetails: ", videoDetails);
+      const duration = await getVideoDuration(path.join(VIDEOS_DIR, file));
+
   
       const filePath = path.join(VIDEOS_DIR, file);
       const stats = fs.statSync(filePath);
@@ -74,6 +76,7 @@ async function getVideosList() {
         active:videoDetails?.active,
         current_time:videoDetails?.current_time || 0,
         size: stats.size,
+        duration,
         lastOpened: new Date(stats.mtime).toISOString()
       };
     }));
@@ -81,16 +84,56 @@ async function getVideosList() {
     return videos;
   }
   
-
+  function getVideoDuration(filePath) {
+    return new Promise((resolve, reject) => {
+      ffmpeg.ffprobe(filePath, (err, metadata) => {
+        if (err) return reject(err);
+        const duration = metadata.format.duration; // duration in seconds (float)
+        resolve(duration);
+      });
+    });
+  }
 // Example route to stream a video (optional)
 app.get('/video/:id', (req, res) => {
     const videoId = req.params.id;
     const videoPath = path.join(VIDEOS_DIR, videoId);
+    console.log("📢[:89]: videoPath: ", videoPath);
     if (fs.existsSync(videoPath)) {
       res.sendFile(videoPath);
     } else {
       res.status(404).send('Video not found');
     }
+});
+app.get('/thumbnail/:id', (req, res) => {
+    res.setHeader('Content-Type', 'image/jpeg');
+
+    const videoId = req.params.id;
+    const videoPath = path.join(VIDEOS_DIR, videoId);
+
+    ffmpeg(videoPath)
+    .on('error', (err) => {
+      console.error('FFmpeg error:', err.message);
+      res.status(500).send('Failed to generate thumbnail');
+    })
+    .on('end', () => {
+      console.log('Thumbnail stream complete');
+    })
+    .screenshots({
+      count: 1,
+      timemarks: ['59'], // capture frame at 5 seconds
+      filename: 'thumbnail.jpg', // not used when streaming
+      size: '320x?' // width = 320px, auto height
+    })
+    .format('image2') // ensure image output
+    .outputOptions('-vframes 1') // only 1 frame
+    .output(res); // stream directly to client
+
+   
+    // if (fs.existsSync(videoPath)) {
+    //   res.sendFile(videoPath);
+    // } else {
+    //   res.status(404).send('Video not found');
+    // }
 });
 
 
@@ -146,6 +189,7 @@ app.get("/api/video/:id", (req, res) => {
       .format("mp4")
       .videoCodec("libx264")
       .audioCodec("aac")
+      .size('854x480') // ✅ Set resolution to 480p
       .outputOptions("-movflags frag_keyframe+empty_moov")
       .on("start", (cmd) => console.log("FFmpeg command:", cmd))
       .on("stderr", (stderr) => console.log("FFmpeg stderr:", stderr))
@@ -216,20 +260,30 @@ app.post('/api/watch-progress', (req, res) => {
     });
   });
 
-  
-  // 4. Get watch progress for a video
-  app.get('/api/watch-progress/:video_id', (req, res) => {
-    const { video_id } = req.params;
-    db.get(`SELECT * FROM video_metadata WHERE video_id = ?`, [video_id], (err, row) => {
-      if (err) {
-        console.error(err);
-        return res.status(500).json({ error: 'Database error' });
-      }      
-      res.json({ 
-        current_time: row ? row.current_time : 0, 
-        // duration 
+  function getVideoMetadata(video_id) {
+    return new Promise((resolve, reject) => {
+      db.get(`SELECT * FROM video_metadata WHERE video_id = ?`, [video_id], (err, row) => {
+        if (err) return reject(err);
+        resolve(row);
       });
     });
+  }
+
+  
+  // 4. Get watch progress for a video
+  app.get('/api/watch-progress/:video_id',async (req, res) => {
+    const video_id = req.params.video_id;
+  try {
+    const row = await getVideoMetadata(video_id);
+    // const duration = await getVideoDuration(path.join(VIDEOS_DIR, video_id));
+    res.json({
+      current_time: row?.current_time || 0,
+      // duration
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error' });
+  }
   });
 
 // Start the Server
