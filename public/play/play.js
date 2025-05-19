@@ -102,7 +102,12 @@ function renderVideoCard(video) {
 
 
 
-fetch('/api/videos')
+    fetch('/api/videos', {
+        method: 'GET',
+        headers: {
+            'x-db-name': 'folder1'  // replace 'folder1' with your actual db name
+        }
+    })
     .then(response => response.json())
     .then(videos => {
         console.log("📢[:91]: videos: ", videos);
@@ -114,6 +119,7 @@ fetch('/api/videos')
     .catch(err => console.error('Error loading videos:', err));
 
 function playVideo(videodata,play=true) {
+  console.log("📢[:116]: videodata: ", videodata);
   document.getElementById('video-title').innerText = videodata.title;
   document.getElementById('player-title').innerText = videodata.title;
   document.getElementById('main-video-size').innerText = videodata.size+'KB';
@@ -122,13 +128,18 @@ function playVideo(videodata,play=true) {
   // Show the player container
   playerContainer.style.display = 'block';
   // Set the video source. Note: We are using our API to stream the video.
-  videoPlayer.src = `/api/video/${videodata.id}`;
+  videoPlayer.src = `/api/video/home/${videodata.id}`;
 //   videoPlayer.load();
 //   videoPlayer.play();
 manualDuration = videodata.duration;
   
   // Fetch the saved watch progress for this video
-  fetch(`/api/watch-progress/${videodata.id}`)
+  fetch(`/api/watch-progress/${videodata.id}`, {
+        method: 'GET',
+        headers: {
+            'x-db-name': 'folder1'  // replace 'folder1' with your actual db name
+        }
+    })
     .then(response => response.json())
     .then(data => {
       console.log("📢[:127]: data: ", data);
@@ -167,7 +178,7 @@ videoPlayer.addEventListener('timeupdate', () => {
     const current_time = videoPlayer.currentTime;
     fetch('/api/watch-progress', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'x-db-name': 'folder1'  },
       body: JSON.stringify({ video_id: currentVideoId, current_time:parseInt(startTime)+parseInt(current_time) }),
     }).catch(err => console.error('Error saving progress:', err));
     

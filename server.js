@@ -10,6 +10,9 @@ const ffmpeg = require("fluent-ffmpeg");
 const app = express();
 const PORT = process.env.PORT || 5555;
 
+
+const dbMiddleware = require("./middleware/dbMiddleware");
+
 // Use JSON parser middleware
 app.use(express.json());
 // Enable CORS if needed
@@ -18,32 +21,32 @@ app.use(cors());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Folder where your video files are stored
-const VIDEOS_DIR = "/var/lib/qbittorrent/Downloads/AdolescenceS01";
+const VIDEOS_DIR = "/home/kailash/samplevideos";
 
 // --- Database Setup ---
-const db = new sqlite3.Database('./db.sqlite3', (err) => {
-  if (err) {
-    console.error('Could not open database', err);
-  } else {
-    console.log('Connected to SQLite database.');
-  }
-});
+// const db = new sqlite3.Database('./db.sqlite3', (err) => {
+//   if (err) {
+//     console.error('Could not open database', err);
+//   } else {
+//     console.log('Connected to SQLite database.');
+//   }
+// });
 
-// Create a table to store video metadata
-db.run(`
-  CREATE TABLE IF NOT EXISTS video_metadata (
-    video_id TEXT PRIMARY KEY,
-    current_time REAL,
-    last_opened TEXT,
-    size INTEGER,
-    length TEXT,
-    active BOOLEAN
-  )
-`);
+// // Create a table to store video metadata
+// db.run(`
+//   CREATE TABLE IF NOT EXISTS video_metadata (
+//     video_id TEXT PRIMARY KEY,
+//     current_time REAL,
+//     last_opened TEXT,
+//     size INTEGER,
+//     length TEXT,
+//     active BOOLEAN
+//   )
+// `);
 
-function getVideoDetails(file) {
+function getVideoDetails(file,req) {
     return new Promise((resolve, reject) => {
-      db.get('SELECT * FROM video_metadata WHERE video_id = ?', [file], (err, row) => {
+      req.db.get('SELECT * FROM video_metadata WHERE video_id = ?', [file], (err, row) => {
         if (err) {
           reject(err);
         } else {
@@ -52,7 +55,7 @@ function getVideoDetails(file) {
       });
     });
   }
-async function getVideosList() {
+async function getVideosList(req) {
     const files = fs.readdirSync(VIDEOS_DIR);
     const videoFiles = files.filter(file =>
       file.endsWith('.mp4') || file.endsWith('.webm') || file.endsWith('.mkv')
@@ -61,7 +64,7 @@ async function getVideosList() {
     const videos = await Promise.all(videoFiles.map(async (file) => {
       // console.log("📢[:62]: file: ", file);
       
-      const videoDetails = await getVideoDetails(file);
+      const videoDetails = await getVideoDetails(file,req);
       console.log("📢[:65]: videoDetails: ", videoDetails);
       const duration = await getVideoDuration(path.join(VIDEOS_DIR, file));
 
@@ -94,7 +97,7 @@ async function getVideosList() {
     });
   }
 // Example route to stream a video (optional)
-app.get('/video/:id', (req, res) => {
+app.get('/video/:id',dbMiddleware, (req, res) => {
     const videoId = req.params.id;
     const videoPath = path.join(VIDEOS_DIR, videoId);
     console.log("📢[:89]: videoPath: ", videoPath);
@@ -104,46 +107,52 @@ app.get('/video/:id', (req, res) => {
       res.status(404).send('Video not found');
     }
 });
-app.get('/thumbnail/:id', (req, res) => {
-    res.setHeader('Content-Type', 'image/jpeg');
+app.get('/api/get-all-folders', (req, res) => {
+      const folders = fs.readdirSync(VIDEOS_DIR).filter(file => {
+        return fs.statSync(path.join(VIDEOS_DIR, file)).isDirectory();
+      });
+      res.send(folders);
+});
 
-    const videoId = req.params.id;
-    const videoPath = path.join(VIDEOS_DIR, videoId);
+app.get('/thumbnail/:db/:id', (req, res) => {
+  // return res.status(404).send('Video not found');
 
-    ffmpeg(videoPath)
+  const videoId = req.params.id;
+  const db = req.params.db=="home"?"":req.params.db || "";
+  const videoPath = path.join(VIDEOS_DIR+"/"+db, videoId);
+  console.log("📢[:116]: videoPath: ", videoPath);
+
+  if (!fs.existsSync(videoPath)) {
+    return res.status(404).send('Video not found');
+  }
+
+  res.setHeader('Content-Type', 'image/jpeg');
+
+  ffmpeg()
+    .input(videoPath)
+    .inputOptions(['-ss 00:00:59']) // ⚡ Seek before input (faster)
+    .outputOptions([
+      '-vframes 1',       // only one frame
+      '-f image2',        // format
+      '-s 260x190',        // ⚡ smaller resolution (adjustable)
+      '-q:v 5'            // lower = better quality, 2–5 is typical
+    ])
+    .format('mjpeg')       // JPEG output
     .on('error', (err) => {
       console.error('FFmpeg error:', err.message);
       res.status(500).send('Failed to generate thumbnail');
     })
-    .on('end', () => {
-      console.log('Thumbnail stream complete');
-    })
-    .screenshots({
-      count: 1,
-      timemarks: ['59'], // capture frame at 5 seconds
-      filename: 'thumbnail.jpg', // not used when streaming
-      size: '320x?' // width = 320px, auto height
-    })
-    .format('image2') // ensure image output
-    .outputOptions('-vframes 1') // only 1 frame
-    .output(res); // stream directly to client
-
-   
-    // if (fs.existsSync(videoPath)) {
-    //   res.sendFile(videoPath);
-    // } else {
-    //   res.status(404).send('Video not found');
-    // }
+    .pipe(res, { end: true });
 });
 
 
 // --- API Endpoints ---
-app.get('/api/videos', async (req, res) => {
-  const videos = await getVideosList();
+app.get('/api/videos',dbMiddleware, async (req, res) => {
+  const videos = await getVideosList(req);
   res.json(videos);
 });
 
-app.get("/api/video/:id", (req, res) => {
+app.get("/api/video/:db/:id",dbMiddleware, (req, res) => {
   try{
   const videoId = req.params.id;
   const videoStartFrom = Number(req.query.start || 0);
@@ -161,21 +170,21 @@ app.get("/api/video/:id", (req, res) => {
   const isMKV = path.extname(filePath).toLowerCase() === ".mkv";
 
   // Update last opened timestamp in DB
-  db.run(
+  req.db.run(
       `INSERT INTO video_metadata (video_id, last_opened, size) VALUES (?, ?, ?) 
       ON CONFLICT(video_id) DO UPDATE SET last_opened = excluded.last_opened, size = excluded.size`,
       [videoId, new Date().toISOString(), fileSize]
   );
 
   // Reset all active flags
-  db.run(`UPDATE video_metadata SET active = ?`, [0], function (err) {
+  req.db.run(`UPDATE video_metadata SET active = ?`, [0], function (err) {
       if (err) {
           console.error(err);
           return res.status(500).send("Database error");
       }
 
       // Set the specific video as active
-      db.run(`UPDATE video_metadata SET active = ? WHERE video_id = ?`, [1, videoId]);
+      req.db.run(`UPDATE video_metadata SET active = ? WHERE video_id = ?`, [1, videoId]);
   });
 
   // if (isMKV) {
@@ -184,44 +193,52 @@ app.get("/api/video/:id", (req, res) => {
       res.setHeader("Content-Type", "video/mp4");
       res.setHeader("Content-Disposition", `inline; filename="${videoId.replace('.mkv', '.mp4')}"`);
 
-      ffmpeg(filePath)
+      const command =  ffmpeg(filePath)
       .setStartTime(videoStartFrom)
       .format("mp4")
       .videoCodec("libx264")
       .audioCodec("aac")
-      .size('854x480') // ✅ Set resolution to 480p
-      .outputOptions("-movflags frag_keyframe+empty_moov")
-      .on("start", (cmd) => console.log("FFmpeg command:", cmd))
-      .on("stderr", (stderr) => console.log("FFmpeg stderr:", stderr))
-      .on("error", (err) => console.error("FFmpeg error:", err))
-      .pipe(res, { end: true });
+      // .size("640x360") // or "854x480"
+      .outputOptions([
+        "-preset veryslow",
+        "-movflags +frag_keyframe+empty_moov"
+      ])
+      .on("start", (cmdLine) => {
+        console.log("FFmpeg started:", cmdLine);
+      })
+      .on("stderr", (stderr) => {
+        console.log("FFmpeg stderr:", stderr);
+      })
+      .on("error", (err) => {
+        console.error("FFmpeg error:", err);
+        if (!res.headersSent) {
+          res.status(500).end("FFmpeg conversion failed.");
+        }
+      })
+      .on("end", () => {
+        console.log("FFmpeg finished.");
+      });
+  
+    let ffmpegProc;
+  
+    // Intercept process once it starts
+    command.once("start", () => {
+      ffmpegProc = command.ffmpegProc;
+    });
+  
+    // Handle client disconnect
+    req.on("close", () => {
+      console.log("Client disconnected.");
+      if (ffmpegProc) {
+        console.log("Killing FFmpeg process...");
+        ffmpegProc.kill("SIGKILL");
+      }
+    });
+  
+    // Start piping the video stream
+    command.pipe(res, { end: true });
 
-  // } else {
-  //     // MP4 file streaming with range support
-  //     if (range) {
-  //         const parts = range.replace(/bytes=/, "").split("-");
-  //         const start = parseInt(parts[0], 10);
-  //         const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
-  //         const chunkSize = end - start + 1;
-  //         const file = fs.createReadStream(filePath, { start, end });
 
-  //         res.writeHead(206, {
-  //             "Content-Range": `bytes ${start}-${end}/${fileSize}`,
-  //             "Accept-Ranges": "bytes",
-  //             "Content-Length": chunkSize,
-  //             "Content-Type": "video/mp4",
-  //         });
-
-  //         file.pipe(res);
-  //     } else {
-  //         res.writeHead(200, {
-  //             "Content-Length": fileSize,
-  //             "Content-Type": "video/mp4",
-  //         });
-
-  //         fs.createReadStream(filePath).pipe(res);
-  //     }
-  // }
   } catch (e){
     console.error("📢[:175]: e: ", e);
   }
@@ -229,9 +246,9 @@ app.get("/api/video/:id", (req, res) => {
 
 
 // Get video metadata (Last Opened, Size, Length)
-app.get('/api/video-metadata/:id', (req, res) => {
+app.get('/api/video-metadata/:id',dbMiddleware, (req, res) => {
   const { id } = req.params;
-  db.get(`SELECT * FROM video_metadata WHERE video_id = ?`, [id], (err, row) => {
+  req.db.get(`SELECT * FROM video_metadata WHERE video_id = ?`, [id], (err, row) => {
     if (err) {
       console.error(err);
       return res.status(500).json({ error: 'Database error' });
@@ -241,7 +258,7 @@ app.get('/api/video-metadata/:id', (req, res) => {
 });
 
 // 3. Save watch progress (POST body: { video_id, current_time })
-app.post('/api/watch-progress', (req, res) => {
+app.post('/api/watch-progress',dbMiddleware, (req, res) => {
     const { video_id, current_time } = req.body;
     if (!video_id || current_time === undefined) {
       return res.status(400).json({ error: 'Missing video_id or current_time' });
@@ -251,7 +268,7 @@ app.post('/api/watch-progress', (req, res) => {
       VALUES (?, ?)
       ON CONFLICT(video_id) DO UPDATE SET current_time = excluded.current_time;
     `;
-    db.run(sql, [video_id, current_time], function(err) {
+    req.db.run(sql, [video_id, current_time], function(err) {
       if (err) {
         console.error(err);
         return res.status(500).json({ error: 'Database error' });
@@ -260,9 +277,9 @@ app.post('/api/watch-progress', (req, res) => {
     });
   });
 
-  function getVideoMetadata(video_id) {
+  function getVideoMetadata(video_id,req) {
     return new Promise((resolve, reject) => {
-      db.get(`SELECT * FROM video_metadata WHERE video_id = ?`, [video_id], (err, row) => {
+      req.db.get(`SELECT * FROM video_metadata WHERE video_id = ?`, [video_id], (err, row) => {
         if (err) return reject(err);
         resolve(row);
       });
@@ -271,10 +288,10 @@ app.post('/api/watch-progress', (req, res) => {
 
   
   // 4. Get watch progress for a video
-  app.get('/api/watch-progress/:video_id',async (req, res) => {
+  app.get('/api/watch-progress/:video_id',dbMiddleware,async (req, res) => {
     const video_id = req.params.video_id;
   try {
-    const row = await getVideoMetadata(video_id);
+    const row = await getVideoMetadata(video_id,req);
     // const duration = await getVideoDuration(path.join(VIDEOS_DIR, video_id));
     res.json({
       current_time: row?.current_time || 0,

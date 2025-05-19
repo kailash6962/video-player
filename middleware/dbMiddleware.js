@@ -1,0 +1,42 @@
+const path = require('path');
+const sqlite3 = require('sqlite3').verbose();
+
+function dbMiddleware(req, res, next) {
+  const dbName = req.headers['x-db-name'] || "home";
+
+  if (!dbName || typeof dbName !== 'string') {
+    return res.status(400).json({ error: 'Missing or invalid x-db-name header' });
+  }
+
+  const safeName = "sample";//dbName.replace(/[^a-zA-Z0-9_-]/g, ''); // sanitize
+  console.log("📢[:12]: safeName: ", safeName);
+  console.log("📢[:14]: __dirname: ", __dirname);
+  const dbPath = path.join(__dirname, '..', 'databases', `${safeName}.sqlite3`);
+
+  const db = new sqlite3.Database(dbPath, (err) => {
+    if (err) {
+      console.error('Could not open database', err);
+      return res.status(500).json({ error: 'Database connection failed' });
+    }
+
+    db.run(`
+      CREATE TABLE IF NOT EXISTS video_metadata (
+        video_id TEXT PRIMARY KEY,
+        current_time REAL,
+        last_opened TEXT,
+        size INTEGER,
+        length TEXT,
+        active BOOLEAN
+      )
+    `, (createErr) => {
+      if (createErr) {
+        console.error('DB schema creation failed', createErr);
+        return res.status(500).json({ error: 'DB schema error' });
+      }
+
+      req.db = db;
+      next();
+    });
+  });
+}
+module.exports = dbMiddleware;
