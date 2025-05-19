@@ -366,12 +366,12 @@
         <div class="player-section">
             <div id="playerContainer">
                 <div id="player-title">No Title</div>
-                <video id="videoPlayer" preload="auto" playsinline>
+                <video id="videoPlayer" controls preload="auto" playsinline src="http://192.168.1.25:5555/api/video/progress_0_300.mp4">
                     <!-- <source id="videoSource" type="video/mp4"> -->
                     Your browser does not support the video tag.
                 </video>
 
-                <div class="controls">
+                <!-- <div class="controls">
                     <button id="playPause">▶️</button>
                     <span class="time" id="current">0:00</span>
                     <input type="range" id="seek" value="0" min="0" max="100">
@@ -380,7 +380,7 @@
                     <button id="muteButton">🔊</button>
                     <input type="range" id="volume" min="0" max="1" step="0.05" value="1">
                     <button id="fullscreenButton" class="cc-fullscreenButton" aria-label="Full Screen">&#9974;</button>
-                </div>
+                </div> -->
             </div>
             <!-- Video info -->
             <div class="video-info">
@@ -396,7 +396,6 @@
         <h3 class="gallery-title">More Videos</h3>
         <div class="gallery" id="videoGallery"></div>
     </div>
-    <script src="/app.js"></script>
 
 </body>
 

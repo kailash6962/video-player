@@ -363,40 +363,15 @@
 
     <div class="container">
 
-        <div class="player-section">
-            <div id="playerContainer">
-                <div id="player-title">No Title</div>
-                <video id="videoPlayer" preload="auto" playsinline>
-                    <!-- <source id="videoSource" type="video/mp4"> -->
-                    Your browser does not support the video tag.
-                </video>
-
-                <div class="controls">
-                    <button id="playPause">▶️</button>
-                    <span class="time" id="current">0:00</span>
-                    <input type="range" id="seek" value="0" min="0" max="100">
-                    <span class="time" id="duration">0:00</span>
-                    <button id="ccButton" class="cc-button" aria-label="Closed Captions">CC</button>
-                    <button id="muteButton">🔊</button>
-                    <input type="range" id="volume" min="0" max="1" step="0.05" value="1">
-                    <button id="fullscreenButton" class="cc-fullscreenButton" aria-label="Full Screen">&#9974;</button>
-                </div>
-            </div>
-            <!-- Video info -->
-            <div class="video-info">
-                <h2 class="video-title" id="video-title">No Video</h2>
-                <div class="video-meta">
-                    <span id="main-video-size">0KB</span>
-                    <span id="main-video-lastviewed">Last viewed: - </span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Video gallery -->
-        <h3 class="gallery-title">More Videos</h3>
+         <!-- Video gallery -->
+        <h3 class="gallery-title">Movies</h3>
         <div class="gallery" id="videoGallery"></div>
+         <!-- Video gallery -->
+          
+        <h3 class="gallery-title">Web Series</h3>
+        <div class="gallery" id="folderGallery"></div>
     </div>
-    <script src="/app.js"></script>
+    <script src="/home/home.js"></script>
 
 </body>
 
