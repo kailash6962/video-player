@@ -2,15 +2,13 @@ const path = require('path');
 const sqlite3 = require('sqlite3').verbose();
 
 function dbMiddleware(req, res, next) {
-  const dbName = req.headers['x-db-name'] || "home";
+  const dbName = req.headers['x-db-name'] || req.params.series || "home";
 
   if (!dbName || typeof dbName !== 'string') {
     return res.status(400).json({ error: 'Missing or invalid x-db-name header' });
   }
 
-  const safeName = "sample";//dbName.replace(/[^a-zA-Z0-9_-]/g, ''); // sanitize
-  console.log("📢[:12]: safeName: ", safeName);
-  console.log("📢[:14]: __dirname: ", __dirname);
+  const safeName = dbName.replace(/[^a-zA-Z0-9_-]/g, ''); // sanitize
   const dbPath = path.join(__dirname, '..', 'databases', `${safeName}.sqlite3`);
 
   const db = new sqlite3.Database(dbPath, (err) => {
