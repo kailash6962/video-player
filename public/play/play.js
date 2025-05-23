@@ -4,8 +4,122 @@ const playerContainer = document.getElementById('playerContainer');
 const videoPlayer = document.getElementById('videoPlayer');
 
 const video = document.getElementById('videoPlayer');
-// const source = document.getElementById("videoPlayer");
-var manualDuration = 10; // seconds
+const loader = document.getElementById('videoLoader');
+const playPauseBtn = document.getElementById('playPause');
+const playPrevBtn = document.getElementById('playPrev');
+const playNextBtn = document.getElementById('playNext');
+const seekBar = document.getElementById('seek');
+const seekBackwardBtn = document.getElementById('seekBackward');
+const seekForwardBtn = document.getElementById('seekForward');
+
+// Update play/pause icon
+function updatePlayPauseIcon() {
+  if (!playPauseBtn) return;
+  playPauseBtn.innerHTML = video.paused
+    ? `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="white" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>`
+    : `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="white" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>`;
+}
+
+// Play/Pause toggle
+function togglePlayPause() {
+  if (video.paused) {
+    video.play();
+  } else {
+    video.pause();
+  }
+  updatePlayPauseIcon();
+}
+
+// Seek helpers using seek bar
+function seekForward() {
+  if (!seekBar) return;
+  let newValue = Number(seekBar.value) + 10;
+  if (seekBar.max) {
+    newValue = Math.min(Number(seekBar.max), newValue);
+  }
+  seekBar.value = newValue;
+  seekBar.dispatchEvent(new Event('input'));
+  seekBar.dispatchEvent(new Event('change'));
+}
+function seekBackward() {
+  if (!seekBar) return;
+  let newValue = Number(seekBar.value) - 10;
+  newValue = Math.max(Number(seekBar.min), newValue);
+  seekBar.value = newValue;
+  seekBar.dispatchEvent(new Event('input'));
+  seekBar.dispatchEvent(new Event('change'));
+}
+
+// Loader events
+loader.style.display = 'none';
+if (video && loader) {
+  video.addEventListener('waiting', () => {
+    loader.style.display = 'flex';
+  });
+  video.addEventListener('playing', () => {
+    loader.style.display = 'none';
+  });
+  video.addEventListener('canplay', () => {
+    loader.style.display = 'none';
+  });
+  video.addEventListener('seeking', () => {
+    loader.style.display = 'flex';
+  });
+  video.addEventListener('seeked', () => {
+    loader.style.display = 'none';
+  });
+}
+
+// Play/Pause on video click
+if (video) {
+  video.addEventListener('click', togglePlayPause);
+  video.addEventListener('play', updatePlayPauseIcon);
+  video.addEventListener('pause', updatePlayPauseIcon);
+}
+
+// Play/Pause on spacebar, seek on arrow keys
+document.addEventListener('keydown', (e) => {
+    // console.log("📢[:86]: e.code: ", e.code);
+  // Ignore if focused on input/textarea
+  if (['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
+  if (e.code === 'Space') {
+    e.preventDefault();
+    togglePlayPause();
+  } else if (e.code === 'NonConvert') {
+    e.preventDefault();
+    seekForward();
+  } else if (e.code === 'Convert') {
+    e.preventDefault();
+    seekBackward();
+  }
+
+
+//   else if (e.code === 'ArrowRight') {
+//     e.preventDefault();
+//     seekForward();
+//   } else if (e.code === 'ArrowLeft') {
+
+
+});
+
+// Seek on button click
+// if (playPrevBtn) playPrevBtn.addEventListener('click', playPrevVideo);
+// if (playNextBtn) playNextBtn.addEventListener('click', playNextVideo);
+if (playPauseBtn) playPauseBtn.addEventListener('click', togglePlayPause);
+
+// Seek on new seek buttons click
+if (seekBackwardBtn) seekBackwardBtn.addEventListener('click', seekBackward);
+if (seekForwardBtn) seekForwardBtn.addEventListener('click', seekForward);
+
+// Map playPrevBtn to playPrevVideo
+if (playPrevBtn) playPrevBtn.addEventListener('click', function() {
+  playPrevVideo(currentVideoId);
+});
+if (playNextBtn) playNextBtn.addEventListener('click', function() {
+  playNextVideo(currentVideoId);
+});
+
+var manualDuration = 0; // seconds
 
 const playPause = document.getElementById('playPause');
 const seek = document.getElementById('seek');
@@ -21,6 +135,9 @@ let progressUpdateTimeout = null;
 const params = new URLSearchParams(window.location.search);
 
 const series = params.get('series');
+if(series) {
+    document.querySelector('.page-title').innerText = series;
+}
 
 fetch(`/api/videos/${series}`, {
     method: 'GET',
@@ -38,57 +155,6 @@ fetch(`/api/videos/${series}`, {
     })
     .catch(err => console.error('Error loading videos:', err));
 
-function playVideo(videodata, play = true) {
-    console.log("📢[:116]: videodata: ", videodata);
-    document.getElementById('video-title').innerText = videodata.title;
-    document.getElementById('player-title').innerText = videodata.title;
-    document.getElementById('main-video-size').innerText = videodata.size + 'KB';
-    document.getElementById('main-video-lastviewed').innerText = 'Last viewed: ' + convertDate(videodata.lastOpened);
-    currentVideoId = videodata.id;
-    currentVideoDuration = videodata.duration;
-    // Show the player container
-    playerContainer.style.display = 'block';
-    // Set the video source. Note: We are using our API to stream the video.
-    videoPlayer.src = `/api/video/${series}/${videodata.id}`;
-    manualDuration = videodata.duration;
-
-    // Fetch the saved watch progress for this video
-    fetch(`/api/watch-progress/${videodata.id}`, {
-        method: 'GET',
-        headers: {
-            'x-db-name': series
-        }
-    })
-        .then(response => response.json())
-        .then(data => {
-            console.log("📢[:127]: data: ", data);
-            if (data.current_time && data.current_time > 0) {
-                startTime = data.current_time;
-                const url = new URL(video.src);
-                url.searchParams.set('start', data.current_time); // update or add start param
-                video.src = url.toString();
-
-            } else {
-                const url = new URL(video.src);
-                url.searchParams.set('start', data.current_time); // update or add start param
-                video.src = url.toString();
-            }
-
-            video.load();                            // reload video with new source
-            if (play)
-                video.play();
-
-
-
-        })
-        .catch(err => {
-            console.error('Error fetching watch progress:', err);
-            if (play)
-                videoPlayer.play();
-        });
-}
-
-// Periodically save watch progress
 videoPlayer.addEventListener('timeupdate', () => {
     // Throttle the updates (e.g., update every 5 seconds)
     if (progressUpdateTimeout) return;
@@ -96,39 +162,58 @@ videoPlayer.addEventListener('timeupdate', () => {
     progressUpdateTimeout = setTimeout(() => {
         const current_time = videoPlayer.currentTime;
         const updatedCurrTime = parseInt(startTime) + parseInt(current_time);
+        console.log("📢[:163]: updatedCurrTime: ", updatedCurrTime);
+        console.log("📢[:165]: currentVideoDuration: ", currentVideoDuration);
         const watchedPercentage = (updatedCurrTime / currentVideoDuration) * 100;
-        fetch('/api/watch-progress', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'x-db-name': series },
-            body: JSON.stringify({ video_id: currentVideoId, current_time: updatedCurrTime }),
-        }).catch(err => console.error('Error saving progress:', err));
-
-        document.getElementById(currentVideoId).querySelector('.watched-time').style.width = watchedPercentage + '%';
+        if(currentVideoId){
+            fetch('/api/watch-progress', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'x-db-name': series },
+                body: JSON.stringify({ video_id: currentVideoId, current_time: updatedCurrTime }),
+            }).catch(err => console.error('Error saving progress:', err));
+            document.getElementById(currentVideoId).querySelector('.watched-time').style.width = watchedPercentage + '%';
+        }
 
         progressUpdateTimeout = null;
     }, 5000); // 5000ms = 5 seconds
 });
 
 video.addEventListener('ended', () => {
+    const currentVID = currentVideoId;
+    currentVideoId = false;
     if (confirm('Video finished playing!')) {
-        console.log("📢[:150]: curren   tVideoId: ", currentVideoId);
-        const currentVideoElement = document.getElementById(currentVideoId);
-
-        if (currentVideoElement) {
-            const nextElement = currentVideoElement.nextElementSibling;
-            console.log(nextElement);
-
-            if (nextElement) {
-                nextElement.click();
-            }
-        }
-
+        playNextVideo(currentVID);
     } else {
         console.log("Player ended but user chose not to play next video.");
     }
 
     // You can also trigger other logic here
 });
+
+function playNextVideo(currentVideoId) {
+    const currentVID = currentVideoId;
+    currentVideoId = false;
+  const currentVideoElement = document.getElementById(currentVID);
+  if (currentVideoElement) {
+    const nextElement = currentVideoElement.nextElementSibling;
+    if (nextElement) {
+      nextElement.click();
+    }
+  }
+}
+
+// Play previous video function
+function playPrevVideo(currentVideoId) {
+    const currentVID = currentVideoId;
+    currentVideoId = false;
+  const currentVideoElement = document.getElementById(currentVID);
+  if (currentVideoElement) {
+    const prevElement = currentVideoElement.previousElementSibling;
+    if (prevElement) {
+      prevElement.click();
+    }
+  }
+}
 
 //vide player retated
 
@@ -147,10 +232,15 @@ video.addEventListener('loadedmetadata', () => {
 playPause.addEventListener('click', () => {
     if (video.paused) {
         video.play();
-        playPause.textContent = '⏸️';
+        playPause.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="white" viewBox="0 0 24 24">
+                <path d="M6 19h4V5H6zm8-14v14h4V5h-4z"/>
+                </svg>
+                `;
     } else {
         video.pause();
-        playPause.textContent = '▶️';
+        playPause.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="white" viewBox="0 0 24 24">
+            <path d="M8 5v14l11-7z"/>
+            </svg>`;
     }
 });
 
@@ -207,3 +297,6 @@ document.getElementById('fullscreenButton').addEventListener('click', () => {
         });
     }
 });
+
+// Optionally, call once on load to sync icon
+updatePlayPauseIcon();

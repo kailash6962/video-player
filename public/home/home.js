@@ -26,10 +26,14 @@ function renderFolderCard(folder) {
     const thumbnailContainer = document.createElement('div');
     thumbnailContainer.className = 'video-thumbnail-container';
 
+    const durationContainer = document.createElement('div');
+    durationContainer.className = 'duration';
+    durationContainer.textContent = `${folder.videoCount} Episodes`;
+
     // Create the video element
     const imageElement = document.createElement('img');
     imageElement.className = `thumbnail`;
-    imageElement.src = `/thumbnail/folder/${folder.name}/${folder.name}`;
+    imageElement.src = `/api/thumbnail/folder/${folder.name}/${folder.name}`;
 
     // Create the watched time redline
     const watchedTime = document.createElement('div');
@@ -40,6 +44,7 @@ function renderFolderCard(folder) {
     // Append video and redline to thumbnail container
     thumbnailContainer.appendChild(imageElement);
     thumbnailContainer.appendChild(watchedTime);
+    thumbnailContainer.appendChild(durationContainer);
 
     // Create the details section
     const details = document.createElement('div');
@@ -54,7 +59,15 @@ function renderFolderCard(folder) {
 
     const lastViewed = document.createElement('span');
 
-    lastViewed.textContent = `${folder.videoCount} Episodes`;
+    const currentEPISODE = `
+    <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" fill="white" viewBox="0 0 24 24">
+        <path d="M8 5v14l11-7z"/>
+    </svg>
+    <b>EP ${folder.lastOpenedNumber}</b>`;
+
+    const lastViewedDate = folder.lastOpened? `Last viewed ${convertDate(folder.lastOpened)} ${currentEPISODE}` : "Not viewed yet";
+
+    lastViewed.innerHTML = lastViewedDate;
 
     // Assemble the stats
     stats.appendChild(lastViewed);

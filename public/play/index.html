@@ -11,7 +11,7 @@
 <body>
     <div class="header">
         <a href="#" class="logo">
-            <span>▶️ Player</span>
+            <span>▶️ <span class="page-title">Player</span></span>
         </a>
     </div>
 
@@ -20,27 +20,60 @@
         <div class="player-section">
             <div id="playerContainer">
                 <div id="player-title">No Title</div>
+                <div id="videoLoader" style="display:none;position:absolute;left:0;right:0;top:0;bottom:0;z-index:10;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.3);">
+                    <div class="loader" style="border:8px solid #f3f3f3;border-top:8px solid #3498db;border-radius:50%;width:48px;height:48px;animation:spin 1s linear infinite;"></div>
+                </div>
                 <video id="videoPlayer" preload="auto" playsinline>
                     <!-- <source id="videoSource" type="video/mp4"> -->
                     Your browser does not support the video tag.
                 </video>
 
                 <div class="controls">
-                    <button id="playPause">▶️</button>
+                    <button class="player-controls" id="playPrev">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="white" viewBox="0 0 24 24">
+                        <path d="M18 6l-8.5 6L18 18V6zm-11 0h-2v12h2V6z"/>
+                        </svg>
+                    </button>
+                    <!-- Seek Backward 10s Button -->
+                    <button class="player-controls" id="seekBackward" title="Seek Backward 10s">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="white" viewBox="0 0 24 24">
+                            <path d="M11 18V6l-8.5 6L11 18zm2-12v2c3.31 0 6 2.69 6 6s-2.69 6-6 6v2c4.42 0 8-3.58 8-8s-3.58-8-8-8z"/>
+                        </svg>
+                    </button>
+                    <button class="player-controls" id="playPause" type="button">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="white" viewBox="0 0 24 24">
+                        <path d="M8 5v14l11-7z"/>
+                        </svg>
+                    </button>
+                    <!-- Seek Forward 10s Button -->
+                    <button class="player-controls" id="seekForward" title="Seek Forward 10s">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="white" viewBox="0 0 24 24">
+                            <path d="M13 6v12l8.5-6L13 6zm-2 12v-2c-3.31 0-6-2.69-6-6s2.69-6 6-6V4c-4.42 0-8 3.58-8 8s3.58 8 8 8z"/>
+                        </svg>
+                    </button>
+                    <button class="player-controls" id="playNext">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="white" viewBox="0 0 24 24">
+                        <path d="M6 18l8.5-6L6 6v12zm9-12h2v12h-2V6z"/>
+                        </svg>
+                    </button>
                     <span class="time" id="current">0:00</span>
                     <input type="range" id="seek" value="0" min="0" max="100">
                     <span class="time" id="duration">0:00</span>
                     <button id="ccButton" class="cc-button" aria-label="Closed Captions">CC</button>
                     <button id="muteButton">🔊</button>
                     <input type="range" id="volume" min="0" max="1" step="0.05" value="1">
-                    <button id="fullscreenButton" class="cc-fullscreenButton" aria-label="Full Screen">&#9974;</button>
+                    <button id="fullscreenButton" class="cc-fullscreenButton player-controls" aria-label="Full Screen">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="white" viewBox="0 0 24 24">
+                        <path d="M7 14H5v5h5v-2H7v-3zm0-4h2V7h3V5H7v5zm10 4h-2v3h-3v2h5v-5zm-2-4V7h-3V5h5v5h-2z"/>
+                        </svg>
+                    </button>
                 </div>
             </div>
             <!-- Video info -->
             <div class="video-info">
                 <h2 class="video-title" id="video-title">No Video</h2>
                 <div class="video-meta">
-                    <span id="main-video-size">0KB</span>
+                    <!-- <span id="main-video-size">0KB</span> -->
                     <span id="main-video-lastviewed">Last viewed: - </span>
                 </div>
             </div>
@@ -52,7 +85,12 @@
     </div>
     <script src="/common.js"></script>
     <script src="/play/play.js"></script>
-
+    <style>
+    @keyframes spin {
+      0% { transform: rotate(0deg);}
+      100% { transform: rotate(360deg);}
+    }
+    </style>
 </body>
 
 </html>

@@ -8,6 +8,8 @@ function renderVideoCard(video) {
     div.className = 'video';
     div.id = video.id;
 
+    const nowPlaying = video.active || video.id==getvideo ? true : false;
+
     // Create thumbnail container
     const thumbnailContainer = document.createElement('div');
     thumbnailContainer.className = 'video-thumbnail-container';
@@ -19,7 +21,7 @@ function renderVideoCard(video) {
     // Create the video element
     const imageElement = document.createElement('img');
     imageElement.className = `thumbnail`;
-    imageElement.src = `/thumbnail/file/${series || 'home'}/${video.id}`;
+    imageElement.src = `/api/thumbnail/file/${series || 'home'}/${video.id}`;
     
     // Create the watched time redline
     const watchedTime = document.createElement('div');
@@ -32,7 +34,7 @@ function renderVideoCard(video) {
     thumbnailContainer.appendChild(watchedTime);
     thumbnailContainer.appendChild(durationContainer);
 
-    if(video.active) {
+    if(nowPlaying) {
         const overlayTextContainer = document.createElement('div');
         overlayTextContainer.className = 'thumbnailoverlay-text';
         overlayTextContainer.textContent = "Watching Now";
@@ -70,15 +72,15 @@ function renderVideoCard(video) {
     div.addEventListener('click', () => window.location.href = `/play?series=home&video=${video.id}`);
 
     const sizeAndStatus = document.createElement('span');
-    sizeAndStatus.textContent = `${video.active ? '▶ Now playing' : (video.duration - 5) <= video.current_time ? 'Watched ✅' : ''}`;
+    sizeAndStatus.textContent = `${(video.duration - 5) <= video.current_time ? 'Watched ✅' : ''}`;
     stats.appendChild(sizeAndStatus);
     // Initial watched time update
     const currentTime = video.current_time || 0;
     const watchedPercentage = (currentTime / video.duration) * 100;
     watchedTime.style.width = watchedPercentage + '%';
     
-    if(video.active && series) playVideo(video,false)
     if(getvideo && getvideo==video.id) playVideo(video,false)
+    if(!getvideo && video.active && series) playVideo(video,false) 
 
     
     return div;
@@ -96,20 +98,40 @@ function formatTime(seconds) {
     return `${m}:${s}`;
 }
 function playVideo(videodata,play=true) {
+  loader.style.display = 'flex';
   console.log("📢[:116]: videodata: ", videodata);
   document.getElementById('video-title').innerText = videodata.title;
   document.getElementById('player-title').innerText = videodata.title;
-  document.getElementById('main-video-size').innerText = videodata.size+'KB';
-  document.getElementById('main-video-lastviewed').innerText = 'Last viewed: '+convertDate(videodata.lastOpened);
+//   document.getElementById('main-video-size').innerText = videodata.size+'KB';
+  document.getElementById('main-video-lastviewed').innerText = videodata.lastOpened?`Last viewed: ${convertDate(videodata.lastOpened)}`:"Not viewed yet";
   currentVideoId = videodata.id;
   currentVideoDuration = videodata.duration;
+  startTime = 0;
   // Show the player container
   playerContainer.style.display = 'block';
   // Set the video source. Note: We are using our API to stream the video.
   videoPlayer.src = `/api/video/${series}/${videodata.id}`;
-//   videoPlayer.load();
-//   videoPlayer.play();
-manualDuration = videodata.duration;
+
+  manualDuration = videodata.duration;
+
+  //overlay watching now
+    // Remove existing overlay (if any)
+    const oldOverlay = document.querySelector('.thumbnailoverlay-text');
+    if (oldOverlay) oldOverlay.remove();
+
+    // Select the container safely
+    const thumbnailContainer = document.querySelector(`#${CSS.escape(videodata.id)} .video-thumbnail-container`);
+
+    // Add new overlay
+    if (thumbnailContainer) {
+    const overlayTextContainer = document.createElement('div');
+    overlayTextContainer.className = 'thumbnailoverlay-text';
+    overlayTextContainer.textContent = "Watching Now";
+    thumbnailContainer.appendChild(overlayTextContainer);
+    } else {
+    console.warn("Thumbnail container not found for ID:", videodata.id);
+    }
+  //overlay watching now
   
   // Fetch the saved watch progress for this video
   fetch(`/api/watch-progress/${videodata.id}`, {
@@ -120,7 +142,6 @@ manualDuration = videodata.duration;
     })
     .then(response => response.json())
     .then(data => {
-      console.log("📢[:127]: data: ", data);
       if (data.current_time && data.current_time > 0) {
          startTime = data.current_time;
          const url = new URL(video.src);
@@ -132,13 +153,9 @@ manualDuration = videodata.duration;
           url.searchParams.set('start', data.current_time); // update or add start param
           video.src = url.toString();
         }
-
         video.load();                            // reload video with new source
         if(play)
-        video.play();
-
-
-     
+        video.play();   
     })
     .catch(err => {
       console.error('Error fetching watch progress:', err);
