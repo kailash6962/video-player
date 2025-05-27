@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const ffmpeg = require("fluent-ffmpeg");
 
-const VIDEOS_DIR = "/var/lib/qbittorrent/Downloads";
+const VIDEOS_DIR = process.env.VIDEO_DIR;
 
 class ThumbnailService {
   async getThumbnail(req, res) {
