@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const sqlite3 = require('sqlite3').verbose();
 
-const VIDEOS_DIR = "/var/lib/qbittorrent/Downloads";
+const VIDEOS_DIR = process.env.VIDEO_DIR;
 const VIDEO_EXTENSIONS = ['.mp4', '.mov', '.mkv', '.avi', '.webm'];
 
 class FolderService {

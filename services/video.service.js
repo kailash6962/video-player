@@ -2,7 +2,7 @@ const fs = require("fs");
 const path = require("path");
 const ffmpeg = require("fluent-ffmpeg");
 
-const VIDEOS_DIR = "/var/lib/qbittorrent/Downloads";
+const VIDEOS_DIR = process.env.VIDEO_DIR;
 const VIDEO_EXTENSIONS = [".mp4", ".mov", ".mkv", ".avi", ".webm"];
 
 class VideoService {
