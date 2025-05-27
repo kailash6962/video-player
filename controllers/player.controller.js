@@ -40,7 +40,6 @@ class PlayerController {
   }
 
   async getThumbnail(req, res) {
-    console.log("📢[:42]: req: ");
     try {
       await this.thumbnailService.getThumbnail(req, res);
     } catch (err) {

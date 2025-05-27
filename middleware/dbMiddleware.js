@@ -3,7 +3,6 @@ const sqlite3 = require('sqlite3').verbose();
 
 function dbMiddleware(req, res, next) {
   const dbName = req.headers['x-db-name'] || req.params.series || "home";
-  console.log("📢[:6]: req.params.series: ", req.params.series);
 
   if (!dbName || typeof dbName !== 'string') {
     return res.status(400).json({ error: 'Missing or invalid x-db-name header' });
@@ -35,6 +34,12 @@ function dbMiddleware(req, res, next) {
       req.db = db;
       req.dbPath = dbPath;
       next();
+    });
+  });
+
+  res.on('finish', () => {
+    req.db.close((err) => {
+      if (err) console.error('Failed to close DB', err);
     });
   });
 }

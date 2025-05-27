@@ -8,7 +8,8 @@ const VIDEO_EXTENSIONS = ['.mp4', '.mov', '.mkv', '.avi', '.webm'];
 class FolderService {
   async getAllFolders() {
     const folders = fs.readdirSync(VIDEOS_DIR).filter(folder =>
-      fs.statSync(path.join(VIDEOS_DIR, folder)).isDirectory()
+      fs.statSync(path.join(VIDEOS_DIR, folder)).isDirectory() &&
+      folder !== 'thumbnail'
     );
     const results = await Promise.all(
       folders.map(async (folder) => {

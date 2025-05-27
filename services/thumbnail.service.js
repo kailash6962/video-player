@@ -7,7 +7,6 @@ const VIDEOS_DIR = "/var/lib/qbittorrent/Downloads";
 class ThumbnailService {
   async getThumbnail(req, res) {
     const videoId = req.params.id;
-    console.log("📢[:10]: videoId: ", videoId);
     const type = req.params.type;
     const db = req.params.db === "home" ? "" : req.params.db || "";
     let videoPath;
@@ -19,7 +18,21 @@ class ThumbnailService {
     if (!fs.existsSync(videoPath)) {
       return res.status(404).send('Video not found');
     }
-    res.setHeader('Content-Type', 'image/jpeg');
+
+    // Ensure the thumbnail directory exists
+    const thumbDir = path.join(path.dirname(videoPath), 'thumbnail');
+    if (!fs.existsSync(thumbDir)) {
+      fs.mkdirSync(thumbDir, { recursive: true });
+    }
+    const thumbPath = path.join(thumbDir, `${videoId}.jpeg`);
+
+    // If thumbnail exists, send it
+    if (fs.existsSync(thumbPath)) {
+      res.setHeader('Content-Type', 'image/jpeg');
+      return fs.createReadStream(thumbPath).pipe(res);
+    }
+
+    // If not, create thumbnail and save, then send
     ffmpeg()
       .input(videoPath)
       .inputOptions(['-ss 00:00:59'])
@@ -30,10 +43,15 @@ class ThumbnailService {
         '-q:v 5'
       ])
       .format('mjpeg')
-      .on('error', () => {
-        res.status(500).send('Failed to generate thumbnail');
+      .save(thumbPath)
+      .on('end', () => {
+        res.setHeader('Content-Type', 'image/jpeg');
+        fs.createReadStream(thumbPath).pipe(res);
       })
-      .pipe(res, { end: true });
+      .on('error', (e) => {
+        console.log("📢[:50]: ", 'Failed to generate thumbnail', e);
+        res.status(500).send('Failed to generate thumbnail', e);
+      });
   }
 
   getFirstFile(dirPath) {

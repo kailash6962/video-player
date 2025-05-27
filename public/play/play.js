@@ -280,22 +280,36 @@ document.getElementById('fullscreenButton').addEventListener('click', () => {
         document.exitFullscreen();
         controls.style.display = 'flex';
         playertitle.style.display = 'block';
+        playerContainer.classList.remove('hide-cursor');
     } else {
         playerContainer.requestFullscreen();
         controls.style.display = 'none';
         playertitle.style.display = 'none';
+        playerContainer.classList.remove('hide-cursor');
 
-        // Add hover effect to show controls in fullscreen
+        // Add hover effect to show controls in fullscreen and manage cursor
         playerContainer.addEventListener('mousemove', () => {
             controls.style.display = 'flex';
             playertitle.style.display = 'block';
+            playerContainer.classList.remove('hide-cursor');
             clearTimeout(playerContainer.hideControlsTimeout);
             playerContainer.hideControlsTimeout = setTimeout(() => {
                 controls.style.display = 'none';
                 playertitle.style.display = 'none';
-            }, 2000); // Hide controls after 2 seconds of inactivity
+                if (document.fullscreenElement) {
+                  playerContainer.classList.add('hide-cursor');
+                }
+            }, 2000); // Hide controls and cursor after 2 seconds of inactivity
         });
     }
+});
+
+// Also, when exiting fullscreen by other means, remove hide-cursor
+document.addEventListener('fullscreenchange', () => {
+  const playerContainer = document.getElementById('playerContainer');
+  if (!document.fullscreenElement && playerContainer) {
+    playerContainer.classList.remove('hide-cursor');
+  }
 });
 
 // Optionally, call once on load to sync icon

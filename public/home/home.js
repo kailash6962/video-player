@@ -39,7 +39,12 @@ function renderFolderCard(folder) {
     const watchedTime = document.createElement('div');
     watchedTime.id = 'watched-time';
     watchedTime.className = 'watched-time';
-    watchedTime.style.width = '0%';
+    // Calculate watched percentage: 10% per episode, (lastOpenedNumber-1)
+    let watchedPercent = 0;
+    if (folder.videoCount && folder.lastOpenedNumber) {
+        watchedPercent = Math.max(0, ((folder.lastOpenedNumber - 1) / folder.videoCount) * 100);
+    }
+    watchedTime.style.width = watchedPercent + '%';
 
     // Append video and redline to thumbnail container
     thumbnailContainer.appendChild(imageElement);
