@@ -19,7 +19,7 @@ function dbMiddleware(req, res, next) {
 
     db.run(`
       CREATE TABLE IF NOT EXISTS video_metadata (
-        video_id TEXT PRIMARY KEY,
+        video_id TEXT PRIMARY KEY UNIQUE,
         current_time REAL,
         last_opened TEXT,
         size INTEGER,
@@ -31,9 +31,15 @@ function dbMiddleware(req, res, next) {
         console.error('DB schema creation failed', createErr);
         return res.status(500).json({ error: 'DB schema error' });
       }
-
       req.db = db;
+      req.dbPath = dbPath;
       next();
+    });
+  });
+
+  res.on('finish', () => {
+    req.db.close((err) => {
+      if (err) console.error('Failed to close DB', err);
     });
   });
 }

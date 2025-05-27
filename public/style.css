@@ -1,4 +1,4 @@
-     /* YouTube-inspired styling */
+/* YouTube-inspired styling */
      body {
         font-family: 'Roboto', Arial, sans-serif;
         background-color: #0f0f0f;
@@ -58,6 +58,10 @@
         aspect-ratio: 16 / 9;
         width: 100%;
         max-height: 70vh;
+    }
+
+    #playerContainer.hide-cursor {
+        cursor: none !important;
     }
 
     #videoPlayer {
