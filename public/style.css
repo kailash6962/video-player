@@ -374,3 +374,26 @@
         align-items: center;
         justify-content: center;
     }
+    @keyframes spin {
+      0% { transform: rotate(0deg);}
+      100% { transform: rotate(360deg);}
+    }
+    .play-pause-anim {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      z-index: 20;
+      transform: translate(-50%, -50%) scale(1);
+      opacity: 0.85;
+      pointer-events: none;
+      transition: opacity 0.2s;
+    }
+    .play-pause-anim svg {
+      width: 90px;
+      height: 90px;
+      filter: drop-shadow(0 2px 8px #0008);
+    }
+    .play-pause-anim.show {
+      animation: pop-fade 0.7s cubic-bezier(.4,2,.6,1) forwards;
+      display: block !important;
+    }

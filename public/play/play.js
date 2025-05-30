@@ -11,6 +11,7 @@ const playNextBtn = document.getElementById('playNext');
 const seekBar = document.getElementById('seek');
 const seekBackwardBtn = document.getElementById('seekBackward');
 const seekForwardBtn = document.getElementById('seekForward');
+const playPauseAnim = document.getElementById('playPauseAnim');
 
 // Update play/pause icon
 function updatePlayPauseIcon() {
@@ -20,12 +21,30 @@ function updatePlayPauseIcon() {
     : `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="white" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>`;
 }
 
+function showPlayPauseAnim(isPlay) {
+  if (!playPauseAnim) return;
+  playPauseAnim.innerHTML = isPlay
+    ? `<svg viewBox="0 0 90 90" fill="white"><circle cx="45" cy="45" r="44" fill="#000a"/><polygon points="36,28 36,62 66,45" fill="white"/></svg>`
+    : `<svg viewBox="0 0 90 90" fill="white"><circle cx="45" cy="45" r="44" fill="#000a"/><rect x="32" y="28" width="8" height="34" fill="white"/><rect x="50" y="28" width="8" height="34" fill="white"/></svg>`;
+  playPauseAnim.classList.remove('show');
+  // Force reflow to restart animation
+  void playPauseAnim.offsetWidth;
+  playPauseAnim.classList.add('show');
+  setTimeout(() => {
+    playPauseAnim.classList.remove('show');
+    playPauseAnim.style.display = 'none';
+  }, 700);
+  playPauseAnim.style.display = 'block';
+}
+
 // Play/Pause toggle
 function togglePlayPause() {
   if (video.paused) {
     video.play();
+    showPlayPauseAnim(true);
   } else {
     video.pause();
+    showPlayPauseAnim(false);
   }
   updatePlayPauseIcon();
 }
@@ -72,7 +91,16 @@ if (video && loader) {
 
 // Play/Pause on video click
 if (video) {
-  video.addEventListener('click', togglePlayPause);
+  video.addEventListener('click', function(e) {
+    // Prevent play/pause toggle if a control was clicked
+    // (controls are inside playerContainer, so check if the click target is inside .controls)
+    const controls = document.querySelector('.controls');
+    if (controls && controls.contains(e.target)) {
+      return;
+    }
+    togglePlayPause();
+    // showPlayPauseAnim handled in togglePlayPause
+  });
   video.addEventListener('play', updatePlayPauseIcon);
   video.addEventListener('pause', updatePlayPauseIcon);
 }
@@ -105,7 +133,9 @@ document.addEventListener('keydown', (e) => {
 // Seek on button click
 // if (playPrevBtn) playPrevBtn.addEventListener('click', playPrevVideo);
 // if (playNextBtn) playNextBtn.addEventListener('click', playNextVideo);
-if (playPauseBtn) playPauseBtn.addEventListener('click', togglePlayPause);
+if (playPauseBtn) {
+  playPauseBtn.onclick = togglePlayPause;
+}
 
 // Seek on new seek buttons click
 if (seekBackwardBtn) seekBackwardBtn.addEventListener('click', seekBackward);
