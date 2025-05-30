@@ -23,6 +23,9 @@
                 <div id="videoLoader" style="display:none;position:absolute;left:0;right:0;top:0;bottom:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.3);">
                     <div class="loader" style="border:8px solid #f3f3f3;border-top:8px solid #3498db;border-radius:50%;width:48px;height:48px;animation:spin 1s linear infinite;"></div>
                 </div>
+                <div id="playPauseAnim" class="play-pause-anim" style="display:none;">
+                    <!-- SVG will be injected here -->
+                </div>
                 <video id="videoPlayer" preload="auto" playsinline>
                     <!-- <source id="videoSource" type="video/mp4"> -->
                     Your browser does not support the video tag.
@@ -85,12 +88,6 @@
     </div>
     <script src="/common.js"></script>
     <script src="/play/play.js"></script>
-    <style>
-    @keyframes spin {
-      0% { transform: rotate(0deg);}
-      100% { transform: rotate(360deg);}
-    }
-    </style>
 </body>
 
 </html>
