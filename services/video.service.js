@@ -102,9 +102,10 @@ class VideoService {
     const command = ffmpeg(filePath)
       .setStartTime(videoStartFrom)
       .format("mp4")
-    //   .videoCodec("libx264")
-    //   .audioCodec("aac")
-      .outputOptions(["-preset ultrafast", "-movflags +frag_keyframe+empty_moov"])
+      .videoCodec("copy") // copy video stream without re-encoding
+      .audioCodec("aac")  // convert audio to AAC for browser compatibility
+      .audioBitrate("192k") // set higher audio bitrate for better quality
+      .outputOptions(["-movflags +frag_keyframe+empty_moov"])
       .on("error", (err) => {
         if (!res.headersSent) res.status(500).end("FFmpeg conversion failed.");
       })
