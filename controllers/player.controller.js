@@ -43,7 +43,8 @@ class PlayerController {
     try {
       await this.thumbnailService.getThumbnail(req, res);
     } catch (err) {
-      res.status(500).send('Failed to generate thumbnail');
+      console.log("📢[:46]: err: ", err);
+      res.status(500).send('Failed to generate thumbnail',err);
     }
   }
 

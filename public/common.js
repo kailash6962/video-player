@@ -47,7 +47,7 @@ function renderVideoCard(video) {
 
     const videoName = document.createElement('span');
     videoName.className = 'video-name';
-    videoName.textContent = video.title;
+    videoName.textContent = cleanVideoTitle(video.title);
 
     const stats = document.createElement('div');
     stats.className = 'video-stats';
@@ -93,16 +93,15 @@ function convertDate(date){
     });
 }
 function formatTime(seconds) {
-    const h = Math.floor(seconds / 3600);
-    const m = Math.floor((seconds % 3600) / 60).toString().padStart(2, '0');
-    // Always show hours, even if 0
-    return `${h.toString().padStart(2, '0')}:${m}`;
+     const m = Math.floor(seconds / 60);
+    const s = Math.floor(seconds % 60).toString().padStart(2, '0');
+    return `${m}:${s}`;
 }
 function playVideo(videodata,play=true) {
   loader.style.display = 'flex';
   console.log("📢[:116]: videodata: ", videodata);
-  document.getElementById('video-title').innerText = videodata.title;
-  document.getElementById('player-title').innerText = videodata.title;
+  document.getElementById('video-title').innerText = cleanVideoTitle(videodata.title);
+  document.getElementById('player-title').innerText = cleanVideoTitle(videodata.title);
 //   document.getElementById('main-video-size').innerText = videodata.size+'KB';
   document.getElementById('main-video-lastviewed').innerText = videodata.lastOpened?`Last viewed: ${convertDate(videodata.lastOpened)}`:"Not viewed yet";
   currentVideoId = videodata.id;
@@ -148,7 +147,6 @@ function playVideo(videodata,play=true) {
          const url = new URL(video.src);
           url.searchParams.set('start', data.current_time); // update or add start param
           video.src = url.toString();
-          
         } else {
         const url = new URL(video.src);
           url.searchParams.set('start', data.current_time); // update or add start param
@@ -163,4 +161,9 @@ function playVideo(videodata,play=true) {
       if(play)
       videoPlayer.play();
     });
+}
+
+function cleanVideoTitle(title) {
+    // Remove domain-like prefix ending with ' - '
+    return title.replace(/^([\w.-]+)\s*-\s*/i, '');
 }
