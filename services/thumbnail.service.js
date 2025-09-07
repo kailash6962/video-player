@@ -20,7 +20,7 @@ class ThumbnailService {
     }
 
     // Ensure the thumbnail directory exists
-    const thumbDir = path.join(path.dirname(videoPath), 'thumbnail');
+    const thumbDir = path.join(process.env.THUMBNAIL_DIR,videoId, 'thumbnail');
     if (!fs.existsSync(thumbDir)) {
       fs.mkdirSync(thumbDir, { recursive: true });
     }

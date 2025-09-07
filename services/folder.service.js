@@ -9,7 +9,8 @@ class FolderService {
   async getAllFolders() {
     const folders = fs.readdirSync(VIDEOS_DIR).filter(folder =>
       fs.statSync(path.join(VIDEOS_DIR, folder)).isDirectory() &&
-      folder !== 'thumbnail'
+      folder !== process.env.THUMBNAIL_DIR.split('/').pop() && 
+      fs.readdirSync(path.join(VIDEOS_DIR, folder)).length > 0
     );
     const results = await Promise.all(
       folders.map(async (folder) => {
