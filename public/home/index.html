@@ -4,30 +4,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Video Gallery</title>
+    <title>Video Player</title>
     <link rel="stylesheet" href="/style.css">
 </head>
 
 <body>
-    <div class="header">
-        <a href="#" class="logo">
-            <span>▶️ Player</span>
-        </a>
-    </div>
+    <!-- Netflix-style Header -->
+    <header class="netflix-header">
+        <div class="header-content">
+            <div class="logo">
+                <span class="logo-icon">▶️</span>
+                <span class="logo-text">Player</span>
+            </div>
+        </div>
+    </header>
 
-    <div class="container">
+    <!-- Main Content -->
+    <main class="netflix-main">
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <div class="hero-content">
+                <h1 class="hero-title">Your Video Collection</h1>
+                <p class="hero-subtitle">Discover movies and series in your personal library</p>
+            </div>
+        </section>
 
-         <!-- Video gallery -->
-        <h3 class="gallery-title">Movies</h3>
-        <div class="gallery" id="videoGallery"></div>
-         <!-- Video gallery -->
-          
-        <h3 class="gallery-title">Web Series</h3>
-        <div class="gallery" id="folderGallery"></div>
-    </div>
+        <!-- Movies Section -->
+        <section class="content-section">
+            <div class="section-header">
+                <h2 class="section-title">Movies</h2>
+                <div class="section-line"></div>
+                <div class="section-count" id="movieCount">0 Movies</div>
+            </div>
+            <div class="grid-container" id="videoGallery">
+                <!-- Movies will be populated here -->
+            </div>
+        </section>
+
+        <!-- Web Series Section -->
+        <section class="content-section">
+            <div class="section-header">
+                <h2 class="section-title">Web Series</h2>
+                <div class="section-line"></div>
+                <div class="section-count" id="seriesCount">0 Series</div>
+            </div>
+            <div class="grid-container" id="folderGallery">
+                <!-- Series will be populated here -->
+            </div>
+        </section>
+    </main>
+
     <script src="/common.js"></script>
     <script src="/home/home.js"></script>
-
 </body>
 
 </html>

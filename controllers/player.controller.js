@@ -73,6 +73,51 @@ class PlayerController {
       res.status(500).json({ error: 'Server error' });
     }
   }
+
+  async getAudioQualityInfo(req, res) {
+    try {
+      const videoId = req.params.id;
+      const series = req.params.series === "home" ? "" : req.params.series || "";
+      
+      // Handle special characters in folder names
+      const { resolveActualFolderName } = require("../utils/folderUtils");
+      const actualFolderName = resolveActualFolderName(series);
+      
+      const filePath = require('path').join(process.env.VIDEO_DIR, actualFolderName, videoId);
+      
+      if (!require('fs').existsSync(filePath)) {
+        return res.status(404).json({ error: 'Video not found' });
+      }
+
+      const audioInfo = await this.videoService.getAudioQualityInfo(filePath);
+      res.json(audioInfo);
+    } catch (err) {
+      res.status(500).json({ error: 'Server error' });
+    }
+  }
+
+  async getAudioTracks(req, res) {
+    try {
+      const videoId = req.params.id;
+      const series = req.params.series === "home" ? "" : req.params.series || "";
+      
+      // Handle special characters in folder names
+      const { resolveActualFolderName } = require("../utils/folderUtils");
+      const actualFolderName = resolveActualFolderName(series);
+      
+      const filePath = require('path').join(process.env.VIDEO_DIR, actualFolderName, videoId);
+      if (!require('fs').existsSync(filePath)) {
+        return res.status(404).json({ error: 'Video not found' });
+      }
+
+      console.log("getAudioTracks API called:", { series, id: videoId, filePath });
+      const audioTracks = await this.videoService.getAudioTracks(filePath);
+      console.log("getAudioTracks API response:", audioTracks);
+      res.json(audioTracks);
+    } catch (err) {
+      res.status(500).json({ error: 'Server error' });
+    }
+  }
 }
 
 module.exports = PlayerController;
