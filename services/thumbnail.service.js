@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const ffmpeg = require("fluent-ffmpeg");
+const crypto = require('crypto');
 const { resolveActualFolderName } = require("../utils/folderUtils");
 
 const VIDEOS_DIR = process.env.VIDEO_DIR;
@@ -36,17 +37,17 @@ class ThumbnailService {
       return res.status(404).send('Video not found');
     }
 
-    // Create a safe filename for the thumbnail
-    const safeVideoId = videoId.replace(/[^a-zA-Z0-9_-]/g, '_');
+    // Create a hash-based filename to avoid "filename too long" errors
+    const uniqueString = `${type}_${actualFolderName || 'home'}_${videoId}_${quality}`;
+    const hash = crypto.createHash('md5').update(uniqueString).digest('hex');
+    
     const thumbDir = path.join(process.env.THUMBNAIL_DIR, 'thumbnails', quality);
     if (!fs.existsSync(thumbDir)) {
       fs.mkdirSync(thumbDir, { recursive: true });
     }
     
-    // Use type, db, and quality to create unique thumbnail names
-    const thumbFilename = type === "folder" 
-      ? `folder_${actualFolderName || 'home'}_${safeVideoId}_${quality}.jpeg`
-      : `file_${actualFolderName || 'home'}_${safeVideoId}_${quality}.jpeg`;
+    // Use hash-based filename with descriptive prefix
+    const thumbFilename = `${type}_${hash}_${quality}.jpeg`;
     const thumbPath = path.join(thumbDir, thumbFilename);
     
     console.log('🖼️ Thumbnail path:', thumbPath);

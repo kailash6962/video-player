@@ -152,8 +152,14 @@ function playVideo(videodata,play=true) {
   if (typeof clearAudioTracks === 'function') {
     clearAudioTracks();
   }
+  if (typeof clearSubtitleTracks === 'function') {
+    clearSubtitleTracks();
+  }
   if (typeof loadAudioTracks === 'function') {
     loadAudioTracks(videodata.id);
+  }
+  if (typeof loadSubtitleTracks === 'function') {
+    loadSubtitleTracks(videodata.id);
   }
   
   // Update movie info panel with current video data

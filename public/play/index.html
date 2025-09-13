@@ -27,9 +27,6 @@
                 <a href="/home" class="nav-link">All</a>
                 <a href="/movies" class="nav-link">Movies</a>
                 <a href="/series" class="nav-link">Series</a>
-                <div class="page-indicator">
-                    <span class="page-title">Now Playing</span>
-                </div>
             </nav>
         </div>
     </header>
@@ -83,7 +80,15 @@
                     <span class="time" id="current">0:00</span>
                     <input type="range" id="seek" value="0" min="0" max="100">
                     <span class="time" id="duration">0:00</span>
-                    <button id="ccButton" class="cc-button" aria-label="Closed Captions">CC</button>
+                        <button id="subtitleTrackButton" class="subtitle-track-button" aria-label="Subtitle Track" title="Subtitle Track">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="white" viewBox="0 0 24 24">
+                                <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zM4 12h4v2H4v-2zm6 6H4v-2h6v2zm0-4H4v-2h6v2zm10 4h-8v-2h8v2zm0-4h-8v-2h8v2zm0-4H10V8h10v4z"/>
+                            </svg>
+                            <span class="subtitle-track-label">SUB</span>
+                        </button>
+                        <div id="subtitleTrackMenu" class="subtitle-track-menu" style="display: none;">
+                            <!-- Subtitle track options will be populated here -->
+                        </div>
                         <button id="audioTrackButton" class="audio-track-button" aria-label="Audio Track" title="Audio Track">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="white" viewBox="0 0 24 24">
                                 <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
