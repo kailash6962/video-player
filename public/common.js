@@ -237,6 +237,33 @@ function cleanVideoTitle(title) {
     return cleanTitle || title; // Fallback to original if cleaning results in empty string
 }
 
+// Header scroll effect
+function initHeaderScrollEffect() {
+    const header = document.querySelector('.netflix-header');
+    if (!header) return;
+    
+    let lastScrollY = window.scrollY;
+    
+    window.addEventListener('scroll', () => {
+        const currentScrollY = window.scrollY;
+        
+        if (currentScrollY > 50) {
+            header.classList.add('scrolled');
+        } else {
+            header.classList.remove('scrolled');
+        }
+        
+        lastScrollY = currentScrollY;
+    });
+}
+
+// Initialize header effects when DOM is loaded
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initHeaderScrollEffect);
+} else {
+    initHeaderScrollEffect();
+}
+
 // Extract movie metadata from filename
 function extractMovieMetadata(filename) {
     const metadata = {

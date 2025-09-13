@@ -12,11 +12,26 @@
     <!-- Netflix-style Header -->
     <header class="netflix-header">
         <div class="header-content">
-            <div class="logo">
-                <span class="logo-icon">▶️</span>
-                <span class="logo-text page-title">Player</span>
-            </div>
-    </div>
+            <a href="/" class="logo">
+                <div class="logo-icon">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
+                        <path d="M8 5v14l11-7z" fill="currentColor"/>
+                    </svg>
+                </div>
+                <div class="logo-brand">
+                    <span class="logo-text">VidStream</span>
+                    <span class="logo-tagline">Personal Cinema</span>
+                </div>
+            </a>
+            <nav class="header-nav">
+                <a href="/home" class="nav-link">All</a>
+                <a href="/movies" class="nav-link">Movies</a>
+                <a href="/series" class="nav-link">Series</a>
+                <div class="page-indicator">
+                    <span class="page-title">Now Playing</span>
+                </div>
+            </nav>
+        </div>
     </header>
 
     <!-- Main Content -->

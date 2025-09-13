@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Video Player</title>
+    <title>Series - VidStream</title>
     <link rel="stylesheet" href="/style.css">
 </head>
 
@@ -24,9 +24,9 @@
                 </div>
             </a>
             <nav class="header-nav">
-                <a href="/home" class="nav-link active">All</a>
+                <a href="/home" class="nav-link">All</a>
                 <a href="/movies" class="nav-link">Movies</a>
-                <a href="/series" class="nav-link">Series</a>
+                <a href="/series" class="nav-link active">Series</a>
             </nav>
         </div>
     </header>
@@ -41,14 +41,14 @@
                     <div class="slide-gradient"></div>
                     <div class="slide-content">
                         <div class="slide-badge">
-                            <span class="slide-type" id="slide-type">MOVIE</span>
+                            <span class="slide-type" id="slide-type">SERIES</span>
                             <span class="slide-quality" id="slide-quality">4K</span>
                         </div>
-                        <h1 class="slide-title" id="slide-title">Featured Content</h1>
+                        <h1 class="slide-title" id="slide-title">Featured Series</h1>
                         <p class="slide-description" id="slide-description">Recently added to your collection</p>
                         <div class="slide-metadata">
                             <span class="slide-year" id="slide-year">2025</span>
-                            <span class="slide-duration" id="slide-duration">2h 30m</span>
+                            <span class="slide-duration" id="slide-duration">Multiple Episodes</span>
                             <span class="slide-rating" id="slide-rating">TV-MA</span>
                         </div>
                         <div class="slide-languages" id="slide-languages">
@@ -75,8 +75,6 @@
                     </div>
                 </div>
             </div>
-            
-            <!-- Slideshow Controls -->
             <div class="slideshow-controls">
                 <button class="slide-nav prev" id="slide-prev">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
@@ -89,40 +87,43 @@
                     </svg>
                 </button>
             </div>
-            
-            <!-- Slide Indicators -->
             <div class="slide-indicators" id="slide-indicators">
-                <!-- Dots will be populated here -->
             </div>
         </section>
 
-        <!-- Movies Section -->
+        <!-- Series Content Section -->
         <section class="content-section">
             <div class="section-header">
-                <h2 class="section-title">Movies</h2>
-                <div class="section-line"></div>
-                <div class="section-count" id="movieCount">0 Movies</div>
+                <h2 class="section-title">
+                    Series
+                    <div class="section-line"></div>
+                </h2>
+                <span class="section-count" id="seriesCount">Loading...</span>
             </div>
-            <div class="grid-container" id="videoGallery">
-                <!-- Movies will be populated here -->
-            </div>
-        </section>
-
-        <!-- Web Series Section -->
-        <section class="content-section">
-            <div class="section-header">
-                <h2 class="section-title">Web Series</h2>
-                <div class="section-line"></div>
-                <div class="section-count" id="seriesCount">0 Series</div>
-            </div>
-            <div class="grid-container" id="folderGallery">
-                <!-- Series will be populated here -->
+            <div class="grid-container" id="seriesContainer">
+                <!-- Series cards will be dynamically generated here -->
             </div>
         </section>
     </main>
 
+    <!-- Audio Track Controls (hidden by default) -->
+    <div class="audio-controls" style="display: none;">
+        <button id="audioTrackButton" class="audio-track-button" title="Select Audio Track">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" fill="currentColor"/>
+            </svg>
+            <span class="audio-track-label">Audio</span>
+        </button>
+        <div id="audioTrackMenu" class="audio-track-menu" style="display: none;">
+            <!-- Audio track options will be populated here -->
+        </div>
+    </div>
+
+    <!-- Video Element -->
+    <video id="videoPlayer" style="display: none;" controls></video>
+
     <script src="/common.js"></script>
-    <script src="/home/home.js"></script>
+    <script src="series.js"></script>
 </body>
 
 </html>

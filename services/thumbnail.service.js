@@ -10,63 +10,142 @@ class ThumbnailService {
     const videoId = req.params.id;
     const type = req.params.type;
     const db = req.params.db === "home" ? "" : req.params.db || "";
+    const quality = req.query.quality || 'standard'; // Get quality from query parameter
+    
+    console.log('🖼️ Thumbnail request:', { videoId, type, db, quality });
     
     // Handle special characters in folder names by finding the actual folder
     const actualFolderName = resolveActualFolderName(db);
+    console.log('🖼️ Actual folder name:', actualFolderName);
     
     let videoPath;
     if (type === "file") {
       videoPath = path.join(VIDEOS_DIR, actualFolderName, videoId);
+    } else if (type === "folder") {
+      // For folders, get the first video file in the folder
+      const folderPath = path.join(VIDEOS_DIR, actualFolderName);
+      videoPath = this.getFirstFile(folderPath);
     } else {
       videoPath = this.getFirstFile(path.join(VIDEOS_DIR, actualFolderName));
     }
-    if (!fs.existsSync(videoPath)) {
+    
+    console.log('🖼️ Video path:', videoPath);
+    
+    if (!videoPath || !fs.existsSync(videoPath)) {
+      console.log('🖼️ Video not found:', videoPath);
       return res.status(404).send('Video not found');
     }
 
-    // Ensure the thumbnail directory exists
-    const thumbDir = path.join(process.env.THUMBNAIL_DIR,videoId, 'thumbnail');
+    // Create a safe filename for the thumbnail
+    const safeVideoId = videoId.replace(/[^a-zA-Z0-9_-]/g, '_');
+    const thumbDir = path.join(process.env.THUMBNAIL_DIR, 'thumbnails', quality);
     if (!fs.existsSync(thumbDir)) {
       fs.mkdirSync(thumbDir, { recursive: true });
     }
-    const thumbPath = path.join(thumbDir, `${videoId}.jpeg`);
+    
+    // Use type, db, and quality to create unique thumbnail names
+    const thumbFilename = type === "folder" 
+      ? `folder_${actualFolderName || 'home'}_${safeVideoId}_${quality}.jpeg`
+      : `file_${actualFolderName || 'home'}_${safeVideoId}_${quality}.jpeg`;
+    const thumbPath = path.join(thumbDir, thumbFilename);
+    
+    console.log('🖼️ Thumbnail path:', thumbPath);
+    
+    // Get quality settings
+    const qualitySettings = this.getQualitySettings(quality);
+    console.log('🖼️ Quality settings:', qualitySettings);
 
     // If thumbnail exists, send it
     if (fs.existsSync(thumbPath)) {
+      console.log('🖼️ Serving existing thumbnail');
       res.setHeader('Content-Type', 'image/jpeg');
+      res.setHeader('Cache-Control', 'public, max-age=86400'); // Cache for 24 hours
       return fs.createReadStream(thumbPath).pipe(res);
     }
 
     // If not, create thumbnail and save, then send
+    console.log('🖼️ Generating thumbnail with FFmpeg...');
     ffmpeg()
       .input(videoPath)
-      .inputOptions(['-ss 00:00:59'])
+      .inputOptions([`-ss ${qualitySettings.seekTime}`])
       .outputOptions([
         '-vframes 1',
         '-f image2',
-        '-s 260x190',
-        '-q:v 5'
+        `-s ${qualitySettings.size}`,
+        `-q:v ${qualitySettings.quality}`,
+        ...qualitySettings.extraOptions
       ])
       .format('mjpeg')
       .save(thumbPath)
       .on('end', () => {
+        console.log('🖼️ Thumbnail generated successfully');
         res.setHeader('Content-Type', 'image/jpeg');
+        res.setHeader('Cache-Control', 'public, max-age=86400'); // Cache for 24 hours
         fs.createReadStream(thumbPath).pipe(res);
       })
       .on('error', (e) => {
-        console.log("📢[:50]: ", 'Failed to generate thumbnail', e);
-        res.status(500).send('Failed to generate thumbnail', e);
+        console.log("🖼️ Failed to generate thumbnail:", e);
+        res.status(500).send('Failed to generate thumbnail');
       });
+  }
+
+  getQualitySettings(quality) {
+    const settings = {
+      'standard': {
+        size: '320x240',
+        quality: 5,
+        seekTime: '00:01:00',
+        extraOptions: []
+      },
+      'high': {
+        size: '640x480',
+        quality: 3,
+        seekTime: '00:01:00',
+        extraOptions: ['-preset fast']
+      },
+      'slideshow': {
+        size: '1280x720',
+        quality: 2,
+        seekTime: '00:01:30',
+        extraOptions: [
+          '-preset slow',
+          '-tune film',
+          '-pix_fmt yuvj420p'
+        ]
+      },
+      'ultra': {
+        size: '1920x1080',
+        quality: 1,
+        seekTime: '00:02:00',
+        extraOptions: [
+          '-preset veryslow',
+          '-tune film',
+          '-pix_fmt yuvj420p',
+          '-vf scale=1920:1080:flags=lanczos'
+        ]
+      }
+    };
+
+    return settings[quality] || settings['standard'];
   }
 
   getFirstFile(dirPath) {
     try {
+      console.log('🖼️ Looking for first video file in:', dirPath);
       const files = fs.readdirSync(dirPath);
-      const videoFile = files.find(file =>
-        file.endsWith('.mp4') || file.endsWith('.webm') || file.endsWith('.mkv')
-      );
-      return videoFile ? path.join(dirPath, videoFile) : null;
-    } catch {
+      console.log('🖼️ Files found:', files.slice(0, 5)); // Log first 5 files
+      
+      const VIDEO_EXTENSIONS = ['.mp4', '.mov', '.mkv', '.avi', '.webm'];
+      const videoFile = files.find(file => {
+        const ext = path.extname(file).toLowerCase();
+        return VIDEO_EXTENSIONS.includes(ext);
+      });
+      
+      const result = videoFile ? path.join(dirPath, videoFile) : null;
+      console.log('🖼️ Selected video file:', result);
+      return result;
+    } catch (error) {
+      console.log('🖼️ Error reading directory:', error);
       return null;
     }
   }

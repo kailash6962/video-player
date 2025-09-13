@@ -14,6 +14,19 @@ const playerRouter = require('./routes/player.route');
 
 app.use('/api', playerRouter);
 
+// Serve dedicated pages
+app.get('/home', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public/home/index.html'));
+});
+
+app.get('/movies', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public/movies/index.html'));
+});
+
+app.get('/series', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public/series/index.html'));
+});
+
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });

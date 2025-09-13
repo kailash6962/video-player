@@ -40,14 +40,32 @@ class FolderService {
         }
         const folderPath = path.join(VIDEOS_DIR, folder);
         const files = fs.readdirSync(folderPath);
-        const videoCount = files.filter(file =>
+        const videoFiles = files.filter(file =>
           VIDEO_EXTENSIONS.includes(path.extname(file).toLowerCase())
-        ).length;
+        );
+        
+        // Get the most recent file modification date in this folder
+        let mostRecentFileDate = null;
+        if (videoFiles.length > 0) {
+          const fileDates = videoFiles.map(file => {
+            const filePath = path.join(folderPath, file);
+            const stats = fs.statSync(filePath);
+            return stats.mtime;
+          });
+          mostRecentFileDate = new Date(Math.max(...fileDates.map(date => date.getTime())));
+        }
+        
+        // Get folder modification date
+        const folderStats = fs.statSync(folderPath);
+        
         return {
           name: folder,
-          videoCount,
+          videoCount: videoFiles.length,
           lastOpened,
-          lastOpenedNumber
+          lastOpenedNumber,
+          modifiedDate: folderStats.mtime, // Folder modification date
+          mostRecentFileDate, // Most recent file in the folder
+          createdDate: folderStats.birthtime // Folder creation date
         };
       })
     );

@@ -35,6 +35,8 @@ class VideoService {
           size: stats.size,
           duration,
           lastOpened: videoDetails?.last_opened,
+          modifiedDate: stats.mtime, // File modification date
+          createdDate: stats.birthtime, // File creation date (if available)
         };
       })
     );
