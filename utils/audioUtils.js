@@ -442,5 +442,8 @@ module.exports = {
   getHighQualityAudioSettings,
   getStandardQualityAudioSettings,
   isAudioBrowserCompatible,
-  getAudioOutputOptions
+  getAudioOutputOptions,
+  getAudioLanguage,
+  getAudioTitle,
+  LANGUAGE_MAP
 };

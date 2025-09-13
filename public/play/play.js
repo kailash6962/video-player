@@ -14,6 +14,8 @@ const seekForwardBtn = document.getElementById('seekForward');
 const playPauseAnim = document.getElementById('playPauseAnim');
 const audioTrackButton = document.getElementById('audioTrackButton');
 const audioTrackMenu = document.getElementById('audioTrackMenu');
+const subtitleTrackButton = document.getElementById('subtitleTrackButton');
+const subtitleTrackMenu = document.getElementById('subtitleTrackMenu');
 
 // Update play/pause icon
 function updatePlayPauseIcon() {
@@ -166,12 +168,28 @@ let progressUpdateTimeout = null;
 let currentAudioTracks = [];
 let currentAudioTrackIndex = 0;
 
+// Subtitle track management
+let currentSubtitleTracks = [];
+let currentSubtitleTrackIndex = -1; // -1 means no subtitles
+let currentLoadingSubtitleVideoId = null;
+// Custom subtitle system variables
+let customSubtitleCues = [];
+let customSubtitleActive = false;
+let customSubtitleTrackIndex = -1;
+let customSubtitleUpdateInterval = null;
+
+// Chunked subtitle loading variables
+let subtitleChunks = new Map(); // Map<chunkKey, cues[]>
+let currentChunkIndex = -1;
+let nextChunkPreloadTime = -1;
+let isLoadingChunk = false;
+let CHUNK_DURATION = 600; // 10 minutes in seconds (adaptive)
+const PRELOAD_BUFFER = 120; // Start loading next chunk 2 minutes before needed
+let chunkFailureCount = 0; // Track failures to adapt chunk size
+
 const params = new URLSearchParams(window.location.search);
 
 const series = params.get('series');
-if(series) {
-    document.querySelector('.page-title').innerText = series;
-}
 
 fetch(`/api/videos/${series}`, {
     method: 'GET',
@@ -558,6 +576,35 @@ function clearAudioTracks() {
   currentLoadingVideoId = null;
 }
 
+function clearSubtitleTracks() {
+  if (!subtitleTrackButton || !subtitleTrackMenu) return;
+  
+  console.log('Clearing subtitle tracks');
+  
+  // Clear custom subtitle system
+  customSubtitleActive = false;
+  customSubtitleTrackIndex = -1;
+  customSubtitleCues = [];
+  
+  // Stop custom subtitle updates
+  if (customSubtitleUpdateInterval) {
+    clearInterval(customSubtitleUpdateInterval);
+    customSubtitleUpdateInterval = null;
+  }
+  
+  // Hide custom subtitle
+  hideCustomSubtitle();
+  
+  subtitleTrackMenu.innerHTML = '';
+  subtitleTrackMenu.style.display = 'none';
+  subtitleTrackButton.style.display = 'none';
+  currentSubtitleTracks = [];
+  currentSubtitleTrackIndex = -1; // -1 means no subtitles
+  currentLoadingSubtitleVideoId = null;
+  
+  console.log('🎬 Custom subtitle system cleared');
+}
+
 async function loadAudioTracks(videoId) {
   if (!audioTrackButton || !audioTrackMenu) return;
   
@@ -687,6 +734,142 @@ async function loadAudioTracks(videoId) {
   }
 }
 
+async function loadSubtitleTracks(videoId) {
+  if (!subtitleTrackButton || !subtitleTrackMenu) {
+    console.warn('🎬 Subtitle UI elements not found');
+    return;
+  }
+  
+  // Prevent multiple simultaneous loads for the same video
+  if (currentLoadingSubtitleVideoId === videoId) {
+    console.log('🎬 Subtitle tracks already loading for video:', videoId);
+    return;
+  }
+  
+  currentLoadingSubtitleVideoId = videoId;
+  console.log('🎬 Loading subtitle tracks for video:', videoId);
+  console.log('🎬 Current series:', series);
+  console.log('🎬 API URL:', `/api/subtitle-tracks/${encodeURIComponent(series)}/${encodeURIComponent(videoId)}`);
+  
+  try {
+    const response = await fetch(`/api/subtitle-tracks/${encodeURIComponent(series)}/${encodeURIComponent(videoId)}`);
+    console.log('🎬 Response status:', response.status, response.statusText);
+    
+    const responseText = await response.text();
+    console.log('🎬 Raw response:', responseText.substring(0, 500) + (responseText.length > 500 ? '...' : ''));
+    
+    let data;
+    try {
+      data = JSON.parse(responseText);
+    } catch (parseError) {
+      console.error('🎬 JSON Parse Error:', parseError);
+      console.error('🎬 Response text that failed to parse:', responseText);
+      throw new Error('Invalid JSON response from subtitle tracks API');
+    }
+    
+    console.log('🎬 Parsed subtitle tracks data:', JSON.stringify(data, null, 2));
+    
+    if (data.error) {
+      console.warn('🎬 No subtitle tracks found:', data.error);
+      subtitleTrackButton.style.display = 'none';
+      subtitleTrackMenu.style.display = 'none';
+      // Clear existing options even on error
+      subtitleTrackMenu.innerHTML = '';
+      currentSubtitleTracks = [];
+      return;
+    }
+    
+    currentSubtitleTracks = data.tracks;
+    
+    console.log('Loaded subtitle tracks:', {
+      videoId: videoId,
+      totalTracks: currentSubtitleTracks.length,
+      tracks: currentSubtitleTracks.map(track => ({
+        index: track.index,
+        streamIndex: track.streamIndex,
+        language: track.language,
+        codec: track.codec,
+        codecDisplayName: track.codecDisplayName,
+        isBrowserCompatible: track.isBrowserCompatible,
+        displayName: track.displayName
+      }))
+    });
+    
+    // Clear existing options and reset state
+    console.log('Clearing existing subtitle track options');
+    subtitleTrackMenu.innerHTML = '';
+    
+    // Add "Off" option first
+    const offItem = document.createElement('div');
+    offItem.className = 'subtitle-track-menu-item';
+    offItem.dataset.trackIndex = '-1';
+    offItem.innerHTML = `
+      <div class="track-info">
+        <div class="track-language">Off</div>
+        <div class="track-codec">No Subtitles</div>
+      </div>
+      <span class="track-checkmark" style="display: none;">✓</span>
+    `;
+    subtitleTrackMenu.appendChild(offItem);
+    
+    // Add subtitle track options
+    currentSubtitleTracks.forEach((track, index) => {
+      const menuItem = document.createElement('div');
+      menuItem.className = 'subtitle-track-menu-item';
+      menuItem.dataset.trackIndex = track.index;
+      
+      menuItem.innerHTML = `
+        <div class="track-info">
+          <div class="track-language">${track.language}</div>
+          <div class="track-codec">${track.codecDisplayName}${track.isBrowserCompatible ? '' : ' (Converted)'}</div>
+        </div>
+        <span class="track-checkmark" style="display: none;">✓</span>
+      `;
+      
+      subtitleTrackMenu.appendChild(menuItem);
+      console.log(`Added subtitle track option: index=${track.index}, language=${track.language}, codec=${track.codecDisplayName}, compatible=${track.isBrowserCompatible}`);
+    });
+    
+    // Set first subtitle track as default (not "Off")
+    if (currentSubtitleTracks.length > 0) {
+      currentSubtitleTrackIndex = 0; // Use first subtitle track
+      console.log('Setting first subtitle track as default:', currentSubtitleTracks[0]);
+      
+      // Add subtitle tracks to HTML5 video element
+      addSubtitleTracksToVideo(videoId);
+      
+      // Enable the first track by default
+      enableSubtitleTrack(currentSubtitleTrackIndex);
+    } else {
+      currentSubtitleTrackIndex = -1; // No subtitles
+    }
+    
+    // Update button and menu state
+    updateSubtitleTrackButtonLabel();
+    updateActiveSubtitleMenuItem();
+    
+    // Show button if subtitles are available
+    if (currentSubtitleTracks.length > 0) {
+      subtitleTrackButton.style.display = 'flex';
+      console.log('Subtitle tracks found:', currentSubtitleTracks.length, 'Button should be visible');
+    } else {
+      subtitleTrackButton.style.display = 'none';
+      console.log('No subtitle tracks, hiding button');
+    }
+    
+  } catch (err) {
+    console.error('Error loading subtitle tracks:', err);
+    subtitleTrackButton.style.display = 'none';
+    subtitleTrackMenu.style.display = 'none';
+    // Clear existing options on error
+    subtitleTrackMenu.innerHTML = '';
+    currentSubtitleTracks = [];
+  } finally {
+    // Clear loading flag
+    currentLoadingSubtitleVideoId = null;
+  }
+}
+
 function updateAudioTrackButtonLabel() {
   if (!audioTrackButton || !currentAudioTracks[currentAudioTrackIndex]) return;
   
@@ -714,6 +897,45 @@ function updateActiveMenuItem() {
   
   // Add active class to current track
   const activeItem = audioTrackMenu.querySelector(`[data-track-index="${currentAudioTrackIndex}"]`);
+  if (activeItem) {
+    activeItem.classList.add('active');
+    const checkmark = activeItem.querySelector('.track-checkmark');
+    if (checkmark) checkmark.style.display = 'block';
+  }
+}
+
+function updateSubtitleTrackButtonLabel() {
+  if (!subtitleTrackButton) return;
+  
+  const label = subtitleTrackButton.querySelector('.subtitle-track-label');
+  if (label) {
+    if (currentSubtitleTrackIndex >= 0 && currentSubtitleTracks[currentSubtitleTrackIndex]) {
+      const currentTrack = currentSubtitleTracks[currentSubtitleTrackIndex];
+      // Show first 3 letters of language
+      label.textContent = currentTrack.language.substring(0, 3).toUpperCase();
+      // Update button title
+      subtitleTrackButton.title = `Subtitle Track: ${currentTrack.language} (${currentTrack.codecDisplayName})`;
+    } else {
+      label.textContent = 'SUB';
+      subtitleTrackButton.title = 'Subtitles: Off';
+    }
+  }
+}
+
+function updateActiveSubtitleMenuItem() {
+  if (!subtitleTrackMenu) return;
+  
+  // Remove active class from all items
+  const menuItems = subtitleTrackMenu.querySelectorAll('.subtitle-track-menu-item');
+  menuItems.forEach(item => {
+    item.classList.remove('active');
+    const checkmark = item.querySelector('.track-checkmark');
+    if (checkmark) checkmark.style.display = 'none';
+  });
+  
+  // Add active class to current track (or "Off" if index is -1)
+  const trackIndexToFind = currentSubtitleTrackIndex >= 0 ? currentSubtitleTrackIndex : -1;
+  const activeItem = subtitleTrackMenu.querySelector(`[data-track-index="${trackIndexToFind}"]`);
   if (activeItem) {
     activeItem.classList.add('active');
     const checkmark = activeItem.querySelector('.track-checkmark');
@@ -768,6 +990,807 @@ function switchAudioTrack(trackIndex) {
   }, { once: true });
   
   videoPlayer.load();
+}
+
+function addSubtitleTracksToVideo(videoId) {
+  if (!videoPlayer) {
+    console.warn('🎬 Video player not found for subtitle tracks');
+    return;
+  }
+  
+  if (!currentSubtitleTracks.length) {
+    console.log('🎬 No subtitle tracks to add to video element');
+    return;
+  }
+  
+  // Use passed videoId or fallback to currentVideoId
+  const actualVideoId = videoId || currentVideoId;
+  
+  console.log('🎬 Setting up custom subtitle system (no native tracks)');
+  console.log('🎬 Video ID (parameter):', videoId);
+  console.log('🎬 Current video ID (global):', currentVideoId);
+  console.log('🎬 Actual video ID (using):', actualVideoId);
+  console.log('🎬 Current series:', series);
+  console.log('🎬 Start time:', startTime);
+  console.log('🎬 Total tracks available:', currentSubtitleTracks.length);
+  
+  // Check if videoId is available
+  if (!actualVideoId) {
+    console.error('🎬 ❌ Video ID is not available, cannot create subtitle URLs');
+    return;
+  }
+  
+  // Remove any existing native subtitle tracks
+  const existingTracks = videoPlayer.querySelectorAll('track[kind="subtitles"]');
+  console.log('🎬 Removing', existingTracks.length, 'existing native subtitle tracks');
+  existingTracks.forEach(track => track.remove());
+  
+  // Load subtitle data for custom display
+  loadCustomSubtitleData(actualVideoId, series);
+}
+
+async function loadCustomSubtitleData(videoId, seriesName) {
+  console.log('🎬 📦 Starting chunked subtitle loading...');
+  
+  if (currentSubtitleTracks.length === 0) {
+    console.log('🎬 No subtitle tracks available');
+    return;
+  }
+  
+  // Clear previous subtitle data
+  customSubtitleCues = [];
+  subtitleChunks.clear();
+  currentChunkIndex = -1;
+  nextChunkPreloadTime = -1;
+  
+  // Store current video info for preloading
+  currentLoadingSubtitleVideoId = { videoId, series: seriesName };
+  
+  // Load first chunk (0-10 minutes)
+  await loadSubtitleChunk(videoId, seriesName, 0, 0);
+  
+  if (customSubtitleCues.length > 0) {
+    customSubtitleActive = true;
+    customSubtitleTrackIndex = 0;
+    startCustomSubtitleDisplay();
+    
+    // Set up preloading for next chunk
+    const videoDuration = videoPlayer.duration || 0;
+    if (videoDuration > CHUNK_DURATION) {
+      nextChunkPreloadTime = CHUNK_DURATION - PRELOAD_BUFFER; // 8 minutes
+      console.log('🎬 📦 Next chunk will preload at:', formatTimeForDisplay(nextChunkPreloadTime));
+    }
+    console.log('🎬 Custom subtitle system activated with chunked loading');
+  }
+}
+
+async function loadSubtitleChunk(videoId, seriesName, chunkIndex, startTime) {
+  if (isLoadingChunk) {
+    console.log('🎬 📦 Already loading a chunk, skipping...');
+    return;
+  }
+  
+  const chunkKey = `${chunkIndex}`;
+  if (subtitleChunks.has(chunkKey)) {
+    console.log('🎬 📦 Chunk', chunkIndex, 'already loaded, using cached data');
+    return;
+  }
+  
+  isLoadingChunk = true;
+  
+  try {
+    const firstTrack = currentSubtitleTracks[0];
+    const encodedVideoId = encodeURIComponent(videoId);
+    const encodedSeries = encodeURIComponent(seriesName);
+    
+    console.log(`🎬 📦 Loading subtitle chunk ${chunkIndex}: ${formatTimeForDisplay(startTime)} - ${formatTimeForDisplay(startTime + CHUNK_DURATION)}`);
+    
+    const response = await fetch(`/api/subtitle-chunk/${encodedSeries}/${encodedVideoId}/${firstTrack.index}/${startTime}/${CHUNK_DURATION}`);
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+    
+    const subtitleContent = await response.text();
+    console.log('🎬 📦 Chunk', chunkIndex, 'loaded:', subtitleContent.length, 'characters');
+    
+    // Parse WebVTT content for this chunk
+    const chunkCues = parseCustomWebVTT(subtitleContent);
+    console.log('🎬 📦 Chunk', chunkIndex, 'parsed:', chunkCues.length, 'cues');
+    
+    // Store chunk
+    subtitleChunks.set(chunkKey, chunkCues);
+    
+    // If this is the first chunk, set it as active
+    if (chunkIndex === 0) {
+      customSubtitleCues = chunkCues;
+      currentChunkIndex = chunkIndex;
+    }
+    
+  } catch (error) {
+    console.error(`🎬 ❌ Failed to load subtitle chunk ${chunkIndex}:`, error);
+    chunkFailureCount++;
+    
+    // Adaptive chunk sizing - if chunks are failing, try smaller chunks
+    if (chunkFailureCount >= 2 && CHUNK_DURATION > 180) {
+      const oldDuration = CHUNK_DURATION;
+      CHUNK_DURATION = Math.max(180, CHUNK_DURATION / 2); // Minimum 3 minutes
+      console.log(`🎬 📦 Adapting chunk size: ${oldDuration}s → ${CHUNK_DURATION}s (failures: ${chunkFailureCount})`);
+      chunkFailureCount = 0; // Reset failure count after adaptation
+      
+      // Retry with smaller chunk
+      if (chunkIndex === 0) {
+        console.log('🎬 📦 Retrying first chunk with smaller size...');
+        setTimeout(() => {
+          loadSubtitleChunk(
+            currentLoadingSubtitleVideoId?.videoId || '',
+            currentLoadingSubtitleVideoId?.series || '',
+            0,
+            0
+          );
+        }, 1000);
+      }
+    }
+  } finally {
+    isLoadingChunk = false;
+  }
+}
+
+function switchToChunk(targetChunkIndex) {
+  const chunkKey = `${targetChunkIndex}`;
+  
+  if (subtitleChunks.has(chunkKey)) {
+    console.log('🎬 📦 Switching to chunk', targetChunkIndex);
+    customSubtitleCues = subtitleChunks.get(chunkKey);
+    currentChunkIndex = targetChunkIndex;
+    return true;
+  }
+  
+  return false;
+}
+
+function parseCustomWebVTT(content) {
+  const cues = [];
+  const lines = content.split('\n');
+  let currentCue = null;
+  
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim();
+    
+    // Skip empty lines and WEBVTT header
+    if (!line || line === 'WEBVTT') continue;
+    
+    // Check for timing line - handle both MM:SS.mmm and HH:MM:SS.mmm formats
+    const timingMatch = line.match(/(\d{1,2}:\d{2}[.,]\d{3})\s*-->\s*(\d{1,2}:\d{2}[.,]\d{3})/);
+    if (timingMatch) {
+      // Save previous cue
+      if (currentCue) {
+        cues.push(currentCue);
+      }
+      
+      // Start new cue - handle both . and , as decimal separator
+      const startTimeStr = timingMatch[1].replace(',', '.');
+      const endTimeStr = timingMatch[2].replace(',', '.');
+      
+      currentCue = {
+        startTime: timeStringToSeconds(startTimeStr),
+        endTime: timeStringToSeconds(endTimeStr),
+        text: ''
+      };
+    } else if (currentCue && line) {
+      // Add text to current cue
+      if (currentCue.text) currentCue.text += '\n';
+      currentCue.text += line;
+    }
+  }
+  
+  // Add the last cue
+  if (currentCue) {
+    cues.push(currentCue);
+  }
+  
+  return cues;
+}
+
+function timeStringToSeconds(timeString) {
+  const parts = timeString.split(':');
+  
+  if (parts.length === 2) {
+    // Format: MM:SS.mmm
+    const minutes = parseInt(parts[0]);
+    const secondsAndMs = parts[1].split('.');
+    const seconds = parseInt(secondsAndMs[0]);
+    const milliseconds = parseInt(secondsAndMs[1]);
+    
+    return (minutes * 60) + seconds + (milliseconds / 1000);
+  } else {
+    // Format: HH:MM:SS.mmm
+    const hours = parseInt(parts[0]);
+    const minutes = parseInt(parts[1]);
+    const secondsAndMs = parts[2].split('.');
+    const seconds = parseInt(secondsAndMs[0]);
+    const milliseconds = parseInt(secondsAndMs[1]);
+    
+    return (hours * 3600) + (minutes * 60) + seconds + (milliseconds / 1000);
+  }
+}
+
+function startCustomSubtitleDisplay() {
+  // Clear existing interval
+  if (customSubtitleUpdateInterval) {
+    clearInterval(customSubtitleUpdateInterval);
+  }
+  
+  // Update subtitle display every 100ms
+  customSubtitleUpdateInterval = setInterval(() => {
+    if (customSubtitleActive && customSubtitleCues.length > 0) {
+      updateCustomSubtitleDisplay();
+    }
+  }, 100);
+  
+  console.log('🎬 Custom subtitle update loop started');
+}
+
+function updateCustomSubtitleDisplay() {
+  // Get current movie time (your custom timing)
+  const rawVideoTime = videoPlayer.currentTime;
+  const currentMovieTime = parseInt(startTime) + parseInt(rawVideoTime);
+  
+  // Check if we need to switch chunks or preload next chunk
+  const expectedChunkIndex = Math.floor(currentMovieTime / CHUNK_DURATION);
+  
+  // Switch chunks if needed
+  if (expectedChunkIndex !== currentChunkIndex) {
+    if (switchToChunk(expectedChunkIndex)) {
+      console.log('🎬 📦 Switched to chunk', expectedChunkIndex, 'at time', formatTimeForDisplay(currentMovieTime));
+    } else {
+      console.log('🎬 📦 Chunk', expectedChunkIndex, 'not available, keeping current chunk');
+    }
+  }
+  
+  // Preload next chunk if we're approaching the end of current chunk
+  if (nextChunkPreloadTime > 0 && currentMovieTime >= nextChunkPreloadTime) {
+    const nextChunkIndex = currentChunkIndex + 1;
+    const nextChunkStartTime = nextChunkIndex * CHUNK_DURATION;
+    
+    console.log('🎬 📦 Preloading chunk', nextChunkIndex);
+    loadSubtitleChunk(
+      currentLoadingSubtitleVideoId?.videoId || '',
+      currentLoadingSubtitleVideoId?.series || '',
+      nextChunkIndex,
+      nextChunkStartTime
+    );
+    
+    // Set next preload time for the chunk after
+    nextChunkPreloadTime = nextChunkStartTime + CHUNK_DURATION - PRELOAD_BUFFER;
+  }
+  
+  // Find active subtitle at current time
+  const activeCue = customSubtitleCues.find(cue => 
+    currentMovieTime >= cue.startTime && currentMovieTime <= cue.endTime
+  );
+  
+  if (activeCue) {
+    displayCustomSubtitle(activeCue.text);
+  } else {
+    hideCustomSubtitle();
+  }
+}
+
+function displayCustomSubtitle(text) {
+  // Remove existing subtitle
+  hideCustomSubtitle();
+  
+  // Create custom subtitle element
+  const subtitleDiv = document.createElement('div');
+  subtitleDiv.id = 'custom-subtitle-overlay';
+  subtitleDiv.style.cssText = `
+    position: absolute;
+    bottom: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-size: 18px;
+    font-family: Arial, sans-serif;
+    font-weight: normal;
+    text-align: center;
+    z-index: 1500;
+    max-width: 85%;
+    line-height: 1.4;
+    pointer-events: none;
+    white-space: pre-line;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  `;
+  
+  subtitleDiv.textContent = text;
+  
+  // Add to video container
+  const videoContainer = videoPlayer.parentElement;
+  if (!videoContainer) {
+    return;
+  }
+  
+  videoContainer.style.position = 'relative';
+  videoContainer.appendChild(subtitleDiv);
+}
+
+function hideCustomSubtitle() {
+  const existingSubtitle = document.getElementById('custom-subtitle-overlay');
+  if (existingSubtitle) {
+    existingSubtitle.remove();
+  }
+}
+
+function formatTimeForDisplay(seconds) {
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const secs = Math.floor(seconds % 60);
+  
+  if (hours > 0) {
+    return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+  } else {
+    return `${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+  }
+}
+
+function enableSubtitleTrack(trackIndex) {
+  console.log('🎬 Switching to custom subtitle track:', trackIndex);
+  
+  if (trackIndex < 0) {
+    // Disable subtitles
+    customSubtitleActive = false;
+    customSubtitleTrackIndex = -1;
+    hideCustomSubtitle();
+    console.log('🎬 Custom subtitles disabled');
+    return;
+  }
+  
+  if (trackIndex >= currentSubtitleTracks.length) {
+    console.warn('🎬 Invalid subtitle track index:', trackIndex);
+    return;
+  }
+  
+  // Load the selected track
+  const selectedTrack = currentSubtitleTracks[trackIndex];
+  console.log('🎬 Loading custom subtitle track:', selectedTrack.language);
+  
+  loadCustomSubtitleTrack(trackIndex);
+}
+
+async function loadCustomSubtitleTrack(trackIndex) {
+  const track = currentSubtitleTracks[trackIndex];
+  const subtitleUrl = `/api/subtitle/${encodeURIComponent(series)}/${encodeURIComponent(currentVideoId)}/${track.index}`;
+  
+  console.log('🎬 Loading custom subtitle track:', trackIndex, subtitleUrl);
+  
+  try {
+    const response = await fetch(subtitleUrl);
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+    
+    const subtitleContent = await response.text();
+    console.log('🎬 Custom subtitle track loaded:', subtitleContent.length, 'characters');
+    
+    // Parse and activate new track
+    customSubtitleCues = parseCustomWebVTT(subtitleContent);
+    customSubtitleActive = true;
+    customSubtitleTrackIndex = trackIndex;
+    
+    console.log('🎬 Switched to custom subtitle track:', track.language, `(${customSubtitleCues.length} cues)`);
+    
+    // Start display if not already running
+    if (!customSubtitleUpdateInterval) {
+      startCustomSubtitleDisplay();
+    }
+    
+  } catch (error) {
+    console.error('🎬 ❌ Failed to load custom subtitle track:', error);
+  }
+}
+
+function synchronizeSubtitleTiming(textTrack, trackIndex) {
+  if (!textTrack.cues || textTrack.cues.length === 0) return;
+  
+  const videoTime = videoPlayer.currentTime;
+  const actualMovieTime = parseInt(startTime) + parseInt(videoTime);
+  const timeOffset = parseInt(startTime);
+  
+  // If there's no time offset, no synchronization needed
+  if (timeOffset === 0) return;
+  
+  console.log(`🎬 ⚡ Synchronizing kk subtitle timing for track ${trackIndex}:`, {
+    videoTime: videoTime,
+    actualMovieTime: actualMovieTime,
+    timeOffset: timeOffset,
+    totalCues: textTrack.cues.length
+  });
+  
+  // Disable default subtitle display
+  textTrack.mode = 'hidden';
+  
+  // Find cues that should be active at the actual movie time
+  const activeCues = [];
+  for (let i = 0; i < textTrack.cues.length; i++) {
+    const cue = textTrack.cues[i];
+    const cueStart = cue.startTime + timeOffset;
+    const cueEnd = cue.endTime + timeOffset;
+    
+    if (actualMovieTime >= cueStart && actualMovieTime <= cueEnd) {
+      activeCues.push(cue);
+    }
+  }
+  
+  // Display synchronized subtitles manually
+  displaySynchronizedSubtitles(activeCues, trackIndex);
+}
+
+function displaySynchronizedSubtitles(activeCues, trackIndex) {
+  // Remove existing custom subtitle display
+  const existingSubtitleDiv = document.getElementById('custom-subtitles');
+  if (existingSubtitleDiv) {
+    existingSubtitleDiv.remove();
+  }
+  
+  if (activeCues.length === 0) return;
+  
+  // Create custom subtitle display
+  const subtitleDiv = document.createElement('div');
+  subtitleDiv.id = 'custom-subtitles';
+  subtitleDiv.style.cssText = `
+    position: absolute;
+    bottom: 60px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-size: 16px;
+    font-family: Arial, sans-serif;
+    text-align: center;
+    z-index: 1000;
+    max-width: 80%;
+    line-height: 1.4;
+    pointer-events: none;
+  `;
+  
+  // Combine all active cue texts
+  const combinedText = activeCues.map(cue => cue.text).join('\n');
+  console.log("activeCues kk ",activeCues);
+  subtitleDiv.innerHTML = combinedText;
+  console.log("combinedText kk ",activeCues);
+
+  // Add to video container
+  const videoContainer = videoPlayer.parentElement;
+  videoContainer.style.position = 'relative';
+  videoContainer.appendChild(subtitleDiv);
+  
+  console.log(`🎬 📝 Displaying synchronized kk subtitle:`, combinedText.substring(0, 50) + '...');
+}
+
+async function fetchFullSubtitleData(trackElement, trackIndex) {
+  const subtitleUrl = trackElement.src;
+  console.log(`🎬 📥 Fetching full subtitle data ${trackIndex}:`, subtitleUrl);
+  
+  try {
+    const response = await fetch(subtitleUrl);
+    console.log(`🎬 📥 Subtitle response ${trackIndex}:`, {
+      status: response.status,
+      statusText: response.statusText,
+      contentType: response.headers.get('content-type'),
+      contentLength: response.headers.get('content-length')
+    });
+    
+    if (response.ok) {
+      const subtitleContent = await response.text();
+      console.log(`🎬 📥 Full subtitle content loaded (${trackIndex}):`, subtitleContent.length, 'characters');
+      
+      // Store the full subtitle data
+      fullSubtitleData = subtitleContent;
+      
+      // Parse subtitle cues
+      manualSubtitleCues = parseWebVTTCues(subtitleContent);
+      console.log(`🎬 📥 Parsed ${manualSubtitleCues.length} subtitle cues`);
+      
+      // Enable manual subtitle system
+      manualSubtitleActive = true;
+      setupManualSubtitleDisplay();
+      
+      return subtitleContent;
+    } else {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+  } catch (error) {
+    console.error(`🎬 📥 ❌ Failed to fetch subtitle data (${trackIndex}):`, error);
+    return null;
+  }
+}
+
+function parseWebVTTCues(webvttContent) {
+  const cues = [];
+  const lines = webvttContent.split('\n');
+  let currentCue = null;
+  
+  console.log(`🎬 🔍 Parsing WebVTT content with ${lines.length} lines`);
+  
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim();
+    
+    // Skip empty lines and WEBVTT header
+    if (!line || line === 'WEBVTT') continue;
+    
+    // Check for timing line (HH:MM:SS.mmm --> HH:MM:SS.mmm)
+    const timingMatch = line.match(/(\d{2}:\d{2}:\d{2}\.\d{3})\s*-->\s*(\d{2}:\d{2}:\d{2}\.\d{3})/);
+    if (timingMatch) {
+      // Save previous cue if exists
+      if (currentCue) {
+        cues.push(currentCue);
+      }
+      
+      // Start new cue
+      currentCue = {
+        startTime: timeStringToSeconds(timingMatch[1]),
+        endTime: timeStringToSeconds(timingMatch[2]),
+        text: ''
+      };
+    } else if (currentCue && line) {
+      // Add text to current cue
+      if (currentCue.text) currentCue.text += '\n';
+      currentCue.text += line;
+    }
+  }
+  
+  // Add the last cue
+  if (currentCue) {
+    cues.push(currentCue);
+  }
+  
+  console.log(`🎬 🔍 Parsed cues sample:`, cues.slice(0, 3));
+  return cues;
+}
+
+function timeStringToSeconds(timeString) {
+  const parts = timeString.split(':');
+  
+  if (parts.length === 2) {
+    // Format: MM:SS.mmm
+    const minutes = parseInt(parts[0]);
+    const secondsAndMs = parts[1].split('.');
+    const seconds = parseInt(secondsAndMs[0]);
+    const milliseconds = parseInt(secondsAndMs[1]);
+    
+    return (minutes * 60) + seconds + (milliseconds / 1000);
+  } else {
+    // Format: HH:MM:SS.mmm
+    const hours = parseInt(parts[0]);
+    const minutes = parseInt(parts[1]);
+    const secondsAndMs = parts[2].split('.');
+    const seconds = parseInt(secondsAndMs[0]);
+    const milliseconds = parseInt(secondsAndMs[1]);
+    
+    return (hours * 3600) + (minutes * 60) + seconds + (milliseconds / 1000);
+  }
+}
+
+function testSubtitleUrl(trackElement, trackIndex) {
+  const subtitleUrl = trackElement.src;
+  console.log(`🎬 🧪 Testing subtitle URL ${trackIndex}:`, subtitleUrl);
+  
+  fetch(subtitleUrl)
+    .then(response => {
+      console.log(`🎬 🧪 Subtitle URL ${trackIndex} response:`, {
+        status: response.status,
+        statusText: response.statusText,
+        contentType: response.headers.get('content-type'),
+        contentLength: response.headers.get('content-length')
+      });
+      
+      if (response.ok) {
+        return response.text();
+      } else {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+    })
+    .then(subtitleContent => {
+      const preview = subtitleContent.substring(0, 200);
+      console.log(`🎬 🧪 Subtitle content preview (${trackIndex}):`, preview + (subtitleContent.length > 200 ? '...' : ''));
+      console.log(`🎬 🧪 Total subtitle content length (${trackIndex}):`, subtitleContent.length, 'characters');
+    })
+    .catch(error => {
+      console.error(`🎬 🧪 ❌ Subtitle URL test failed (${trackIndex}):`, error);
+    });
+}
+
+function setupManualSubtitleDisplay() {
+  console.log('🎬 ⚙️ Setting up manual subtitle display system');
+  
+  // Create subtitle timing control panel
+  createSubtitleTimingControl();
+  
+  // Start subtitle update loop
+  startSubtitleUpdateLoop();
+}
+
+function createSubtitleTimingControl() {
+  // Remove existing control if present
+  const existingControl = document.getElementById('subtitle-timing-control');
+  if (existingControl) {
+    existingControl.remove();
+  }
+  
+  const controlPanel = document.createElement('div');
+  controlPanel.id = 'subtitle-timing-control';
+  controlPanel.style.cssText = `
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: rgba(0, 0, 0, 0.9);
+    color: white;
+    padding: 15px;
+    border-radius: 8px;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    z-index: 2000;
+    min-width: 300px;
+    border: 1px solid #333;
+  `;
+  
+  controlPanel.innerHTML = `
+    <div style="margin-bottom: 10px; font-weight: bold;">📺 Subtitle Timing Control</div>
+    
+    <div style="margin-bottom: 8px;">
+      <label>🎬 Current Movie Time: <span id="current-movie-time">00:00:00</span></label>
+    </div>
+    
+    <div style="margin-bottom: 8px;">
+      <label>⏰ Raw Video Time: <span id="raw-video-time">00:00:00</span></label>
+    </div>
+    
+    <div style="margin-bottom: 8px;">
+      <label>🎯 Time Offset: <input type="number" id="subtitle-offset" value="0" style="width: 80px; background: #333; color: white; border: 1px solid #555; padding: 2px;"> seconds</label>
+    </div>
+    
+    <div style="margin-bottom: 8px;">
+      <label>📝 Active Subtitle: <span id="active-subtitle-text">None</span></label>
+    </div>
+    
+    <div style="margin-bottom: 8px;">
+      <button id="sync-subtitle-btn" style="background: #007bff; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">🔄 Sync with Current Time</button>
+    </div>
+    
+    <div style="font-size: 12px; color: #ccc;">
+      ℹ️ Adjust offset to sync subtitles with video
+    </div>
+  `;
+  
+  document.body.appendChild(controlPanel);
+  
+  // Add event listener for sync button
+  document.getElementById('sync-subtitle-btn').addEventListener('click', () => {
+    const currentMovieTime = parseInt(startTime) + parseInt(videoPlayer.currentTime);
+    document.getElementById('subtitle-offset').value = currentMovieTime;
+    console.log('🎬 🔄 Subtitle offset synced to current time:', currentMovieTime);
+  });
+  
+  console.log('🎬 ⚙️ Subtitle timing control panel created');
+}
+
+function startSubtitleUpdateLoop() {
+  if (window.subtitleUpdateInterval) {
+    clearInterval(window.subtitleUpdateInterval);
+  }
+  
+  window.subtitleUpdateInterval = setInterval(() => {
+    if (manualSubtitleActive && manualSubtitleCues.length > 0) {
+      updateManualSubtitles();
+    }
+  }, 100); // Update every 100ms for smooth subtitle display
+  
+  console.log('🎬 ⚙️ Subtitle update loop started');
+}
+
+function updateManualSubtitles() {
+  // Get current times
+  const rawVideoTime = videoPlayer.currentTime;
+  console.log("rawVideoTime ",rawVideoTime);
+  const currentMovieTime = parseInt(startTime) + parseInt(rawVideoTime);
+  console.log("currentMovieTime ",currentMovieTime);
+  const subtitleOffset = parseInt(document.getElementById('subtitle-offset')?.value || 0);
+  console.log("subtitleOffset ",subtitleOffset);
+  const adjustedTime = subtitleOffset; // Use the offset as the reference time for subtitles
+  console.log("adjustedTime ",adjustedTime);
+  // Update time displays
+  document.getElementById('current-movie-time').textContent = formatTimeForDisplay(currentMovieTime);
+  document.getElementById('raw-video-time').textContent = formatTimeForDisplay(rawVideoTime);
+  
+  // Find active subtitle cue
+  const activeCue = manualSubtitleCues.find(cue => 
+    adjustedTime >= cue.startTime && adjustedTime <= cue.endTime
+  );
+  
+  if (activeCue) {
+    document.getElementById('active-subtitle-text').textContent = activeCue.text.substring(0, 50) + '...';
+    displayManualSubtitle(activeCue.text);
+  } else {
+    document.getElementById('active-subtitle-text').textContent = 'None';
+    hideManualSubtitle();
+  }
+}
+
+function displayManualSubtitle(text) {
+  // Remove existing manual subtitle
+  const existingSubtitle = document.getElementById('manual-subtitle-display');
+  if (existingSubtitle) {
+    existingSubtitle.remove();
+  }
+  
+  // Create new subtitle display
+  const subtitleDiv = document.createElement('div');
+  subtitleDiv.id = 'manual-subtitle-display';
+  subtitleDiv.style.cssText = `
+    position: absolute;
+    bottom: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 6px;
+    font-size: 18px;
+    font-family: Arial, sans-serif;
+    text-align: center;
+    z-index: 1500;
+    max-width: 80%;
+    line-height: 1.4;
+    pointer-events: none;
+    white-space: pre-line;
+  `;
+  
+  subtitleDiv.textContent = text;
+  
+  // Add to video container
+  const videoContainer = videoPlayer.parentElement;
+  videoContainer.style.position = 'relative';
+  videoContainer.appendChild(subtitleDiv);
+}
+
+function hideManualSubtitle() {
+  const existingSubtitle = document.getElementById('manual-subtitle-display');
+  if (existingSubtitle) {
+    existingSubtitle.remove();
+  }
+}
+
+function formatTimeForDisplay(seconds) {
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const secs = Math.floor(seconds % 60);
+  
+  return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+}
+
+function switchSubtitleTrack(trackIndex) {
+  console.log('🎬 Switching subtitle track:', {
+    from: currentSubtitleTrackIndex,
+    to: trackIndex,
+    tracksAvailable: currentSubtitleTracks.length
+  });
+  
+  currentSubtitleTrackIndex = trackIndex;
+  
+  // Update UI
+  updateSubtitleTrackButtonLabel();
+  updateActiveSubtitleMenuItem();
+  
+  // Hide menu after selection
+  subtitleTrackMenu.style.display = 'none';
+  
+  // Enable the selected subtitle track (or disable all if trackIndex is -1)
+  enableSubtitleTrack(trackIndex);
 }
 
 // Audio track button event listeners
@@ -833,7 +1856,68 @@ document.addEventListener('click', (e) => {
       audioTrackMenu.style.display = 'none';
     }
   }
+  if (subtitleTrackMenu && subtitleTrackButton) {
+    if (!subtitleTrackButton.contains(e.target) && !subtitleTrackMenu.contains(e.target)) {
+      subtitleTrackMenu.style.display = 'none';
+    }
+  }
 });
+
+// Subtitle track button event listeners
+if (subtitleTrackButton) {
+  // Toggle menu on button click
+  subtitleTrackButton.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (subtitleTrackMenu.style.display === 'none' || !subtitleTrackMenu.style.display) {
+      subtitleTrackMenu.style.display = 'block';
+    } else {
+      subtitleTrackMenu.style.display = 'none';
+    }
+  });
+
+  // Keep controls visible when button is focused
+  subtitleTrackButton.addEventListener('focus', () => {
+    const controls = document.querySelector('.controls');
+    if (controls) {
+      controls.classList.add('show-subtitle-button');
+    }
+  });
+
+  subtitleTrackButton.addEventListener('blur', () => {
+    const controls = document.querySelector('.controls');
+    if (controls) {
+      controls.classList.remove('show-subtitle-button');
+    }
+  });
+
+  subtitleTrackButton.addEventListener('mouseenter', () => {
+    const controls = document.querySelector('.controls');
+    if (controls) {
+      controls.classList.add('show-subtitle-button');
+    }
+  });
+
+  subtitleTrackButton.addEventListener('mouseleave', () => {
+    const controls = document.querySelector('.controls');
+    if (controls) {
+      controls.classList.remove('show-subtitle-button');
+    }
+  });
+}
+
+// Subtitle track menu event listeners
+if (subtitleTrackMenu) {
+  // Handle menu item clicks
+  subtitleTrackMenu.addEventListener('click', (e) => {
+    const menuItem = e.target.closest('.subtitle-track-menu-item');
+    if (menuItem) {
+      const trackIndex = parseInt(menuItem.dataset.trackIndex);
+      if (trackIndex !== currentSubtitleTrackIndex) {
+        switchSubtitleTrack(trackIndex);
+      }
+    }
+  });
+}
 
 // Function to ensure audio button stays visible
 function ensureAudioButtonVisible() {

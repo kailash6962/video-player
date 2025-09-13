@@ -152,8 +152,14 @@ function playVideo(videodata,play=true) {
   if (typeof clearAudioTracks === 'function') {
     clearAudioTracks();
   }
+  if (typeof clearSubtitleTracks === 'function') {
+    clearSubtitleTracks();
+  }
   if (typeof loadAudioTracks === 'function') {
     loadAudioTracks(videodata.id);
+  }
+  if (typeof loadSubtitleTracks === 'function') {
+    loadSubtitleTracks(videodata.id);
   }
   
   // Update movie info panel with current video data
@@ -235,6 +241,33 @@ function cleanVideoTitle(title) {
     console.log('🎬 Final cleaned title:', cleanTitle);
     
     return cleanTitle || title; // Fallback to original if cleaning results in empty string
+}
+
+// Header scroll effect
+function initHeaderScrollEffect() {
+    const header = document.querySelector('.netflix-header');
+    if (!header) return;
+    
+    let lastScrollY = window.scrollY;
+    
+    window.addEventListener('scroll', () => {
+        const currentScrollY = window.scrollY;
+        
+        if (currentScrollY > 50) {
+            header.classList.add('scrolled');
+        } else {
+            header.classList.remove('scrolled');
+        }
+        
+        lastScrollY = currentScrollY;
+    });
+}
+
+// Initialize header effects when DOM is loaded
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initHeaderScrollEffect);
+} else {
+    initHeaderScrollEffect();
 }
 
 // Extract movie metadata from filename

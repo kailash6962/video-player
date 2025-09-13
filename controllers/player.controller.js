@@ -118,6 +118,51 @@ class PlayerController {
       res.status(500).json({ error: 'Server error' });
     }
   }
+
+  async getSubtitleTracks(req, res) {
+    try {
+      const videoId = req.params.id;
+      const series = req.params.series === "home" ? "" : req.params.series || "";
+      
+      // Handle special characters in folder names
+      const { resolveActualFolderName } = require("../utils/folderUtils");
+      const actualFolderName = resolveActualFolderName(series);
+      
+      const filePath = require('path').join(process.env.VIDEO_DIR, actualFolderName, videoId);
+      if (!require('fs').existsSync(filePath)) {
+        return res.status(404).json({ error: 'Video not found' });
+      }
+
+      console.log("getSubtitleTracks API called:", { series, id: videoId, filePath });
+      const subtitleTracks = await this.videoService.getSubtitleTracks(filePath);
+      console.log("getSubtitleTracks API response:", subtitleTracks);
+      res.json(subtitleTracks);
+    } catch (err) {
+      res.status(500).json({ error: 'Server error' });
+    }
+  }
+
+  async streamSubtitle(req, res) {
+    try {
+      await this.videoService.streamSubtitle(req, res);
+    } catch (err) {
+      console.error("Error in subtitle streaming controller:", err);
+      if (!res.headersSent) {
+        res.status(500).send("Subtitle streaming failed");
+      }
+    }
+  }
+
+  async streamSubtitleChunk(req, res) {
+    try {
+      await this.videoService.streamSubtitleChunk(req, res);
+    } catch (err) {
+      console.error("Error in chunked subtitle streaming controller:", err);
+      if (!res.headersSent) {
+        res.status(500).send("Chunked subtitle streaming failed");
+      }
+    }
+  }
 }
 
 module.exports = PlayerController;
