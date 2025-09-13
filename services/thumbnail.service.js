@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const ffmpeg = require("fluent-ffmpeg");
+const { resolveActualFolderName } = require("../utils/folderUtils");
 
 const VIDEOS_DIR = process.env.VIDEO_DIR;
 
@@ -9,11 +10,15 @@ class ThumbnailService {
     const videoId = req.params.id;
     const type = req.params.type;
     const db = req.params.db === "home" ? "" : req.params.db || "";
+    
+    // Handle special characters in folder names by finding the actual folder
+    const actualFolderName = resolveActualFolderName(db);
+    
     let videoPath;
     if (type === "file") {
-      videoPath = path.join(VIDEOS_DIR, db, videoId);
+      videoPath = path.join(VIDEOS_DIR, actualFolderName, videoId);
     } else {
-      videoPath = this.getFirstFile(path.join(VIDEOS_DIR, db));
+      videoPath = this.getFirstFile(path.join(VIDEOS_DIR, actualFolderName));
     }
     if (!fs.existsSync(videoPath)) {
       return res.status(404).send('Video not found');
