@@ -1,13 +1,18 @@
 const fs = require("fs");
 const path = require("path");
 const ffmpeg = require("fluent-ffmpeg");
+const { resolveActualFolderName } = require("../utils/folderUtils");
 
 const VIDEOS_DIR = process.env.VIDEO_DIR;
 const VIDEO_EXTENSIONS = [".mp4", ".mov", ".mkv", ".avi", ".webm"];
 
 class VideoService {
   async getVideosList(req, series) {
-    const vidDir = path.join(VIDEOS_DIR, series);
+    try{
+    // Handle special characters in folder names by finding the actual folder
+    const actualFolderName = resolveActualFolderName(series);
+    
+    const vidDir = path.join(VIDEOS_DIR, actualFolderName);
     const files = fs.readdirSync(vidDir);
     const videoFiles = files.filter((file) =>
       VIDEO_EXTENSIONS.includes(path.extname(file).toLowerCase())
@@ -43,6 +48,10 @@ class VideoService {
         });
     }
     return videos;
+    } catch (error) {
+      console.error("Error reading video directory:", error);
+      return [];
+    }
   }
 
   getVideoDetails(file, req) {
@@ -71,8 +80,11 @@ class VideoService {
     const videoId = req.params.id;
     const series = req.params.series === "home" ? "" : req.params.series || "";
 
+    // Handle special characters in folder names by finding the actual folder
+    const actualFolderName = resolveActualFolderName(series);
+
     const videoStartFrom = Number(req.query.start || 0);
-    const filePath = path.join(VIDEOS_DIR, series, videoId);
+    const filePath = path.join(VIDEOS_DIR, actualFolderName, videoId);
     if (!fs.existsSync(filePath)) {
       return res.status(404).send("Video not found");
     }
