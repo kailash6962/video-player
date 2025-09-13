@@ -4,20 +4,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Video Gallery</title>
+    <title>Video Player</title>
     <link rel="stylesheet" href="/style.css">
 </head>
 
 <body>
-    <div class="header">
-        <a href="#" class="logo">
-            <span>▶️ <span class="page-title">Player</span></span>
-        </a>
+    <!-- Netflix-style Header -->
+    <header class="netflix-header">
+        <div class="header-content">
+            <div class="logo">
+                <span class="logo-icon">▶️</span>
+                <span class="logo-text page-title">Player</span>
+            </div>
     </div>
+    </header>
 
-    <div class="container">
-
-        <div class="player-section">
+    <!-- Main Content -->
+    <main class="netflix-main">
+        <!-- Player Section -->
+        <section class="player-section-netflix">
+            <div class="player-container-wrapper">
             <div id="playerContainer">
                 <div id="player-title">No Title</div>
                 <div id="videoLoader" style="display:none;position:absolute;left:0;right:0;top:0;bottom:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.3);">
@@ -63,6 +69,15 @@
                     <input type="range" id="seek" value="0" min="0" max="100">
                     <span class="time" id="duration">0:00</span>
                     <button id="ccButton" class="cc-button" aria-label="Closed Captions">CC</button>
+                        <button id="audioTrackButton" class="audio-track-button" aria-label="Audio Track" title="Audio Track">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="white" viewBox="0 0 24 24">
+                                <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
+                            </svg>
+                            <span class="audio-track-label">AUD</span>
+                        </button>
+                        <div id="audioTrackMenu" class="audio-track-menu" style="display: none;">
+                            <!-- Audio track options will be populated here -->
+                        </div>
                     <button id="muteButton">🔊</button>
                     <input type="range" id="volume" min="0" max="1" step="0.05" value="1">
                     <button id="fullscreenButton" class="cc-fullscreenButton player-controls" aria-label="Full Screen">
@@ -72,20 +87,195 @@
                     </button>
                 </div>
             </div>
-            <!-- Video info -->
-            <div class="video-info">
-                <h2 class="video-title" id="video-title">No Video</h2>
-                <div class="video-meta">
-                    <!-- <span id="main-video-size">0KB</span> -->
-                    <span id="main-video-lastviewed">Last viewed: - </span>
+                <!-- Netflix Hero Banner Style Video Info -->
+                <div class="netflix-hero-banner" id="netflix-hero-banner">
+                    <div class="hero-background-image" id="hero-background-image"></div>
+                    <div class="hero-gradient-overlay"></div>
+                    
+                    <!-- Main Content Card -->
+                    <div class="main-content-card">
+                        <div class="movie-info-card">
+                            <div class="netflix-badge">
+                                <span class="netflix-logo">N</span>
+                                <span class="content-type main-title" id="content-type">SERIES</span>
+                                <span class="movie-name main-title" id="video-title">No Video</span>
+                            </div>
+                            
+                            
+                            <div class="file-quality-info" id="file-quality-info">
+                                DD+5.1 - 640Kbps & AAC - 20.8GB - ESub
+                            </div>
+                            
+                            <div class="main-metadata">
+                                <span class="metadata-item" id="content-category">Movie</span>
+                                <span class="metadata-separator">•</span>
+                                <span class="metadata-item" id="movie-genre">Comedy</span>
+                                <span class="metadata-separator">•</span>
+                                <span class="metadata-item" id="movie-year">2025</span>
+                                <span class="metadata-separator">•</span>
+                                <span class="metadata-item" id="movie-duration">2h 48m</span>
+                                <span class="metadata-separator">•</span>
+                                <span class="metadata-item rating-badge" id="movie-rating">TV-MA</span>
+                            </div>
+                            
+                            <div class="language-badges-section">
+                                <div class="languages-container" id="hero-languages-container">
+                                    <span class="hero-lang-badge">Tamil</span>
+                                    <span class="hero-lang-badge">Telugu</span>
+                                    <span class="hero-lang-badge">Malayalam</span>
+                                    <span class="hero-lang-badge">Kannada</span>
+                                </div>
+                            </div>
+                            
+                            <div class="video-details-section">
+                                <div class="detail-row">
+                                    <span class="detail-label">Resolution:</span>
+                                    <span class="detail-value" id="video-resolution">1920x1080</span>
+                                </div>
+                                <div class="detail-row">
+                                    <span class="detail-label">Video Codec:</span>
+                                    <span class="detail-value" id="video-codec">H.264</span>
+                                </div>
+                                <div class="detail-row">
+                                    <span class="detail-label">Audio Tracks:</span>
+                                    <span class="detail-value" id="audio-track-count">4 languages</span>
+                                </div>
+                                <div class="detail-row">
+                                    <span class="detail-label">Last Viewed:</span>
+                                    <span class="detail-value" id="last-viewed-info">Never</span>
+                                </div>
+                                <div class="detail-row">
+                                    <span class="detail-label">Watch Progress:</span>
+                                    <span class="detail-value" id="watch-progress-info">0%</span>
+                                </div>
+                            </div>
+                            
+                            <div class="main-actions">
+                                <button class="play-button" id="hero-play-btn">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                                        <path d="M8 5v14l11-7z" fill="currentColor"/>
+                                    </svg>
+                                    <span>Play</span>
+                                </button>
+                                <button class="info-button" id="hero-info-btn">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                                        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                                        <path d="M12 16v-4" stroke="currentColor" stroke-width="2"/>
+                                        <path d="M12 8h.01" stroke="currentColor" stroke-width="2"/>
+                                    </svg>
+                                    <span>More Info</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Movie Info Modal -->
+                <div class="movie-info-modal" id="movie-info-modal">
+                    <div class="modal-overlay" id="modal-overlay"></div>
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h2 class="modal-title" id="modal-video-title">Movie Details</h2>
+                            <button class="modal-close" id="modal-close">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                    <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2"/>
+                                </svg>
+                            </button>
+                        </div>
+                        
+                        <div class="modal-body">
+                            <div class="modal-grid">
+                                <div class="modal-column">
+                                    <div class="modal-section">
+                                        <h3 class="modal-section-title">About this title</h3>
+                                        <div class="modal-description" id="modal-movie-description">
+                                            <p>Loading movie description...</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="modal-section">
+                                        <h3 class="modal-section-title">Technical Details</h3>
+                                        <div class="modal-tech-grid">
+                                            <div class="modal-tech-item">
+                                                <span class="modal-tech-label">Resolution</span>
+                                                <span class="modal-tech-value" id="modal-video-resolution">1920x1080</span>
+                                            </div>
+                                            <div class="modal-tech-item">
+                                                <span class="modal-tech-label">Video Codec</span>
+                                                <span class="modal-tech-value" id="modal-video-codec">H.264</span>
+                                            </div>
+                                            <div class="modal-tech-item">
+                                                <span class="modal-tech-label">File Size</span>
+                                                <span class="modal-tech-value" id="modal-movie-size">-</span>
+                                            </div>
+                                            <div class="modal-tech-item">
+                                                <span class="modal-tech-label">Duration</span>
+                                                <span class="modal-tech-value" id="modal-movie-duration">2h 22m</span>
+                                            </div>
+                                            <div class="modal-tech-item">
+                                                <span class="modal-tech-label">Bitrate</span>
+                                                <span class="modal-tech-value" id="modal-video-bitrate">-</span>
+                                            </div>
+                                            <div class="modal-tech-item">
+                                                <span class="modal-tech-label">Frame Rate</span>
+                                                <span class="modal-tech-value" id="modal-video-fps">-</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="modal-column">
+                                    <div class="modal-section">
+                                        <h3 class="modal-section-title">Audio & Subtitles</h3>
+                                        <div class="modal-audio-tracks" id="modal-audio-tracks-info">
+                                            <div class="modal-audio-track">
+                                                <div class="modal-audio-header">
+                                                    <span class="modal-audio-language">Hindi</span>
+                                                    <span class="modal-audio-quality">High - 640kbps</span>
+                                                </div>
+                                                <div class="modal-audio-details">EAC3 6 channels 48kHz</div>
                 </div>
             </div>
         </div>
 
-        <!-- Video gallery -->
-        <h3 class="gallery-title">More Videos</h3>
-        <div class="gallery" id="videoGallery"></div>
+                                    <div class="modal-section">
+                                        <h3 class="modal-section-title">Viewing History</h3>
+                                        <div class="modal-viewing-info">
+                                            <div class="modal-viewing-item">
+                                                <span class="modal-viewing-label">Last Viewed</span>
+                                                <span class="modal-viewing-value" id="modal-main-video-lastviewed">Never</span>
+                                            </div>
+                                            <div class="modal-viewing-item">
+                                                <span class="modal-viewing-label">Watch Progress</span>
+                                                <span class="modal-viewing-value" id="modal-watch-progress">0%</span>
+                                            </div>
+                                            <div class="modal-viewing-item">
+                                                <span class="modal-viewing-label">Times Watched</span>
+                                                <span class="modal-viewing-value" id="modal-times-watched">0</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- More Videos Section -->
+        <section class="content-section">
+            <div class="section-header">
+                <h2 class="section-title">More Videos</h2>
+                <div class="section-line"></div>
+                <div class="section-count" id="moreVideosCount">0 Videos</div>
+            </div>
+            <div class="grid-container" id="videoGallery">
+                <!-- Videos will be populated here -->
     </div>
+        </section>
+    </main>
+
     <script src="/common.js"></script>
     <script src="/play/play.js"></script>
 </body>
