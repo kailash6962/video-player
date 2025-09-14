@@ -197,13 +197,26 @@ function playVideo(videodata,play=true) {
     .then(response => response.json())
     .then(data => {
       if (data.current_time && data.current_time > 0) {
-         startTime = data.current_time;
+         // Convert current_time to seconds if it's in HH:MM:SS format
+         let startTimeSeconds = 0;
+         if (typeof data.current_time === 'string' && data.current_time.includes(':')) {
+           // HH:MM:SS format - convert to seconds
+           const timeParts = data.current_time.split(':');
+           startTimeSeconds = (parseInt(timeParts[0]) * 3600) + 
+                            (parseInt(timeParts[1]) * 60) + 
+                            parseFloat(timeParts[2]);
+         } else {
+           // Already in seconds
+           startTimeSeconds = parseFloat(data.current_time) || 0;
+         }
+         
+         startTime = startTimeSeconds;
          const url = new URL(video.src);
-          url.searchParams.set('start', data.current_time); // update or add start param
+          url.searchParams.set('start', startTimeSeconds); // update or add start param
           video.src = url.toString();
         } else {
         const url = new URL(video.src);
-          url.searchParams.set('start', data.current_time); // update or add start param
+          url.searchParams.set('start', 0); // update or add start param
           video.src = url.toString();
         }
         video.load();                            // reload video with new source

@@ -33,6 +33,18 @@
                 <a href="/movies" class="nav-link" tabindex="2">Movies</a>
                 <a href="/series" class="nav-link active" tabindex="3">Series</a>
             </nav>
+            <div class="user-section">
+                <div class="current-user" id="currentUser">
+                    <span class="user-avatar" id="userAvatar">👤</span>
+                    <span class="user-name" id="userName">Guest</span>
+                </div>
+                <button class="logout-btn" onclick="window.location.href='/'" title="Switch User">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.59L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/>
+                    </svg>
+                    <span>Switch User</span>
+                </button>
+            </div>
         </div>
     </header>
 
@@ -93,6 +105,16 @@
                 </button>
             </div>
             <div class="slide-indicators" id="slide-indicators">
+            </div>
+        </section>
+
+        <!-- Continue Watching Series Section -->
+        <section class="content-section" id="continue-watching-section" style="display: none;">
+            <div class="section-header">
+                <h2 class="section-title">Continue Watching Series</h2>
+            </div>
+            <div class="grid-container" id="continue-watching-grid">
+                <!-- Continue watching series will be populated here -->
             </div>
         </section>
 

@@ -61,12 +61,19 @@ class VideoService {
 
   getVideoDetails(file, req) {
     return new Promise((resolve, reject) => {
+      const userId = req.cookies?.user_id || 'guest';
+      
+      // Use the full schema since all columns exist
       req.db.get(
-        "SELECT * FROM video_metadata WHERE video_id = ?",
-        [file],
+        "SELECT * FROM video_metadata WHERE user_id = ? AND video_id = ?",
+        [userId, file],
         (err, row) => {
-          if (err) reject(err);
-          else resolve(row);
+          if (err) {
+            console.error('Database error getting video details:', err);
+            reject(err);
+          } else {
+            resolve(row);
+          }
         }
       );
     });
@@ -1127,15 +1134,22 @@ If subtitles don't appear, try refreshing the page.
     }
     const stat = fs.statSync(filePath);
     const fileSize = stat.size;
+    const userId = req.cookies?.user_id || 'guest';
+    
     req.db.run(
-      `INSERT INTO video_metadata (video_id, last_opened, size) VALUES (?, ?, ?) 
-      ON CONFLICT(video_id) DO UPDATE SET last_opened = excluded.last_opened, size = excluded.size`,
-      [videoId, new Date().toISOString(), fileSize]
+      `INSERT OR REPLACE INTO video_metadata 
+       (user_id, video_id, last_opened, size, active, created_at, updated_at) 
+       VALUES (?, ?, ?, ?, 0, 
+         COALESCE((SELECT created_at FROM video_metadata WHERE user_id = ? AND video_id = ?), datetime('now')),
+         datetime('now'))`,
+      [userId, videoId, new Date().toISOString(), fileSize, userId, videoId]
     );
-    req.db.run(`UPDATE video_metadata SET active = ?`, [0], function (err) {
+    
+    // Clear all active flags for this user, then set current video as active
+    req.db.run(`UPDATE video_metadata SET active = 0 WHERE user_id = ?`, [userId], function (err) {
       if (!err) {
-        req.db.run(`UPDATE video_metadata SET active = ? WHERE video_id = ?`, [
-          1,
+        req.db.run(`UPDATE video_metadata SET active = 1 WHERE user_id = ? AND video_id = ?`, [
+          userId,
           videoId,
         ]);
       }

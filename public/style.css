@@ -289,6 +289,7 @@
         }
     }
 
+
     @media (max-width: 768px) {
         .gallery {
             grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -632,6 +633,90 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
+    }
+    
+    /* User Section */
+    .user-section {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+    
+    .current-user {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(255, 255, 255, 0.1);
+        padding: 8px 12px;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+    
+    .current-user:hover {
+        background: rgba(255, 255, 255, 0.15);
+    }
+    
+    .user-avatar {
+        font-size: 0.9rem;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #ff0000, #cc0000); /* Fallback color */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+    
+    .user-name {
+        color: white;
+        font-size: 0.9rem;
+        font-weight: 500;
+    }
+    
+    .logout-btn {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 8px;
+        color: #ccc;
+        font-size: 0.85rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        white-space: nowrap;
+    }
+    
+    .logout-btn:hover {
+        background: rgba(255, 0, 0, 0.15);
+        border-color: rgba(255, 0, 0, 0.3);
+        color: #ff0000;
+        transform: translateY(-1px);
+    }
+    
+    .logout-btn:active {
+        transform: translateY(0);
+    }
+    
+    .logout-btn svg {
+        width: 16px;
+        height: 16px;
+        transition: transform 0.3s ease;
+    }
+    
+    .logout-btn:hover svg {
+        transform: translateX(2px);
+    }
+    
+    .logout-btn span {
+        font-family: inherit;
     }
 
     .logo {
@@ -1461,6 +1546,39 @@
         .logo-icon {
             width: 40px;
             height: 40px;
+        }
+        
+        /* User section responsive */
+        .user-section {
+            gap: 10px;
+        }
+        
+        .logout-btn {
+            padding: 6px 8px;
+            font-size: 0.75rem;
+        }
+        
+        .logout-btn span {
+            display: none;
+        }
+        
+        .logout-btn svg {
+            width: 18px;
+            height: 18px;
+        }
+        
+        .current-user {
+            padding: 6px 8px;
+        }
+        
+        .user-avatar {
+            font-size: 0.8rem;
+            width: 28px;
+            height: 28px;
+        }
+        
+        .user-name {
+            font-size: 0.8rem;
         }
         
         .logo-icon svg {

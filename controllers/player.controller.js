@@ -31,7 +31,7 @@ class PlayerController {
 
   async getAllFolders(req, res) {
     try {
-      const folders = await this.folderService.getAllFolders();
+      const folders = await this.folderService.getAllFolders(req);
       res.json(folders);
     } catch (err) {
       console.log("📢[:37]: err: ", err);
