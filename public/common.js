@@ -7,6 +7,7 @@ function renderVideoCard(video) {
     const card = document.createElement('div');
     card.className = 'netflix-card';
     card.id = video.id;
+    card.setAttribute('tabindex', '0');
 
     // Create thumbnail
     const thumbnail = document.createElement('img');
@@ -42,7 +43,7 @@ function renderVideoCard(video) {
     // Watch status row
     const statusRow = document.createElement('div');
     statusRow.className = 'card-meta-row';
-    const watchStatus = (video.duration - 5) <= video.current_time ? 'Watched ✅' : 'Not watched';
+    const watchStatus = (video.duration - 5) <= video.current_time ? 'Watched ✅' : '';
     statusRow.innerHTML = `<span>${watchStatus}</span>`;
 
     cardMeta.appendChild(durationRow);

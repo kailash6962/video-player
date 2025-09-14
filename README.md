@@ -50,7 +50,7 @@ A professional-grade video streaming platform with Netflix-like UI, advanced sub
 
 1. **Clone the repository:**
 ```bash
-git clone https://github.com/your-username/video-player.git
+git clone https://github.com/kailash6962/video-player.git
 cd video-player
 ```
 

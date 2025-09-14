@@ -216,6 +216,13 @@ fetch(`/api/videos/${series}`, {
             moreVideosCount.textContent = `${videos.length} Video${videos.length !== 1 ? 's' : ''}`;
         }
         
+        // Refresh TV navigation after cards are loaded
+        if (window.tvNavigation) {
+            setTimeout(() => {
+                window.tvNavigation.refreshNavigation();
+            }, 100);
+        }
+        
         // Auto-select and click the video card if specified in URL
         const videoParam = params.get('video');
         if (videoParam) {
@@ -669,6 +676,7 @@ async function loadAudioTracks(videoId) {
         const menuItem = document.createElement('div');
         menuItem.className = 'audio-track-menu-item';
         menuItem.dataset.trackIndex = track.originalIndex;
+        menuItem.setAttribute('tabindex', '0');
         
         menuItem.innerHTML = `
           <div class="track-info">
@@ -677,6 +685,17 @@ async function loadAudioTracks(videoId) {
           </div>
           <div class="track-checkmark">✓</div>
         `;
+        
+        // Add keyboard support for menu item
+        menuItem.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            const trackIndex = parseInt(menuItem.dataset.trackIndex);
+            if (trackIndex !== currentAudioTrackIndex) {
+              switchAudioTrack(trackIndex);
+            }
+          }
+        });
         
         audioTrackMenu.appendChild(menuItem);
         console.log(`Added audio track option: index=${track.originalIndex}, language=${track.language}, quality=${track.quality}, displayName=${track.language} (${track.quality} - ${Math.round(track.bitrate/1000)}kbps)`);
@@ -817,6 +836,7 @@ async function loadSubtitleTracks(videoId) {
       const menuItem = document.createElement('div');
       menuItem.className = 'subtitle-track-menu-item';
       menuItem.dataset.trackIndex = track.index;
+      menuItem.setAttribute('tabindex', '0');
       
       menuItem.innerHTML = `
         <div class="track-info">
@@ -825,6 +845,17 @@ async function loadSubtitleTracks(videoId) {
         </div>
         <span class="track-checkmark" style="display: none;">✓</span>
       `;
+      
+      // Add keyboard support for menu item
+      menuItem.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          const trackIndex = parseInt(menuItem.dataset.trackIndex);
+          if (trackIndex !== currentSubtitleTrackIndex) {
+            switchSubtitleTrack(trackIndex);
+          }
+        }
+      });
       
       subtitleTrackMenu.appendChild(menuItem);
       console.log(`Added subtitle track option: index=${track.index}, language=${track.language}, codec=${track.codecDisplayName}, compatible=${track.isBrowserCompatible}`);
