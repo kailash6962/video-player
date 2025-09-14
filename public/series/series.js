@@ -1,5 +1,38 @@
 // Series page JavaScript
 
+// Load current user info
+async function loadCurrentUser() {
+    try {
+        const response = await fetch('/api/users/current');
+        if (response.ok) {
+            const { user } = await response.json();
+            updateUserDisplay(user);
+        } else {
+            // Redirect to user selection if no valid session
+            window.location.href = '/';
+        }
+    } catch (error) {
+        console.error('Error loading user:', error);
+        window.location.href = '/';
+    }
+}
+
+function updateUserDisplay(user) {
+    const userAvatar = document.getElementById('userAvatar');
+    const userName = document.getElementById('userName');
+    
+    if (userAvatar && userName) {
+        userAvatar.textContent = user.avatar_emoji || '👤';
+        userName.textContent = user.display_name || 'Guest';
+        
+        // Apply dynamic colors if available
+        if (user.avatar_bg_color && user.avatar_text_color) {
+            userAvatar.style.background = user.avatar_bg_color;
+            userAvatar.style.color = user.avatar_text_color;
+        }
+    }
+}
+
 // Slideshow variables
 let currentSlide = 0;
 let slideshowData = [];
@@ -18,6 +51,8 @@ const audioTrackMenu = document.getElementById('audioTrackMenu');
 // Load series and display them
 document.addEventListener('DOMContentLoaded', async function() {
     console.log('🎬 Series page loaded');
+    // Load current user info first
+    loadCurrentUser();
     await loadSeries();
     createHeroSlideshow();
 });

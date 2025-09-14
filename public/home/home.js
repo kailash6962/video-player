@@ -6,6 +6,39 @@ let slideshowData = [];
 let slideshowInterval;
 const SLIDESHOW_INTERVAL = 5000; // 5 seconds per slide
 
+// Load current user info
+async function loadCurrentUser() {
+    try {
+        const response = await fetch('/api/users/current');
+        if (response.ok) {
+            const { user } = await response.json();
+            updateUserDisplay(user);
+        } else {
+            // Redirect to user selection if no valid session
+            window.location.href = '/';
+        }
+    } catch (error) {
+        console.error('Error loading user:', error);
+        window.location.href = '/';
+    }
+}
+
+function updateUserDisplay(user) {
+    const userAvatar = document.getElementById('userAvatar');
+    const userName = document.getElementById('userName');
+    
+    if (userAvatar && userName) {
+        userAvatar.textContent = user.avatar_emoji || '👤';
+        userName.textContent = user.display_name || 'Guest';
+        
+        // Apply dynamic colors if available
+        if (user.avatar_bg_color && user.avatar_text_color) {
+            userAvatar.style.background = user.avatar_bg_color;
+            userAvatar.style.color = user.avatar_text_color;
+        }
+    }
+}
+
 const videoListEl = document.getElementById('videoList');
 const playerContainer = document.getElementById('playerContainer');
 const videoPlayer = document.getElementById('videoPlayer');
@@ -528,6 +561,9 @@ function createFallbackSlideshow(cards) {
 
 // Auto-focus first card for TV browsers
 window.addEventListener('load', function() {
+    // Load current user info first
+    loadCurrentUser();
+    
     // Initialize slideshow
     createHeroSlideshow();
     

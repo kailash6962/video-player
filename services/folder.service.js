@@ -6,7 +6,7 @@ const VIDEOS_DIR = process.env.VIDEO_DIR;
 const VIDEO_EXTENSIONS = ['.mp4', '.mov', '.mkv', '.avi', '.webm'];
 
 class FolderService {
-  async getAllFolders() {
+  async getAllFolders(req = null) {
     const folders = fs.readdirSync(VIDEOS_DIR).filter(folder =>
       fs.statSync(path.join(VIDEOS_DIR, folder)).isDirectory() &&
       folder !== process.env.THUMBNAIL_DIR.split('/').pop() && 
@@ -19,21 +19,43 @@ class FolderService {
         let lastOpened = null;
         let lastOpenedNumber = null;
         if (fs.existsSync(dbPath)) {
-          // Get the latest last_opened value and the count of rows with last_opened
+          // Get user-specific progress information
+          const userId = req?.cookies?.user_id || 'guest';
           const result = await new Promise((resolve) => {
             const db = new sqlite3.Database(dbPath);
-            db.get(
-              `SELECT 
-                  (SELECT last_opened FROM video_metadata WHERE last_opened IS NOT NULL ORDER BY datetime(last_opened) DESC LIMIT 1) as last_opened,
-                  (SELECT COUNT(*) FROM video_metadata WHERE last_opened IS NOT NULL) as lastOpenedNumber
-              `,
-              [],
-              (err, row) => {
+            
+            // Check if the database has user_id column
+            db.all("PRAGMA table_info(video_metadata)", (err, columns) => {
+              if (err) {
+                db.close();
+                return resolve({});
+              }
+              
+              const hasUserId = columns && columns.some(col => col.name === 'user_id');
+              
+              let query, params;
+              if (hasUserId) {
+                // Use user-specific query
+                query = `SELECT 
+                    (SELECT last_opened FROM video_metadata WHERE user_id = ? AND last_opened IS NOT NULL ORDER BY datetime(last_opened) DESC LIMIT 1) as last_opened,
+                    (SELECT COUNT(*) FROM video_metadata WHERE user_id = ? AND last_opened IS NOT NULL) as lastOpenedNumber
+                `;
+                params = [userId, userId];
+              } else {
+                // Fallback to original query for old databases
+                query = `SELECT 
+                    (SELECT last_opened FROM video_metadata WHERE last_opened IS NOT NULL ORDER BY datetime(last_opened) DESC LIMIT 1) as last_opened,
+                    (SELECT COUNT(*) FROM video_metadata WHERE last_opened IS NOT NULL) as lastOpenedNumber
+                `;
+                params = [];
+              }
+              
+              db.get(query, params, (err, row) => {
                 db.close();
                 if (err) return resolve({});
                 resolve(row || {});
-              }
-            );
+              });
+            });
           });
           lastOpened = result.last_opened || null;
           lastOpenedNumber = result.lastOpenedNumber || null;
