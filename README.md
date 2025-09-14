@@ -49,15 +49,15 @@ A professional-grade video streaming platform with Netflix-like UI, advanced sub
 ### Installation
 
 1. **Clone the repository:**
-```bash
-git clone https://github.com/kailash6962/video-player.git
-cd video-player
-```
+   ```bash
+   git clone https://github.com/kailash6962/video-player.git
+   cd video-player
+   ```
 
 2. **Install dependencies:**
-```bash
-npm install
-```
+   ```bash
+   npm install
+   ```
 
 3. **Set up environment:**
 ```bash
@@ -82,9 +82,9 @@ VIDEO_DIR=/path/to/your/video/files
 ### Running the Application
 
 #### Development Mode
-```bash
-node server.js
-```
+   ```bash
+   node server.js
+   ```
 
 #### Production Mode with PM2
 ```bash

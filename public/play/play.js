@@ -460,7 +460,10 @@ videoPlayer.addEventListener('timeupdate', () => {
             fetch('/api/watch-progress', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'x-db-name': series },
-                body: JSON.stringify({ video_id: currentVideoId, current_time: updatedCurrTime }),
+                body: JSON.stringify({ 
+                    video_id: currentVideoId, 
+                    current_time: updatedCurrTime
+                }),
             }).catch(err => console.error('Error saving progress:', err));
             const cardElement = document.getElementById(currentVideoId);
             if (cardElement) {

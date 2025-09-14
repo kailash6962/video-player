@@ -306,23 +306,6 @@ class UserService {
         });
     }
 
-    async getUserContinueWatching(userId, limit = 10) {
-        return new Promise((resolve, reject) => {
-            const db = new sqlite3.Database('./databases/home.db');
-            
-            db.all(`
-                SELECT video_id, current_time, last_opened, size
-                FROM video_metadata 
-                WHERE user_id = ? AND current_time > 0
-                ORDER BY last_opened DESC
-                LIMIT ?
-            `, [userId, limit], (err, videos) => {
-                db.close();
-                if (err) reject(err);
-                else resolve(videos || []);
-            });
-        });
-    }
 
     async setActiveVideo(userId, videoId) {
         return new Promise((resolve, reject) => {
@@ -428,6 +411,214 @@ class UserService {
                 }
             });
         });
+    }
+
+    async getContinueWatching(userId) {
+        console.log(`Getting continue watching for user: ${userId}`);
+        
+        // Get all series databases
+        const fs = require('fs');
+        const path = require('path');
+        const databasesDir = path.join(__dirname, '..', 'databases');
+        
+        if (!fs.existsSync(databasesDir)) {
+            console.log('Databases directory does not exist');
+            return [];
+        }
+        
+        const dbFiles = fs.readdirSync(databasesDir)
+            .filter(file => file.endsWith('.sqlite3') && file !== 'home.db');
+        
+        console.log(`Found ${dbFiles.length} video databases:`, dbFiles);
+        
+        let continueWatching = [];
+        
+        if (dbFiles.length === 0) {
+            console.log('No video databases found');
+            return [];
+        }
+        
+        // Process databases sequentially to handle async operations
+        for (const dbFile of dbFiles) {
+            const seriesName = dbFile.replace('.sqlite3', '');
+            const seriesDbPath = path.join(databasesDir, dbFile);
+            
+            console.log(`Checking database: ${seriesName}`);
+            
+            const seriesDb = new sqlite3.Database(seriesDbPath);
+            
+            try {
+                const videos = await new Promise((resolve, reject) => {
+                    seriesDb.all(`
+                        SELECT 
+                            video_id,
+                            "current_time" as watch_time,
+                            size,
+                            length,
+                            last_opened
+                        FROM video_metadata 
+                        WHERE user_id = ? 
+                        AND "current_time" IS NOT NULL 
+                        AND "current_time" != ''
+                        AND "current_time" > 0
+                        ORDER BY last_opened DESC
+                    `, [userId], (err, videos) => {
+                        if (err) reject(err);
+                        else resolve(videos || []);
+                    });
+                });
+
+                console.log("videos continue watching >>>", videos);
+                console.log(`${seriesName}: Found ${videos.length} videos with watch progress`);
+                
+                if (videos.length > 0) {
+                    // Determine if this is a series or movie based on database name
+                    const isSeries = seriesName !== 'home'; // home.sqlite3 = movies, others = series
+                    
+                    if (isSeries) {
+                        // This is a series - create one card with overall progress
+                        const VIDEOS_DIR = process.env.VIDEO_DIR;
+                        const fs = require('fs');
+                        const path = require('path');
+                        const VIDEO_EXTENSIONS = ['.mp4', '.mov', '.mkv', '.avi', '.webm'];
+                        const { resolveActualFolderName } = require('../utils/folderUtils');
+                        
+                        let totalVideosInFolder = 0;
+                        
+                        try {
+                            // Resolve the actual folder name (handles special characters)
+                            const actualFolderName = resolveActualFolderName(seriesName);
+                            console.log(`Resolving series folder: ${seriesName} -> ${actualFolderName}`);
+                            
+                            const folderPath = path.join(VIDEOS_DIR, actualFolderName);
+                            console.log(`Checking series folder path: ${folderPath}`);
+                            
+                            if (fs.existsSync(folderPath)) {
+                                const files = fs.readdirSync(folderPath);
+                                console.log(`Files in series folder:`, files);
+                                totalVideosInFolder = files.filter(file => 
+                                    VIDEO_EXTENSIONS.includes(path.extname(file).toLowerCase())
+                                ).length;
+                                console.log(`Total videos in series: ${totalVideosInFolder}`);
+                            } else {
+                                console.log(`Series folder does not exist: ${folderPath}`);
+                                totalVideosInFolder = videos.length; // Fallback
+                            }
+                        } catch (error) {
+                            console.error(`Error reading series folder ${seriesName}:`, error);
+                            totalVideosInFolder = videos.length; // Fallback
+                        }
+                        
+                        const watchedVideos = videos.filter(video => {
+                            // Consider a video "watched" if it has been started (current_time > 0)
+                            return video.current_time && video.current_time !== '0' && video.current_time !== '';
+                        }).length;
+                        
+                        const overallProgress = totalVideosInFolder > 0 ? Math.round((watchedVideos / totalVideosInFolder) * 100) : 0;
+                        
+                        // Create a single series card
+                        const seriesCard = {
+                            video_id: seriesName, // Use series name as the ID
+                            series: seriesName,
+                            current_time: videos[0].watch_time, // Use the most recent
+                            last_opened: videos[0].last_opened, // Use the most recent
+                            completion_percentage: overallProgress,
+                            total_episodes: totalVideosInFolder,
+                            watched_episodes: watchedVideos,
+                            is_series: true
+                        };
+                        
+                        console.log(`${seriesName}: Series card created - ${watchedVideos}/${totalVideosInFolder} episodes (${overallProgress}%)`);
+                        continueWatching.push(seriesCard);
+                    } else {
+                        // This is a movie (from home.sqlite3) - show individual cards
+                        // Process videos sequentially to handle async duration fetching
+                        const processedVideos = [];
+                        
+                        for (const video of videos) {
+                            console.log("video continue watching >>>", video);
+                            video.series = 'home'; // Set series to 'home' for movies
+                            video.is_series = false;
+                            video.current_time = video.watch_time; // Map watch_time to current_time for API response
+                            
+                            // Calculate actual completion percentage from watch_time and length
+                            if (video.watch_time) {
+                                try {
+                                    // Convert current_time to seconds
+                                    let currentSeconds = 0;
+                                    
+                                    // Parse watch_time (could be in HH:MM:SS format or seconds)
+                                    if (typeof video.watch_time === 'string' && video.watch_time.includes(':')) {
+                                        // HH:MM:SS format - convert to seconds
+                                        const timeParts = video.watch_time.split(':');
+                                        currentSeconds = (parseInt(timeParts[0]) * 3600) + 
+                                                       (parseInt(timeParts[1]) * 60) + 
+                                                       parseFloat(timeParts[2]);
+                                        console.log(`Converting ${video.watch_time} to ${currentSeconds} seconds`);
+                                        
+                                        // Check if the converted time is reasonable
+                                        if (video.length && currentSeconds > video.length * 1.1) {
+                                            console.warn(`⚠️ Corrupted watch_time detected: ${video.watch_time} (${currentSeconds}s) > length (${video.length}s)`);
+                                            console.warn(`   Resetting to 0 for accurate progress calculation`);
+                                            currentSeconds = 0;
+                                        }
+                                    } else {
+                                        // Already in seconds
+                                        currentSeconds = parseFloat(video.watch_time) || 0;
+                                    }
+                                    
+                                    let totalSeconds = 0;
+                                    
+                                    // Get length from database (should be set when video was first opened)
+                                    if (video.length) {
+                                        totalSeconds = parseInt(video.length) || 0;
+                                    } else {
+                                        console.warn(`⚠️ No length stored for ${video.video_id} - this should have been set when video was first opened`);
+                                        totalSeconds = 0;
+                                    }
+                                    
+                                    // Calculate percentage
+                                    if (totalSeconds > 0) {
+                                        const rawPercentage = (currentSeconds / totalSeconds) * 100;
+                                        // Cap at 100% to prevent impossible percentages
+                                        video.completion_percentage = Math.min(Math.round(rawPercentage), 100);
+                                        
+                                        if (rawPercentage > 100) {
+                                            console.warn(`⚠️ Impossible percentage detected for ${video.video_id}: ${rawPercentage.toFixed(1)}% (capped at 100%)`);
+                                            console.warn(`   Current time: ${currentSeconds}s, Total length: ${totalSeconds}s`);
+                                            console.warn(`   This suggests data inconsistency - current_time may be incorrect`);
+                                        }
+                                    } else {
+                                        video.completion_percentage = 0;
+                                    }
+                                    
+                                    console.log(`Movie ${video.video_id}: ${currentSeconds}s / ${totalSeconds}s = ${video.completion_percentage}%`);
+                                } catch (error) {
+                                    console.error(`Error calculating progress for ${video.video_id}:`, error);
+                                    video.completion_percentage = 0;
+                                }
+                            } else {
+                                video.completion_percentage = 0;
+                            }
+                            
+                            processedVideos.push(video);
+                        }
+                        
+                        console.log(`${seriesName}: ${processedVideos.length} movies added to continue watching`);
+                        continueWatching = continueWatching.concat(processedVideos);
+                    }
+                }
+            } catch (error) {
+                console.error(`Error querying ${seriesName}:`, error);
+            } finally {
+                seriesDb.close();
+            }
+        }
+
+        console.log(`Total continue watching items: ${continueWatching.length}`);
+        // Sort by last_opened and limit to 20 items
+        continueWatching.sort((a, b) => new Date(b.last_opened) - new Date(a.last_opened));
+        return continueWatching.slice(0, 20);
     }
 }
 

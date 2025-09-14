@@ -2,6 +2,7 @@ const path = require('path');
 const sqlite3 = require('sqlite3').verbose();
 
 function dbMiddleware(req, res, next) {
+  console.log('dbMiddleware called');
   const dbName = req.headers['x-db-name'] || req.params.series || "home";
 
   if (!dbName || typeof dbName !== 'string') {
@@ -24,7 +25,7 @@ function dbMiddleware(req, res, next) {
         current_time REAL DEFAULT 0,
         last_opened TEXT,
         size INTEGER,
-        length TEXT,
+        length REAL, -- Video duration in seconds (real)
         active INTEGER DEFAULT 0,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,

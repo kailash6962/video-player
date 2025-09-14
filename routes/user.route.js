@@ -129,11 +129,13 @@ router.get('/current', async (req, res) => {
 
 // Get user's continue watching
 router.get('/continue-watching', async (req, res) => {
+    console.log('Continue watching request received');
     try {
         const userId = req.cookies.user_id || 'guest';
+        console.log('Continue watching request received userId: ', userId);
         const limit = parseInt(req.query.limit) || 10;
         
-        const videos = await UserService.getUserContinueWatching(userId, limit);
+        const videos = await UserService.getContinueWatching(userId);
         res.json(videos);
     } catch (error) {
         console.error('Error getting continue watching:', error);
@@ -216,6 +218,31 @@ router.get('/registration-status', async (req, res) => {
         console.error('Error checking registration status:', error);
         // Default to allowed if error
         res.json({ allowRegistration: true });
+    }
+});
+
+// Get continue watching content
+router.get('/continue-watching', async (req, res) => {
+    console.log('Continue watching request received');
+    try {
+        const userId = req.cookies.user_id;
+        if (!userId) {
+            return res.status(401).json({ error: 'No user session' });
+        }
+
+        // Set cache control headers to prevent 304 responses
+        res.set({
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0'
+        });
+
+        const continueWatching = await UserService.getContinueWatching(userId);
+        console.log(`Continue watching for user ${userId}:`, continueWatching.length, 'items');
+        res.json(continueWatching);
+    } catch (error) {
+        console.error('Error getting continue watching:', error);
+        res.status(500).json({ error: 'Failed to get continue watching content' });
     }
 });
 

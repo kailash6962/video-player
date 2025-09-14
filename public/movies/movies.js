@@ -17,6 +17,147 @@ async function loadCurrentUser() {
     }
 }
 
+// Load continue watching movies
+async function loadContinueWatching() {
+    try {
+        console.log('Loading continue watching movies...');
+        const response = await fetch('/api/users/continue-watching', {
+            method: 'GET',
+            headers: {
+                'Cache-Control': 'no-cache',
+                'Pragma': 'no-cache'
+            }
+        });
+        
+        console.log('Continue watching response status:', response.status);
+        
+        if (response.ok) {
+            const continueWatching = await response.json();
+            console.log('Continue watching data:', continueWatching);
+            // Filter only movies (assuming movies are single files, not series)
+            const movies = continueWatching.filter(video => 
+                !video.series.includes('Season') && 
+                !video.series.includes('Episode') &&
+                !video.series.includes('S0')
+            );
+            renderContinueWatching(movies);
+        } else if (response.status === 304) {
+            console.log('Continue watching: 304 Not Modified - using cached data');
+            renderContinueWatching([]);
+        } else {
+            console.error('Continue watching failed with status:', response.status);
+        }
+    } catch (error) {
+        console.error('Error loading continue watching:', error);
+    }
+}
+
+// Render continue watching section
+function renderContinueWatching(videos) {
+    const section = document.getElementById('continue-watching-section');
+    const grid = document.getElementById('continue-watching-grid');
+    
+    if (!section || !grid) return;
+    
+    if (videos.length === 0) {
+        section.style.display = 'none';
+        return;
+    }
+    
+    // Show the section
+    section.style.display = 'block';
+    
+    // Clear existing content
+    grid.innerHTML = '';
+    
+    // Create video cards
+    videos.forEach(video => {
+        const card = createContinueWatchingCard(video);
+        grid.appendChild(card);
+    });
+}
+
+// Create continue watching card using the same design as regular video cards
+function createContinueWatchingCard(video) {
+    const card = document.createElement('div');
+    card.className = 'netflix-card';
+    card.id = video.video_id;
+    card.setAttribute('tabindex', '0');
+
+    // Create thumbnail
+    const thumbnail = document.createElement('img');
+    thumbnail.className = 'card-thumbnail';
+    thumbnail.src = `/api/thumbnail/file/${video.series}/${video.video_id}`;
+    thumbnail.alt = video.video_id;
+
+    // Duration badge (show completion percentage)
+    const durationBadge = document.createElement('div');
+    durationBadge.className = 'episode-count';
+    durationBadge.textContent = `${video.completion_percentage}%`;
+
+    // Card content
+    const cardContent = document.createElement('div');
+    cardContent.className = 'card-content';
+
+    const cardTitle = document.createElement('h3');
+    cardTitle.className = 'card-title';
+    cardTitle.textContent = video.video_id;
+
+    const cardMeta = document.createElement('div');
+    cardMeta.className = 'card-meta';
+
+    // Series and progress row
+    const progressRow = document.createElement('div');
+    progressRow.className = 'card-meta-row';
+    progressRow.innerHTML = `
+        <span class="card-duration">${video.series}</span>
+        <span>•</span>
+        <span class="card-last-viewed">${video.completion_percentage}% watched</span>
+    `;
+
+    // Last opened row
+    const statusRow = document.createElement('div');
+    statusRow.className = 'card-meta-row';
+    const lastOpened = video.last_opened ? new Date(video.last_opened).toLocaleDateString() : 'Unknown';
+    statusRow.innerHTML = `<span>Last: ${lastOpened}</span>`;
+
+    cardMeta.appendChild(progressRow);
+    cardMeta.appendChild(statusRow);
+    cardContent.appendChild(cardTitle);
+    cardContent.appendChild(cardMeta);
+
+    // Progress bar
+    const progressContainer = document.createElement('div');
+    progressContainer.className = 'card-progress';
+    
+    const progressBar = document.createElement('div');
+    progressBar.className = 'card-progress-bar';
+    progressBar.style.width = `${video.completion_percentage}%`;
+    
+    progressContainer.appendChild(progressBar);
+
+    // Assemble card
+    card.appendChild(thumbnail);
+    card.appendChild(durationBadge);
+    card.appendChild(cardContent);
+    card.appendChild(progressContainer);
+
+    // Event listeners
+    card.addEventListener('click', () => {
+        window.location.href = `/play?series=${encodeURIComponent(video.series)}&id=${encodeURIComponent(video.video_id)}`;
+    });
+    
+    // Keyboard support
+    card.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            card.click();
+        }
+    });
+
+    return card;
+}
+
 function updateUserDisplay(user) {
     const userAvatar = document.getElementById('userAvatar');
     const userName = document.getElementById('userName');
@@ -53,6 +194,9 @@ document.addEventListener('DOMContentLoaded', async function() {
     console.log('🎬 Movies page loaded');
     // Load current user info first
     loadCurrentUser();
+    
+    // Load continue watching movies
+    loadContinueWatching();
     await loadMovies();
     createHeroSlideshow();
 });

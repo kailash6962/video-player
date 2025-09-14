@@ -41,13 +41,14 @@ class MetadataService {
   getWatchProgress(req) {
     const video_id = req.params.video_id;
     const userId = req.cookies.user_id || 'guest';
-    
+    console.log("getWatchProgress", video_id, userId);
     return new Promise((resolve, reject) => {
       // Use the full schema since all columns exist
       req.db.get(`
         SELECT * FROM video_metadata 
         WHERE user_id = ? AND video_id = ?
       `, [userId, video_id], (err, row) => {
+        console.log("getWatchProgress", row);
         if (err) {
           console.error('Database error getting progress:', err);
           reject(err);
