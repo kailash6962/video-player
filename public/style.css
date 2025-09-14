@@ -1608,7 +1608,7 @@
     }
 
     .movie-info-card {
-        background: rgba(0, 0, 0, 0.85);
+        /* background: rgba(0, 0, 0, 0.85); */
         backdrop-filter: blur(15px);
         border-radius: 12px;
         /* padding: 32px; */
