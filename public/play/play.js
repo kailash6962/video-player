@@ -674,7 +674,7 @@ async function loadAudioTracks(videoId) {
       const tracks = languageGroups[language];
       tracks.forEach(track => {
         const menuItem = document.createElement('div');
-        menuItem.className = 'audio-track-menu-item audio-track-option';
+        menuItem.className = 'audio-track-menu-item';
         menuItem.dataset.trackIndex = track.originalIndex;
         menuItem.setAttribute('tabindex', '0');
         
@@ -834,7 +834,7 @@ async function loadSubtitleTracks(videoId) {
     // Add subtitle track options
     currentSubtitleTracks.forEach((track, index) => {
       const menuItem = document.createElement('div');
-      menuItem.className = 'subtitle-track-menu-item subtitle-track-option';
+      menuItem.className = 'subtitle-track-menu-item';
       menuItem.dataset.trackIndex = track.index;
       menuItem.setAttribute('tabindex', '0');
       

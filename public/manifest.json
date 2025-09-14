@@ -1,0 +1,16 @@
+{
+  "name": "VidStream - Personal Cinema",
+  "short_name": "VidStream",
+  "description": "Netflix-style video streaming platform with advanced subtitle support",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f0f0f",
+  "theme_color": "#ff0000",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
