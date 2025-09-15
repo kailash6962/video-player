@@ -1,6 +1,6 @@
 # 🎬 Netflix-Style Video Player
 
-A professional-grade video streaming platform with Netflix-like UI, advanced subtitle support, multi-audio tracks, and intelligent chunked loading. Built with Node.js, Express, and vanilla JavaScript.
+A professional-grade video streaming platform with Netflix-like UI, advanced subtitle support, multi-audio tracks, intelligent chunked loading, and **multi-user support**. Built with Node.js, Express, and vanilla JavaScript.
 
 ![Video Player Demo](https://img.shields.io/badge/Status-Production%20Ready-brightgreen)
 ![Node.js](https://img.shields.io/badge/Node.js-18%2B-green)
@@ -11,12 +11,14 @@ A professional-grade video streaming platform with Netflix-like UI, advanced sub
 
 ### 🎯 Core Features
 - **🎬 Netflix-like Interface** - Modern, responsive UI with hero slideshow
+- **👥 Multi-User System** - User profiles with PIN authentication and personalized progress
 - **📱 Multi-device Support** - Desktop, tablet, mobile, and TV browser optimized
 - **🎵 Multi-audio Track Support** - Dynamic audio switching with language detection
 - **📝 Advanced Subtitles** - Chunked loading, multiple formats (SRT, WebVTT, ASS)
 - **🖼️ Smart Thumbnails** - Auto-generated, cached, multi-quality thumbnails
-- **⏯️ Watch Progress** - Resume playback from last position
+- **⏯️ Watch Progress** - Resume playback from last position with user-specific tracking
 - **🎞️ Multiple Video Formats** - MP4, MKV, AVI support with dynamic transcoding
+- **📊 Continue Watching** - Smart progress tracking across movies and series
 
 ### 🚀 Advanced Features
 - **⚡ Chunked Subtitle Loading** - Instant subtitles with progressive loading
@@ -25,6 +27,16 @@ A professional-grade video streaming platform with Netflix-like UI, advanced sub
 - **⌨️ Keyboard Navigation** - Full TV browser support
 - **📊 Content Organization** - Separate Movies/Series pages with filtering
 - **🔍 Smart Content Discovery** - Recent downloads slideshow
+- **👤 User Management** - Admin panel for user control and system settings
+- **🎯 Personalized Experience** - User-specific watch history and recommendations
+
+### 🔐 Multi-User Features
+- **👤 User Profiles** - Custom avatars with initials and unique colors
+- **🔒 PIN Authentication** - Secure 4-digit PIN login system
+- **📈 Individual Progress** - Separate watch progress for each user
+- **🎨 Personalized UI** - User-specific avatar colors and themes
+- **⚙️ Admin Controls** - User suspension, activation, and registration management
+- **📊 Continue Watching** - Personalized "Continue Watching" section
 
 ## 🏗️ Architecture
 
@@ -33,9 +45,11 @@ A professional-grade video streaming platform with Netflix-like UI, advanced sub
 │   Frontend      │    │   Backend       │    │   Storage       │
 │                 │    │                 │    │                 │
 │ • Home Page     │◄──►│ • Express API   │◄──►│ • Video Files   │
-│ • Movies Page   │    │ • Video Service │    │ • SQLite DBs    │
-│ • Series Page   │    │ • Subtitle Svc  │    │ • Thumbnails    │
-│ • Player Page   │    │ • Thumbnail Svc │    │ • Metadata      │
+│ • Movies Page   │    │ • User Service  │    │ • SQLite DBs    │
+│ • Series Page   │    │ • Video Service │    │ • Thumbnails    │
+│ • Player Page   │    │ • Subtitle Svc  │    │ • User Data     │
+│ • Admin Panel   │    │ • Thumbnail Svc │    │ • Progress      │
+│ • User Login    │    │ • Settings Svc  │    │ • Metadata      │
 └─────────────────┘    └─────────────────┘    └─────────────────┘
 ```
 
@@ -77,6 +91,7 @@ Create `.env` file:
 NODE_ENV=production
 PORT=5555
 VIDEO_DIR=/path/to/your/video/files
+ADMIN_PIN=1234
 ```
 
 ### Running the Application
@@ -121,9 +136,20 @@ video-player/
 │   ├── 📁 home/           # Home page (all content)
 │   ├── 📁 movies/         # Movies page
 │   ├── 📁 series/         # Series page
-│   └── 📁 play/           # Video player
+│   ├── 📁 play/           # Video player
+│   ├── 📁 admin/          # Admin panel
+│   └── 📄 index.html      # User login page
 ├── 📁 routes/              # API route definitions
+│   ├── player.route.js    # Video streaming routes
+│   ├── user.route.js      # User management routes
+│   └── admin.route.js     # Admin panel routes
 ├── 📁 services/            # Business logic
+│   ├── video.service.js   # Video streaming & processing
+│   ├── user.service.js    # User management & progress
+│   ├── settings.service.js # System settings
+│   ├── thumbnail.service.js # Thumbnail generation
+│   ├── folder.service.js  # Directory management
+│   └── metadata.service.js # Video metadata extraction
 ├── 📁 utils/               # Utility functions
 ├── 📄 ecosystem.config.js  # PM2 configuration
 ├── 📄 ARCHITECTURE.md      # Detailed architecture docs
@@ -131,6 +157,25 @@ video-player/
 ```
 
 ## 🌐 API Endpoints
+
+### User Management
+```
+GET  /api/users/                    # Get all users
+POST /api/users/                    # Create new user
+POST /api/users/login               # User login
+GET  /api/users/current             # Get current user
+GET  /api/users/continue-watching   # Get continue watching content
+GET  /api/users/registration-status # Check if registration is allowed
+```
+
+### Admin Panel
+```
+GET  /api/admin/users               # Get all users (admin)
+POST /api/admin/suspend-user        # Suspend user
+POST /api/admin/activate-user       # Activate user
+GET  /api/admin/settings            # Get system settings
+POST /api/admin/toggle-registration # Toggle user registration
+```
 
 ### Video Streaming
 ```
@@ -155,6 +200,21 @@ GET  /api/watch-progress/:video_id    # Get progress
 
 ## 🎛️ Features in Detail
 
+### Multi-User System
+- **User Creation** - Create users with custom names and auto-generated avatars
+- **PIN Authentication** - Secure 4-digit PIN login system
+- **Avatar Generation** - Automatic avatar creation from user initials
+- **Color Coding** - Unique background colors for each user
+- **Session Management** - Secure cookie-based sessions
+- **Admin Controls** - Suspend/activate users, control registration
+
+### Continue Watching
+- **Smart Progress** - Tracks progress across movies and series
+- **Series Progress** - Calculates overall series completion percentage
+- **Movie Progress** - Individual movie completion tracking
+- **Recent Activity** - Shows recently watched content
+- **Progress Persistence** - Maintains progress across sessions
+
 ### Multi-Audio Track Support
 - **Automatic Detection** - Scans all audio streams in video files
 - **Language Identification** - Detects languages from metadata
@@ -178,6 +238,7 @@ GET  /api/watch-progress/:video_id    # Get progress
 - **Responsive Grid** - Adapts to all screen sizes
 - **Glassmorphism Design** - Modern blur effects
 - **Smooth Animations** - 60fps transitions
+- **User Profiles** - Personalized header with user info
 
 ## 📱 Browser Support
 
@@ -204,6 +265,7 @@ GET  /api/watch-progress/:video_id    # Get progress
 NODE_ENV=production          # Environment mode
 PORT=5555                   # Server port
 VIDEO_DIR=/path/to/videos   # Video directory path
+ADMIN_PIN=1234              # Admin panel PIN
 ```
 
 ### PM2 Ecosystem Configuration
@@ -220,12 +282,14 @@ See `ecosystem.config.js` for detailed PM2 settings including:
 - **Smart Caching** - Thumbnail and metadata caching
 - **Range Requests** - Efficient video streaming
 - **Connection Pooling** - Database optimization
+- **User-Specific Data** - Efficient user progress tracking
 
 ### Benchmarks
 - **Subtitle Loading**: 2-5 seconds (vs 20-60 seconds traditional)
 - **Thumbnail Generation**: <1 second for standard quality
 - **Video Start**: Instant playback with range requests
 - **Memory Usage**: <1GB typical, <2GB peak
+- **User Login**: <500ms authentication time
 
 ## 🛠️ Development
 
@@ -257,6 +321,9 @@ curl -I http://localhost:5555/api/video/home/sample.mp4
 
 # Test subtitle chunking
 curl http://localhost:5555/api/subtitle-chunk/home/sample.mkv/0/0/600
+
+# Test user creation
+curl -X POST http://localhost:5555/api/users/ -H "Content-Type: application/json" -d '{"username":"test","pin":"1234","displayName":"Test User"}'
 ```
 
 ## 🐛 Troubleshooting
@@ -272,6 +339,11 @@ curl http://localhost:5555/api/subtitle-chunk/home/sample.mkv/0/0/600
 - Verify subtitle tracks exist in video
 - Check network connectivity
 - Enable debug logging
+
+**User Login Issues**
+- Check database permissions
+- Verify PIN format (4 digits)
+- Check session cookie settings
 
 **Performance Issues**
 - Adjust chunk sizes in frontend
