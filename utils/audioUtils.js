@@ -222,27 +222,27 @@ function getAudioTitle(stream, index) {
  * @returns {Array} - Array of audio track objects
  */
 function getAllAudioTracks(metadata) {
-  console.log("getAllAudioTracks called with metadata:", {
-    hasStreams: !!metadata.streams,
-    streamsLength: metadata.streams?.length || 0,
-    streams: metadata.streams?.map(s => ({ index: s.index, codec_type: s.codec_type, codec_name: s.codec_name })) || []
-  });
+  // getAllAudioTracks called with metadata
+  //   hasStreams: !!metadata.streams,
+  //   streamsLength: metadata.streams?.length || 0,
+  //   streams: metadata.streams?.map(s => ({ index: s.index, codec_type: s.codec_type, codec_name: s.codec_name })) || []
+  // });
   
   const audioStreams = metadata.streams.filter(stream => stream.codec_type === 'audio');
-  console.log("Filtered audio streams:", audioStreams.length);
+  // Filtered audio streams
   
   if (!audioStreams.length) {
-    console.log("No audio streams found in metadata");
+    // No audio streams found in metadata
     return [];
   }
 
   // Debug: Log stream metadata to help identify language information (uncomment for debugging)
-  console.log('Audio streams metadata:', audioStreams.map(stream => ({
-    index: stream.index,
-    codec: stream.codec_name,
-    tags: stream.tags,
-    disposition: stream.disposition
-  })));
+  // Audio streams metadata processed
+  //   index: stream.index,
+  //   codec: stream.codec_name,
+  //   tags: stream.tags,
+  //   disposition: stream.disposition
+  // })));
 
   return audioStreams.map((stream, index) => {
     const bitrate = parseInt(stream.bit_rate) || 0;
@@ -278,7 +278,7 @@ function getAllAudioTracks(metadata) {
         `${title} (${quality} - ${Math.round(bitrate/1000)}kbps)`
     };
     
-    console.log(`Created audio track: arrayIndex=${index}, streamIndex=${stream.index}, language=${language}, codec=${codec}`);
+    // Created audio track
     return track;
   });
 }

@@ -126,7 +126,7 @@ function formatTime(seconds) {
 }
 function playVideo(videodata,play=true) {
   loader.style.display = 'flex';
-  console.log("📢[:116]: videodata: ", videodata);
+  // Video data loaded
   
   // Update video titles - check if elements exist
   const videoTitle = document.getElementById('video-title');
@@ -183,7 +183,7 @@ function playVideo(videodata,play=true) {
     overlayTextContainer.textContent = "Watching Now";
     thumbnailContainer.appendChild(overlayTextContainer);
     } else {
-    console.warn("Thumbnail container not found for ID:", videodata.id);
+    // Thumbnail container not found
     }
   //overlay watching now
   
@@ -224,35 +224,35 @@ function playVideo(videodata,play=true) {
         video.play();   
     })
     .catch(err => {
-      console.error('Error fetching watch progress:', err);
+      // Error fetching watch progress handled silently
       if(play)
       videoPlayer.play();
     });
 }
 
 function cleanVideoTitle(title) {
-    console.log('🎬 Original title:', title);
+    // Original title
     
     // Remove domain-like prefix ending with ' - ' (more specific pattern)
     let cleanTitle = title.replace(/^(www\.[\w.-]+)\s*-\s*/i, '');
-    console.log('🎬 After domain removal:', cleanTitle);
+    // After domain removal
     
     // Remove everything after the first bracket or parenthesis (technical details)
     // But preserve the main movie title
     cleanTitle = cleanTitle.replace(/\s*[\[\(].*$/i, '');
-    console.log('🎬 After bracket removal:', cleanTitle);
+    // After bracket removal
     
     // Remove standalone year at the end (but not if it's part of the title)
     cleanTitle = cleanTitle.replace(/\s*\(\d{4}\)\s*$/i, '');
-    console.log('🎬 After year removal:', cleanTitle);
+    // After year removal
     
     // Remove file extensions
     cleanTitle = cleanTitle.replace(/\.[^/.]+$/, '');
-    console.log('🎬 After extension removal:', cleanTitle);
+    // After extension removal
     
     // Clean up extra spaces and trailing dashes
     cleanTitle = cleanTitle.replace(/\s*-\s*$/, '').trim();
-    console.log('🎬 Final cleaned title:', cleanTitle);
+    // Final cleaned title
     
     return cleanTitle || title; // Fallback to original if cleaning results in empty string
 }
@@ -636,7 +636,7 @@ function updateElement(id, value, isHTML = false) {
             element.textContent = value;
         }
     } else {
-        console.warn(`Element with id '${id}' not found`);
+        // Element with id not found
     }
 }
 

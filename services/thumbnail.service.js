@@ -13,11 +13,11 @@ class ThumbnailService {
     const db = req.params.db === "home" ? "" : req.params.db || "";
     const quality = req.query.quality || 'standard'; // Get quality from query parameter
     
-    console.log('🖼️ Thumbnail request:', { videoId, type, db, quality });
+    // Thumbnail request processed
     
     // Handle special characters in folder names by finding the actual folder
     const actualFolderName = resolveActualFolderName(db);
-    console.log('🖼️ Actual folder name:', actualFolderName);
+    // Actual folder name resolved
     
     let videoPath;
     if (type === "file") {
@@ -30,10 +30,10 @@ class ThumbnailService {
       videoPath = this.getFirstFile(path.join(VIDEOS_DIR, actualFolderName));
     }
     
-    console.log('🖼️ Video path:', videoPath);
+    // Video path resolved
     
     if (!videoPath || !fs.existsSync(videoPath)) {
-      console.log('🖼️ Video not found:', videoPath);
+      // Video not found
       return res.status(404).send('Video not found');
     }
 
@@ -50,22 +50,22 @@ class ThumbnailService {
     const thumbFilename = `${type}_${hash}_${quality}.jpeg`;
     const thumbPath = path.join(thumbDir, thumbFilename);
     
-    console.log('🖼️ Thumbnail path:', thumbPath);
+    // Thumbnail path resolved
     
     // Get quality settings
     const qualitySettings = this.getQualitySettings(quality);
-    console.log('🖼️ Quality settings:', qualitySettings);
+    // Quality settings applied
 
     // If thumbnail exists, send it
     if (fs.existsSync(thumbPath)) {
-      console.log('🖼️ Serving existing thumbnail');
+      // Serving existing thumbnail
       res.setHeader('Content-Type', 'image/jpeg');
       res.setHeader('Cache-Control', 'public, max-age=86400'); // Cache for 24 hours
       return fs.createReadStream(thumbPath).pipe(res);
     }
 
     // If not, create thumbnail and save, then send
-    console.log('🖼️ Generating thumbnail with FFmpeg...');
+    // Generating thumbnail with FFmpeg
     ffmpeg()
       .input(videoPath)
       .inputOptions([`-ss ${qualitySettings.seekTime}`])
@@ -79,13 +79,13 @@ class ThumbnailService {
       .format('mjpeg')
       .save(thumbPath)
       .on('end', () => {
-        console.log('🖼️ Thumbnail generated successfully');
+        // Thumbnail generated successfully
         res.setHeader('Content-Type', 'image/jpeg');
         res.setHeader('Cache-Control', 'public, max-age=86400'); // Cache for 24 hours
         fs.createReadStream(thumbPath).pipe(res);
       })
       .on('error', (e) => {
-        console.log("🖼️ Failed to generate thumbnail:", e);
+        // Failed to generate thumbnail
         res.status(500).send('Failed to generate thumbnail');
       });
   }
@@ -132,9 +132,9 @@ class ThumbnailService {
 
   getFirstFile(dirPath) {
     try {
-      console.log('🖼️ Looking for first video file in:', dirPath);
+      // Looking for first video file
       const files = fs.readdirSync(dirPath);
-      console.log('🖼️ Files found:', files.slice(0, 5)); // Log first 5 files
+      // Files found
       
       const VIDEO_EXTENSIONS = ['.mp4', '.mov', '.mkv', '.avi', '.webm'];
       const videoFile = files.find(file => {
@@ -143,10 +143,10 @@ class ThumbnailService {
       });
       
       const result = videoFile ? path.join(dirPath, videoFile) : null;
-      console.log('🖼️ Selected video file:', result);
+      // Selected video file
       return result;
     } catch (error) {
-      console.log('🖼️ Error reading directory:', error);
+      // Error reading directory handled silently
       return null;
     }
   }

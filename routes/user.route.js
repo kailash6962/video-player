@@ -14,7 +14,7 @@ router.get('/', async (req, res) => {
         const users = await UserService.getAllUsers();
         res.json(users);
     } catch (error) {
-        console.error('Error getting users from database:', error.message);
+        // Error getting users from database handled silently
         res.json([]); // Return empty array if no users exist
     }
 });
@@ -58,7 +58,7 @@ router.post('/', async (req, res) => {
             }
         });
     } catch (error) {
-        console.error('Error creating user:', error);
+        // Error creating user handled silently
         if (error.message.includes('UNIQUE constraint failed')) {
             res.status(400).json({ error: 'Username already exists' });
         } else {
@@ -89,7 +89,7 @@ router.post('/login', async (req, res) => {
             }
         });
     } catch (error) {
-        console.error('Error logging in user:', error);
+        // Error logging in user handled silently
         res.status(401).json({ error: 'Invalid PIN' });
     }
 });
@@ -122,23 +122,23 @@ router.get('/current', async (req, res) => {
         
         res.json({ user });
     } catch (error) {
-        console.error('Error getting current user:', error);
+        // Error getting current user handled silently
         res.status(500).json({ error: 'Failed to get user info' });
     }
 });
 
 // Get user's continue watching
 router.get('/continue-watching', async (req, res) => {
-    console.log('Continue watching request received');
+    // Continue watching request received
     try {
         const userId = req.cookies.user_id || 'guest';
-        console.log('Continue watching request received userId: ', userId);
+        // Continue watching request received for user
         const limit = parseInt(req.query.limit) || 10;
         
         const videos = await UserService.getContinueWatching(userId);
         res.json(videos);
     } catch (error) {
-        console.error('Error getting continue watching:', error);
+        // Error getting continue watching handled silently
         res.status(500).json({ error: 'Failed to get continue watching' });
     }
 });
@@ -162,7 +162,7 @@ router.get('/stats', async (req, res) => {
         const stats = await UserService.getUserStats(userId);
         res.json(stats);
     } catch (error) {
-        console.error('Error getting user stats:', error);
+        // Error getting user stats handled silently
         res.status(500).json({ error: 'Failed to get user stats' });
     }
 });
@@ -180,7 +180,7 @@ router.post('/progress', async (req, res) => {
         await UserService.updateUserProgress(userId, video_id, current_time, size);
         res.json({ success: true });
     } catch (error) {
-        console.error('Error updating progress:', error);
+        // Error updating progress handled silently
         res.status(500).json({ error: 'Failed to update progress' });
     }
 });
@@ -198,7 +198,7 @@ router.post('/active', async (req, res) => {
         await UserService.setActiveVideo(userId, video_id);
         res.json({ success: true });
     } catch (error) {
-        console.error('Error setting active video:', error);
+        // Error setting active video handled silently
         res.status(500).json({ error: 'Failed to set active video' });
     }
 });
@@ -215,7 +215,7 @@ router.get('/registration-status', async (req, res) => {
         const registrationAllowed = await SettingsService.isRegistrationAllowed();
         res.json({ allowRegistration: registrationAllowed });
     } catch (error) {
-        console.error('Error checking registration status:', error);
+        // Error checking registration status handled silently
         // Default to allowed if error
         res.json({ allowRegistration: true });
     }
@@ -223,7 +223,7 @@ router.get('/registration-status', async (req, res) => {
 
 // Get continue watching content
 router.get('/continue-watching', async (req, res) => {
-    console.log('Continue watching request received');
+    // Continue watching request received
     try {
         const userId = req.cookies.user_id;
         if (!userId) {
@@ -238,10 +238,10 @@ router.get('/continue-watching', async (req, res) => {
         });
 
         const continueWatching = await UserService.getContinueWatching(userId);
-        console.log(`Continue watching for user ${userId}:`, continueWatching.length, 'items');
+        // Continue watching items processed
         res.json(continueWatching);
     } catch (error) {
-        console.error('Error getting continue watching:', error);
+        // Error getting continue watching handled silently
         res.status(500).json({ error: 'Failed to get continue watching content' });
     }
 });

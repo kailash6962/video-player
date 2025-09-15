@@ -27,7 +27,7 @@ router.get('/users', async (req, res) => {
         
         res.json(allUsers);
     } catch (error) {
-        console.error('Error getting users for admin:', error);
+        // Error getting users for admin handled silently
         res.status(500).json({ error: 'Failed to fetch users' });
     }
 });
@@ -55,7 +55,7 @@ router.post('/suspend-user', async (req, res) => {
             res.status(400).json({ error: 'Failed to suspend user' });
         }
     } catch (error) {
-        console.error('Error suspending user:', error);
+        // Error suspending user handled silently
         res.status(500).json({ error: 'Failed to suspend user' });
     }
 });
@@ -83,7 +83,7 @@ router.post('/activate-user', async (req, res) => {
             res.status(400).json({ error: 'Failed to activate user' });
         }
     } catch (error) {
-        console.error('Error activating user:', error);
+        // Error activating user handled silently
         res.status(500).json({ error: 'Failed to activate user' });
     }
 });
@@ -94,7 +94,7 @@ router.get('/settings', async (req, res) => {
         const settings = await SettingsService.getAllSettings();
         res.json(settings);
     } catch (error) {
-        console.error('Error getting settings:', error);
+        // Error getting settings handled silently
         res.status(500).json({ error: 'Failed to fetch settings' });
     }
 });
@@ -123,7 +123,7 @@ router.post('/toggle-registration', async (req, res) => {
             res.status(500).json({ error: 'Failed to update registration setting' });
         }
     } catch (error) {
-        console.error('Error toggling registration:', error);
+        // Error toggling registration handled silently
         res.status(500).json({ error: 'Failed to update registration setting' });
     }
 });

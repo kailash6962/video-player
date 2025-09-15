@@ -4,7 +4,7 @@ const crypto = require('crypto');
 class UserService {
     constructor() {
         this.initDatabase().catch(err => {
-            console.log('Warning: Database initialization failed, using fallback mode:', err.message);
+            // Database initialization failed, using fallback mode
         });
     }
 
@@ -28,19 +28,15 @@ class UserService {
                         is_active BOOLEAN DEFAULT 1
                     )
                 `, (err) => {
-                    if (err) console.log('Users table creation error:', err.message);
+                    // Users table creation error handled silently
                 });
                 
                 // Add color columns if they don't exist (for existing databases)
                 db.run(`ALTER TABLE users ADD COLUMN avatar_bg_color TEXT DEFAULT '#ff0000'`, (err) => {
-                    if (err && !err.message.includes('duplicate column name')) {
-                        console.log('Error adding avatar_bg_color column:', err.message);
-                    }
+                    // Error adding avatar_bg_color column handled silently
                 });
                 db.run(`ALTER TABLE users ADD COLUMN avatar_text_color TEXT DEFAULT '#ffffff'`, (err) => {
-                    if (err && !err.message.includes('duplicate column name')) {
-                        console.log('Error adding avatar_text_color column:', err.message);
-                    }
+                    // Error adding avatar_text_color column handled silently
                 });
                 
                 // Ensure video_metadata table has the correct multi-user schema
@@ -58,11 +54,7 @@ class UserService {
                         PRIMARY KEY (user_id, video_id)
                     )
                 `, (err) => {
-                    if (err) {
-                        console.log('Video metadata table creation/update error:', err.message);
-                    } else {
-                        console.log('Video metadata table ready with multi-user schema');
-                    }
+                        // Video metadata table creation/update handled silently
                 });
                 
                 // Create indexes for better performance (ignore errors if they exist)
@@ -70,7 +62,7 @@ class UserService {
                 
                 // Update existing users with colors if they don't have them
                 this.updateUsersWithColors(db, () => {
-                    console.log('User database initialized successfully');
+                    // User database initialized successfully
                     db.close();
                     resolve();
                 });
@@ -89,24 +81,22 @@ class UserService {
                 return callback();
             }
             
-            console.log(`Updating ${users.length} users with unique colors...`);
+            // Updating users with unique colors
             
             let completed = 0;
             users.forEach(user => {
                 const colors = this.generateAvatarColor(user.username);
-                console.log(`- ${user.display_name} (${user.username}): ${colors.bg}`);
+                // User color assignment handled silently
                 
                 db.run(
                     'UPDATE users SET avatar_bg_color = ?, avatar_text_color = ? WHERE id = ?',
                     [colors.bg, colors.text, user.id],
                     (updateErr) => {
                         completed++;
-                        if (updateErr) {
-                            console.error(`Error updating user ${user.username}:`, updateErr);
-                        }
+                        // Error updating user handled silently
                         
                         if (completed === users.length) {
-                            console.log('✅ All users updated with unique colors!');
+                            // All users updated with unique colors
                             callback();
                         }
                     }
@@ -382,10 +372,10 @@ class UserService {
             `, [userId], function(err) {
                 db.close();
                 if (err) {
-                    console.error('Error suspending user:', err);
+                    // Error suspending user handled silently
                     reject(err);
                 } else {
-                    console.log(`User ${userId} suspended`);
+                    // User suspended successfully
                     resolve(this.changes > 0);
                 }
             });
@@ -403,10 +393,10 @@ class UserService {
             `, [userId], function(err) {
                 db.close();
                 if (err) {
-                    console.error('Error activating user:', err);
+                    // Error activating user handled silently
                     reject(err);
                 } else {
-                    console.log(`User ${userId} activated`);
+                    // User activated successfully
                     resolve(this.changes > 0);
                 }
             });
@@ -414,7 +404,7 @@ class UserService {
     }
 
     async getContinueWatching(userId) {
-        console.log(`Getting continue watching for user: ${userId}`);
+        // Getting continue watching for user
         
         // Get all series databases
         const fs = require('fs');
@@ -422,19 +412,19 @@ class UserService {
         const databasesDir = path.join(__dirname, '..', 'databases');
         
         if (!fs.existsSync(databasesDir)) {
-            console.log('Databases directory does not exist');
+            // Databases directory does not exist
             return [];
         }
         
         const dbFiles = fs.readdirSync(databasesDir)
             .filter(file => file.endsWith('.sqlite3') && file !== 'home.db');
         
-        console.log(`Found ${dbFiles.length} video databases:`, dbFiles);
+        // Found video databases
         
         let continueWatching = [];
         
         if (dbFiles.length === 0) {
-            console.log('No video databases found');
+            // No video databases found
             return [];
         }
         
@@ -443,7 +433,7 @@ class UserService {
             const seriesName = dbFile.replace('.sqlite3', '');
             const seriesDbPath = path.join(databasesDir, dbFile);
             
-            console.log(`Checking database: ${seriesName}`);
+            // Checking database
             
             const seriesDb = new sqlite3.Database(seriesDbPath);
             
@@ -468,8 +458,7 @@ class UserService {
                     });
                 });
 
-                console.log("videos continue watching >>>", videos);
-                console.log(`${seriesName}: Found ${videos.length} videos with watch progress`);
+                // Found videos with watch progress
                 
                 if (videos.length > 0) {
                     // Determine if this is a series or movie based on database name
@@ -488,33 +477,35 @@ class UserService {
                         try {
                             // Resolve the actual folder name (handles special characters)
                             const actualFolderName = resolveActualFolderName(seriesName);
-                            console.log(`Resolving series folder: ${seriesName} -> ${actualFolderName}`);
+                            // Resolving series folder
                             
                             const folderPath = path.join(VIDEOS_DIR, actualFolderName);
-                            console.log(`Checking series folder path: ${folderPath}`);
+                            // Checking series folder path
                             
                             if (fs.existsSync(folderPath)) {
                                 const files = fs.readdirSync(folderPath);
-                                console.log(`Files in series folder:`, files);
+                                // Files in series folder
                                 totalVideosInFolder = files.filter(file => 
                                     VIDEO_EXTENSIONS.includes(path.extname(file).toLowerCase())
                                 ).length;
-                                console.log(`Total videos in series: ${totalVideosInFolder}`);
+                                // Total videos in series calculated
                             } else {
-                                console.log(`Series folder does not exist: ${folderPath}`);
+                                // Series folder does not exist
                                 totalVideosInFolder = videos.length; // Fallback
                             }
                         } catch (error) {
-                            console.error(`Error reading series folder ${seriesName}:`, error);
+                            // Error reading series folder handled silently
                             totalVideosInFolder = videos.length; // Fallback
                         }
                         
+                        // Simple calculation: count watched episodes
                         const watchedVideos = videos.filter(video => {
-                            // Consider a video "watched" if it has been started (current_time > 0)
-                            return video.current_time && video.current_time !== '0' && video.current_time !== '';
+                            return video.watch_time && video.watch_time !== '0' && video.watch_time !== '';
                         }).length;
                         
-                        const overallProgress = totalVideosInFolder > 0 ? Math.round((watchedVideos / totalVideosInFolder) * 100) : 0;
+                        // Simple progress: (watched episodes / total episodes) * 100
+                        const overallProgress = totalVideosInFolder > 0 ? 
+                            Math.round((watchedVideos / totalVideosInFolder) * 100) : 0;
                         
                         // Create a single series card
                         const seriesCard = {
@@ -528,7 +519,7 @@ class UserService {
                             is_series: true
                         };
                         
-                        console.log(`${seriesName}: Series card created - ${watchedVideos}/${totalVideosInFolder} episodes (${overallProgress}%)`);
+                        // Series card created
                         continueWatching.push(seriesCard);
                     } else {
                         // This is a movie (from home.sqlite3) - show individual cards
@@ -536,7 +527,7 @@ class UserService {
                         const processedVideos = [];
                         
                         for (const video of videos) {
-                            console.log("video continue watching >>>", video);
+                            // Processing video for continue watching
                             video.series = 'home'; // Set series to 'home' for movies
                             video.is_series = false;
                             video.current_time = video.watch_time; // Map watch_time to current_time for API response
@@ -554,12 +545,11 @@ class UserService {
                                         currentSeconds = (parseInt(timeParts[0]) * 3600) + 
                                                        (parseInt(timeParts[1]) * 60) + 
                                                        parseFloat(timeParts[2]);
-                                        console.log(`Converting ${video.watch_time} to ${currentSeconds} seconds`);
+                                        // Converting watch_time to seconds
                                         
                                         // Check if the converted time is reasonable
                                         if (video.length && currentSeconds > video.length * 1.1) {
-                                            console.warn(`⚠️ Corrupted watch_time detected: ${video.watch_time} (${currentSeconds}s) > length (${video.length}s)`);
-                                            console.warn(`   Resetting to 0 for accurate progress calculation`);
+                                            // Corrupted watch_time detected, resetting to 0
                                             currentSeconds = 0;
                                         }
                                     } else {
@@ -573,7 +563,7 @@ class UserService {
                                     if (video.length) {
                                         totalSeconds = parseInt(video.length) || 0;
                                     } else {
-                                        console.warn(`⚠️ No length stored for ${video.video_id} - this should have been set when video was first opened`);
+                                        // No length stored for video
                                         totalSeconds = 0;
                                     }
                                     
@@ -584,17 +574,15 @@ class UserService {
                                         video.completion_percentage = Math.min(Math.round(rawPercentage), 100);
                                         
                                         if (rawPercentage > 100) {
-                                            console.warn(`⚠️ Impossible percentage detected for ${video.video_id}: ${rawPercentage.toFixed(1)}% (capped at 100%)`);
-                                            console.warn(`   Current time: ${currentSeconds}s, Total length: ${totalSeconds}s`);
-                                            console.warn(`   This suggests data inconsistency - current_time may be incorrect`);
+                                            // Impossible percentage detected, capped at 100%
                                         }
                                     } else {
                                         video.completion_percentage = 0;
                                     }
                                     
-                                    console.log(`Movie ${video.video_id}: ${currentSeconds}s / ${totalSeconds}s = ${video.completion_percentage}%`);
+                                    // Movie progress calculated
                                 } catch (error) {
-                                    console.error(`Error calculating progress for ${video.video_id}:`, error);
+                                    // Error calculating progress handled silently
                                     video.completion_percentage = 0;
                                 }
                             } else {
@@ -604,18 +592,18 @@ class UserService {
                             processedVideos.push(video);
                         }
                         
-                        console.log(`${seriesName}: ${processedVideos.length} movies added to continue watching`);
+                        // Movies added to continue watching
                         continueWatching = continueWatching.concat(processedVideos);
                     }
                 }
             } catch (error) {
-                console.error(`Error querying ${seriesName}:`, error);
+                // Error querying database handled silently
             } finally {
                 seriesDb.close();
             }
         }
 
-        console.log(`Total continue watching items: ${continueWatching.length}`);
+        // Total continue watching items processed
         // Sort by last_opened and limit to 20 items
         continueWatching.sort((a, b) => new Date(b.last_opened) - new Date(a.last_opened));
         return continueWatching.slice(0, 20);

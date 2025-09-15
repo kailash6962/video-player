@@ -3,7 +3,7 @@ const sqlite3 = require('sqlite3').verbose();
 class SettingsService {
     constructor() {
         this.initDatabase().catch(err => {
-            console.log('Warning: Settings database initialization failed:', err.message);
+            // Settings database initialization failed
         });
     }
 
@@ -21,7 +21,7 @@ class SettingsService {
                     )
                 `, (err) => {
                     if (err) {
-                        console.log('Settings table creation error:', err.message);
+                        // Settings table creation error handled silently
                         reject(err);
                         return;
                     }
@@ -33,14 +33,14 @@ class SettingsService {
                     VALUES ('allowRegistration', 'true')
                 `, (err) => {
                     if (err) {
-                        console.log('Default settings creation error:', err.message);
+                        // Default settings creation error handled silently
                     }
                 });
                 
                 // Create index for better performance
                 db.run('CREATE INDEX IF NOT EXISTS idx_settings_key ON system_settings(key)', () => {});
                 
-                console.log('Settings database initialized successfully');
+                // Settings database initialized successfully
                 db.close();
                 resolve();
             });
@@ -109,7 +109,7 @@ class SettingsService {
             const value = await this.getSetting('allowRegistration');
             return value === 'true' || value === true;
         } catch (error) {
-            console.error('Error checking registration setting:', error);
+            // Error checking registration setting handled silently
             return true; // Default to allowed if error
         }
     }
@@ -119,7 +119,7 @@ class SettingsService {
             await this.setSetting('allowRegistration', allowed.toString());
             return true;
         } catch (error) {
-            console.error('Error setting registration permission:', error);
+            // Error setting registration permission handled silently
             return false;
         }
     }

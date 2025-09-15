@@ -2,7 +2,7 @@ const path = require('path');
 const sqlite3 = require('sqlite3').verbose();
 
 function dbMiddleware(req, res, next) {
-  console.log('dbMiddleware called');
+  // Database middleware called
   const dbName = req.headers['x-db-name'] || req.params.series || "home";
 
   if (!dbName || typeof dbName !== 'string') {
@@ -14,7 +14,7 @@ function dbMiddleware(req, res, next) {
 
   const db = new sqlite3.Database(dbPath, (err) => {
     if (err) {
-      console.error('Could not open database', err);
+      // Could not open database, handled silently
       return res.status(500).json({ error: 'Database connection failed' });
     }
 
@@ -33,7 +33,7 @@ function dbMiddleware(req, res, next) {
       )
     `, (createErr) => {
       if (createErr) {
-        console.error('DB schema creation failed', createErr);
+        // DB schema creation failed, handled silently
         return res.status(500).json({ error: 'DB schema error' });
       }
       
@@ -50,7 +50,7 @@ function dbMiddleware(req, res, next) {
 
   res.on('finish', () => {
     req.db.close((err) => {
-      if (err) console.error('Failed to close DB', err);
+      // Failed to close DB, handled silently
     });
   });
 }
