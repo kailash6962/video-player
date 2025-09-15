@@ -34,7 +34,7 @@ class PlayerController {
       const folders = await this.folderService.getAllFolders(req);
       res.json(folders);
     } catch (err) {
-      console.log("📢[:37]: err: ", err);
+      // Error handled silently
       res.status(500).json({ error: 'Unable to read folders' });
     }
   }
@@ -43,7 +43,7 @@ class PlayerController {
     try {
       await this.thumbnailService.getThumbnail(req, res);
     } catch (err) {
-      console.log("📢[:46]: err: ", err);
+      // Error handled silently
       res.status(500).send('Failed to generate thumbnail',err);
     }
   }
@@ -110,9 +110,9 @@ class PlayerController {
         return res.status(404).json({ error: 'Video not found' });
       }
 
-      console.log("getAudioTracks API called:", { series, id: videoId, filePath });
+      // getAudioTracks API called
       const audioTracks = await this.videoService.getAudioTracks(filePath);
-      console.log("getAudioTracks API response:", audioTracks);
+      // getAudioTracks API response
       res.json(audioTracks);
     } catch (err) {
       res.status(500).json({ error: 'Server error' });
@@ -133,9 +133,9 @@ class PlayerController {
         return res.status(404).json({ error: 'Video not found' });
       }
 
-      console.log("getSubtitleTracks API called:", { series, id: videoId, filePath });
+      // getSubtitleTracks API called
       const subtitleTracks = await this.videoService.getSubtitleTracks(filePath);
-      console.log("getSubtitleTracks API response:", subtitleTracks);
+      // getSubtitleTracks API response
       res.json(subtitleTracks);
     } catch (err) {
       res.status(500).json({ error: 'Server error' });
@@ -146,7 +146,7 @@ class PlayerController {
     try {
       await this.videoService.streamSubtitle(req, res);
     } catch (err) {
-      console.error("Error in subtitle streaming controller:", err);
+      // Error in subtitle streaming controller handled silently
       if (!res.headersSent) {
         res.status(500).send("Subtitle streaming failed");
       }
@@ -157,7 +157,7 @@ class PlayerController {
     try {
       await this.videoService.streamSubtitleChunk(req, res);
     } catch (err) {
-      console.error("Error in chunked subtitle streaming controller:", err);
+      // Error in chunked subtitle streaming controller handled silently
       if (!res.headersSent) {
         res.status(500).send("Chunked subtitle streaming failed");
       }

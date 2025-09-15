@@ -27,7 +27,7 @@ function resolveActualFolderName(sanitizedFolderName) {
     
     return actualFolder || sanitizedFolderName;
   } catch (error) {
-    console.error('Error resolving folder name:', error);
+    // Error resolving folder name handled silently
     return sanitizedFolderName;
   }
 }

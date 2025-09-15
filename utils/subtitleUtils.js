@@ -57,12 +57,12 @@ function getSubtitleTitle(stream, index) {
  */
 function getAllSubtitleTracks(metadata) {
   if (!metadata || !metadata.streams) {
-    console.log('No metadata or streams found for subtitle detection');
+    // No metadata or streams found for subtitle detection
     return [];
   }
 
   const subtitleStreams = metadata.streams.filter(stream => stream.codec_type === 'subtitle');
-  console.log(`Found ${subtitleStreams.length} subtitle streams in metadata`);
+  // Found subtitle streams in metadata
 
   const subtitleTracks = subtitleStreams.map((stream, arrayIndex) => {
     const language = getSubtitleLanguage(stream);
@@ -85,13 +85,13 @@ function getAllSubtitleTracks(metadata) {
       isForced: stream.disposition?.forced === 1
     };
 
-    console.log(`Subtitle track ${arrayIndex}:`, {
-      language: track.language,
-      codec: track.codec,
-      compatible: track.isBrowserCompatible,
-      streamIndex: track.streamIndex,
-      displayName: track.displayName
-    });
+    // Subtitle track processed
+    //   language: track.language,
+    //   codec: track.codec,
+    //   compatible: track.isBrowserCompatible,
+    //   streamIndex: track.streamIndex,
+    //   displayName: track.displayName
+    // });
 
     return track;
   });
@@ -115,15 +115,15 @@ function getAllSubtitleTracks(metadata) {
     return a.language.localeCompare(b.language);
   });
 
-  console.log(`Processed ${subtitleTracks.length} subtitle tracks:`, 
-    subtitleTracks.map(track => ({
-      index: track.index,
-      language: track.language,
-      codec: track.codec,
-      compatible: track.isBrowserCompatible,
-      displayName: track.displayName
-    }))
-  );
+  // Processed subtitle tracks
+  //   subtitleTracks.map(track => ({
+  //     index: track.index,
+  //     language: track.language,
+  //     codec: track.codec,
+  //     compatible: track.isBrowserCompatible,
+  //     displayName: track.displayName
+  //   }))
+  // );
 
   return subtitleTracks;
 }
@@ -153,11 +153,11 @@ function getOptimalSubtitleSettings(subtitleTrack) {
 
   // Check if we need to convert the subtitle format
   if (!subtitleTrack.isBrowserCompatible) {
-    console.log(`Subtitle codec ${subtitleTrack.codec} is not browser compatible, will convert to WebVTT`);
+    // Subtitle codec not browser compatible, will convert to WebVTT
     settings.convert = true;
     settings.outputCodec = 'webvtt';
   } else {
-    console.log(`Subtitle codec ${subtitleTrack.codec} is browser compatible, using as-is`);
+    // Subtitle codec is browser compatible, using as-is
     settings.convert = false;
     settings.outputCodec = subtitleTrack.codec;
   }

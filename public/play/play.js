@@ -12,7 +12,7 @@ async function loadCurrentUser() {
             window.location.href = '/';
         }
     } catch (error) {
-        console.error('Error loading user:', error);
+        // Error loading user handled silently
         window.location.href = '/';
     }
 }
@@ -152,7 +152,7 @@ if (video) {
 
 // Play/Pause on spacebar, seek on arrow keys
 document.addEventListener('keydown', (e) => {
-    // console.log("📢[:86]: e.code: ", e.code);
+    // Event code handled silently
   // Ignore if focused on input/textarea
   if (['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
   if (e.code === 'Space') {
@@ -240,7 +240,7 @@ fetch(`/api/videos/${series}`, {
 })
     .then(response => response.json())
     .then(videos => {
-        console.log("📢[:91]: videos: ", videos);
+        // Videos loaded
         const gallery = document.getElementById('videoGallery');
         const moreVideosCount = document.getElementById('moreVideosCount');
         
@@ -267,10 +267,10 @@ fetch(`/api/videos/${series}`, {
         // Auto-select and click the video card if specified in URL
         const videoParam = params.get('video');
         if (videoParam) {
-            console.log("📢 Auto-selecting video from URL:", videoParam);
+            // Auto-selecting video from URL
             // Decode the video parameter
             const decodedVideoParam = decodeURIComponent(videoParam);
-            console.log("📢 Decoded video parameter:", decodedVideoParam);
+            // Decoded video parameter
             
             // Find the matching video and its card
             setTimeout(() => {
@@ -285,14 +285,13 @@ fetch(`/api/videos/${series}`, {
                     const videoTitle = video.title || '';
                     const videoFilename = video.filename || '';
                     
-                    console.log(`🔍 Checking video: ${videoId.substring(0, 50)}...`);
-                    console.log(`🔍 Against parameter: ${param.substring(0, 50)}...`);
+                    // Checking video match
                     
                     // Exact matches (highest priority) - must be identical
                     if (videoId === param || videoId === originalParam ||
                         videoTitle === param || videoTitle === originalParam ||
                         videoFilename === param || videoFilename === originalParam) {
-                        console.log(`✅ EXACT match found!`);
+                        // Exact match found
                         return { type: 'exact', priority: 1 };
                     }
                     
@@ -334,16 +333,16 @@ fetch(`/api/videos/${series}`, {
                     const titleSimilarity = calculateSimilarity(videoTitle, param);
                     const filenameSimilarity = calculateSimilarity(videoFilename, param);
                     
-                    console.log(`📊 Similarity scores: ID=${idSimilarity.toFixed(3)}, Title=${titleSimilarity.toFixed(3)}, Filename=${filenameSimilarity.toFixed(3)}`);
+                    // Similarity scores calculated
                     
                     if (idSimilarity >= 0.9 || titleSimilarity >= 0.9 || filenameSimilarity >= 0.9) {
-                        console.log(`✅ HIGH SIMILARITY match found! (${Math.max(idSimilarity, titleSimilarity, filenameSimilarity).toFixed(3)})`);
+                        // High similarity match found
                         return { type: 'high-similarity', priority: 2, similarity: Math.max(idSimilarity, titleSimilarity, filenameSimilarity) };
                     }
                     
                     // Medium similarity matches (70-89%)
                     if (idSimilarity >= 0.7 || titleSimilarity >= 0.7 || filenameSimilarity >= 0.7) {
-                        console.log(`⚠️ MEDIUM SIMILARITY match found! (${Math.max(idSimilarity, titleSimilarity, filenameSimilarity).toFixed(3)})`);
+                        // Medium similarity match found
                         return { type: 'medium-similarity', priority: 3, similarity: Math.max(idSimilarity, titleSimilarity, filenameSimilarity) };
                     }
                     
@@ -353,11 +352,11 @@ fetch(`/api/videos/${series}`, {
                     if (normalize(videoId) === normalizedParam ||
                         normalize(videoTitle) === normalizedParam ||
                         normalize(videoFilename) === normalizedParam) {
-                        console.log(`✅ NORMALIZED match found!`);
+                        // Normalized match found
                         return { type: 'normalized', priority: 4 };
                     }
                     
-                    console.log(`❌ No match found`);
+                    // No match found
                     return null;
                 };
                 
@@ -390,12 +389,12 @@ fetch(`/api/videos/${series}`, {
                             targetVideo = video;
                             matchIndex = index;
                             
-                            console.log(`🎯 NEW BEST MATCH! Type: ${match.type}, Priority: ${match.priority}, Similarity: ${(match.similarity || 1.0).toFixed(3)}, Index: ${index}`);
-                            console.log('📢 Matched video:', { id: video.id, title: video.title, filename: video.filename });
+                            // New best match found
+                            // Matched video
                             
                             // If we found an exact match, stop looking
                             if (match.priority === 1) {
-                                console.log('🏆 EXACT match found, stopping search');
+                                // Exact match found, stopping search
                                 break;
                             }
                         } else {
@@ -456,6 +455,7 @@ videoPlayer.addEventListener('timeupdate', () => {
         console.log("📢[:163]: updatedCurrTime: ", updatedCurrTime);
         console.log("📢[:165]: currentVideoDuration: ", currentVideoDuration);
         const watchedPercentage = (updatedCurrTime / currentVideoDuration) * 100;
+        if(updatedCurrTime==0) return;
         if(currentVideoId){
             fetch('/api/watch-progress', {
                 method: 'POST',

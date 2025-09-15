@@ -18,7 +18,7 @@ async function loadCurrentUser() {
             window.location.href = '/';
         }
     } catch (error) {
-        console.error('Error loading user:', error);
+        // Error loading user handled silently
         window.location.href = '/';
     }
 }
@@ -153,7 +153,7 @@ fetch('/api/videos/home', {
 })
     .then(response => response.json())
     .then(videos => {
-        console.log("📢[:91]: videos: ", videos);
+        // Videos loaded
         const gallery = document.getElementById('videoGallery');
         const movieCount = document.getElementById('movieCount');
         
@@ -168,7 +168,9 @@ fetch('/api/videos/home', {
         // Update count
         movieCount.textContent = `${videos.length} Movie${videos.length !== 1 ? 's' : ''}`;
     })
-    .catch(err => console.error('Error loading videos:', err));
+    .catch(err => {
+        // Error loading videos handled silently
+    });
 
 let isManual = false;
 
@@ -181,7 +183,7 @@ fetch('/api/get-all-folders', {
 })
     .then(response => response.json())
     .then(folders => {
-        console.log("📢[:306]: folders: ", folders);
+        // Folders loaded
         const foldersElem = document.getElementById('folderGallery');
         const seriesCount = document.getElementById('seriesCount');
         
@@ -197,7 +199,9 @@ fetch('/api/get-all-folders', {
         seriesCount.textContent = `${folders.length} Series`;
 
     })
-    .catch(err => console.error('Error loading folders:', err));
+    .catch(err => {
+        // Error loading folders handled silently
+    });
 
 // Keyboard navigation for TV browsers
 document.addEventListener('keydown', function(e) {
@@ -258,14 +262,14 @@ document.addEventListener('keydown', function(e) {
 
 // Slideshow functionality
 function createHeroSlideshow() {
-    console.log('🎬 Creating hero slideshow...');
+    // Creating hero slideshow
     
     // Fetch recent videos and folders
     Promise.all([
         fetch('/api/videos/home', {
             headers: { 'x-db-name': 'home' }
         }).then(res => {
-            console.log('🎬 Videos API response status:', res.status);
+            // Videos API response status
             if (!res.ok) {
                 throw new Error(`Videos API failed with status ${res.status}`);
             }
@@ -274,15 +278,14 @@ function createHeroSlideshow() {
         fetch('/api/get-all-folders', {
             headers: { 'x-db-name': 'home' }
         }).then(res => {
-            console.log('🎬 Folders API response status:', res.status);
+            // Folders API response status
             if (!res.ok) {
                 throw new Error(`Folders API failed with status ${res.status}`);
             }
             return res.json();
         })
     ]).then(([videos, folders]) => {
-        console.log('🎬 Raw videos data:', videos);
-        console.log('🎬 Raw folders data:', folders);
+        // Raw videos and folders data processed
         
         // Combine and sort by actual file modification date (most recent downloads first)
         const allContent = [
@@ -300,32 +303,27 @@ function createHeroSlideshow() {
             }))
         ].sort((a, b) => b.actualDownloadDate - a.actualDownloadDate);
         
-        console.log('🎬 Processed content with download dates:', allContent.map(item => ({
-            title: item.title || item.name,
-            type: item.type,
-            downloadDate: item.actualDownloadDate.toISOString()
-        })));
+        // Processed content with download dates
         
         // Take top 5 most recent
         slideshowData = allContent.slice(0, 5);
-        console.log('🎬 Slideshow data:', slideshowData);
+        // Slideshow data processed
         
         if (slideshowData.length > 0) {
             buildSlideshowHTML();
             initSlideshow();
         }
     }).catch(err => {
-        console.error('Error loading slideshow data:', err);
-        console.log('🎬 Attempting fallback: using existing page data...');
+        // Error loading slideshow data, attempting fallback
         
         // Fallback: Try to use existing cards that might already be loaded
         setTimeout(() => {
             const existingCards = document.querySelectorAll('.netflix-card');
             if (existingCards.length > 0) {
-                console.log('🎬 Found existing cards, creating fallback slideshow...');
+                // Found existing cards, creating fallback slideshow
                 createFallbackSlideshow(existingCards);
             } else {
-                console.log('🎬 No existing data found, hiding slideshow');
+                // No existing data found, hiding slideshow
                 const slideshow = document.getElementById('hero-slideshow');
                 if (slideshow) slideshow.style.display = 'none';
             }
@@ -533,7 +531,7 @@ function formatDownloadDate(date) {
 }
 
 function createFallbackSlideshow(cards) {
-    console.log('🎬 Creating fallback slideshow from existing cards...');
+    // Creating fallback slideshow from existing cards
     
     // Convert existing cards to slideshow data
     slideshowData = Array.from(cards).slice(0, 5).map((card, index) => {
@@ -551,7 +549,7 @@ function createFallbackSlideshow(cards) {
         };
     });
     
-    console.log('🎬 Fallback slideshow data:', slideshowData);
+    // Fallback slideshow data processed
     
     if (slideshowData.length > 0) {
         buildSlideshowHTML();
@@ -562,7 +560,7 @@ function createFallbackSlideshow(cards) {
 // Load continue watching content
 async function loadContinueWatching() {
     try {
-        console.log('Loading continue watching...');
+        // Loading continue watching
         const response = await fetch('/api/users/continue-watching', {
             method: 'GET',
             headers: {
@@ -571,21 +569,21 @@ async function loadContinueWatching() {
             }
         });
         
-        console.log('Continue watching response status:', response.status);
+        // Continue watching response status
         
         if (response.ok) {
             const continueWatching = await response.json();
-            console.log('Continue watching data:', continueWatching);
+            // Continue watching data processed
             renderContinueWatching(continueWatching);
         } else if (response.status === 304) {
-            console.log('Continue watching: 304 Not Modified - using cached data');
+            // Continue watching: 304 Not Modified - using cached data
             // Try to get cached data or show empty state
             renderContinueWatching([]);
         } else {
-            console.error('Continue watching failed with status:', response.status);
+            // Continue watching failed with status
         }
     } catch (error) {
-        console.error('Error loading continue watching:', error);
+        // Error loading continue watching handled silently
     }
 }
 
