@@ -2,7 +2,7 @@
 
 ## 🏗️ Project Architecture
 
-This is a **Netflix-like video streaming platform** built with Node.js, Express, and vanilla JavaScript. The application features advanced video streaming, subtitle support, thumbnail generation, and a modern UI.
+This is a **Netflix-like video streaming platform** with **multi-user support** built with Node.js, Express, and vanilla JavaScript. The application features advanced video streaming, subtitle support, thumbnail generation, user management, and a modern UI.
 
 ## 📁 Directory Structure
 
@@ -11,7 +11,8 @@ video-player/
 ├── 📁 controllers/
 │   └── player.controller.js       # API request handlers
 ├── 📁 databases/                  # SQLite database files
-│   ├── home.db                   # Main video metadata database
+│   ├── home.db                   # Main user database
+│   ├── home.sqlite3              # Movies database
 │   └── *.sqlite3                 # Series-specific databases
 ├── 📁 middleware/
 │   └── dbMiddleware.js           # Database connection middleware
@@ -28,12 +29,20 @@ video-player/
 │   ├── 📁 play/                  # Video player page
 │   │   ├── index.html
 │   │   └── play.js
+│   ├── 📁 admin/                 # Admin panel
+│   │   ├── index.html
+│   │   └── admin.js
+│   ├── 📄 index.html             # User login page
 │   ├── common.js                 # Shared JavaScript utilities
 │   └── style.css                 # Global CSS styles
 ├── 📁 routes/
-│   └── player.route.js           # API route definitions
+│   ├── player.route.js           # Video streaming routes
+│   ├── user.route.js             # User management routes
+│   └── admin.route.js            # Admin panel routes
 ├── 📁 services/                  # Business logic layer
 │   ├── video.service.js          # Video streaming & processing
+│   ├── user.service.js           # User management & progress tracking
+│   ├── settings.service.js       # System settings management
 │   ├── thumbnail.service.js      # Thumbnail generation
 │   ├── folder.service.js         # Directory management
 │   └── metadata.service.js       # Video metadata extraction
@@ -51,12 +60,27 @@ video-player/
 
 ### Backend Services
 
+#### **user.service.js** - User Management Core
+- **User authentication** with PIN-based login
+- **User creation** with auto-generated avatars and colors
+- **Progress tracking** across movies and series
+- **Continue watching** functionality
+- **Admin user management** (suspend/activate)
+- **Session management** with secure cookies
+
 #### **video.service.js** - Video Processing Core
 - **Video streaming** with range requests
 - **Audio track** detection and switching
 - **Subtitle extraction** with chunked loading
 - **Dynamic quality** adjustment
 - **Multiple codec support** (H.264, HEVC, VP9)
+- **User-specific progress** saving
+
+#### **settings.service.js** - System Settings
+- **Registration control** (enable/disable user creation)
+- **System configuration** management
+- **Admin settings** persistence
+- **Environment variable** integration
 
 #### **thumbnail.service.js** - Thumbnail Generation
 - **Multi-quality thumbnails** (standard, high, slideshow, ultra)
@@ -68,48 +92,116 @@ video-player/
 - **Recursive directory scanning**
 - **Video file detection** (.mp4, .mkv, .avi, etc.)
 - **Metadata extraction** and caching
-- **Watch progress tracking**
+- **Watch progress tracking** with user context
+
+#### **metadata.service.js** - Progress Management
+- **Watch progress** saving and retrieval
+- **User-specific** progress tracking
+- **Database operations** for video metadata
+- **Progress persistence** across sessions
 
 ### Frontend Pages
+
+#### **User Login Page** (`/`)
+- **User selection** interface with avatars
+- **PIN authentication** system
+- **User creation** with name input
+- **Registration control** (admin-configurable)
+- **Modern glassmorphism** design
 
 #### **Home Page** (`/home/`)
 - **Netflix-like interface** with hero slideshow
 - **Recent downloads** slideshow (sorted by file date)
+- **Continue Watching** section with user-specific progress
 - **Grid layout** for all content
+- **User profile** in header
 - **Responsive design** for all screen sizes
 
 #### **Movies Page** (`/movies/`)
 - **Filtered content** (movies only)
 - **Movie-specific slideshow**
+- **Continue Watching** movies section
 - **Same Netflix-like design**
 
 #### **Series Page** (`/series/`)
 - **Filtered content** (TV series only)
 - **Series-specific slideshow**
+- **Continue Watching** series section
 - **Episode management**
 
 #### **Play Page** (`/play/`)
 - **Advanced video player** with custom controls
 - **Multi-audio track** support with dropdown
 - **Chunked subtitle loading** for fast response
-- **Watch progress** saving and resume
+- **User-specific progress** saving and resume
 - **Netflix-style UI** with detailed information panel
+- **Progress tracking** with accurate time calculation
+
+#### **Admin Panel** (`/admin/`)
+- **User management** (list, suspend, activate)
+- **System settings** (registration control)
+- **Admin authentication** with PIN
+- **Real-time user** status updates
 
 ### API Endpoints
 
+#### User Management
+```
+GET  /api/users/                    # Get all users
+POST /api/users/                    # Create new user
+POST /api/users/login               # User login
+GET  /api/users/current             # Get current user
+GET  /api/users/continue-watching   # Get continue watching content
+GET  /api/users/registration-status # Check if registration is allowed
+```
+
+#### Admin Panel
+```
+GET  /api/admin/users               # Get all users (admin)
+POST /api/admin/suspend-user        # Suspend user
+POST /api/admin/activate-user       # Activate user
+GET  /api/admin/settings            # Get system settings
+POST /api/admin/toggle-registration # Toggle user registration
+```
+
+#### Video Streaming
 ```
 GET /api/videos/:series              # Get video list for series
 GET /api/video/:series/:id           # Stream video file
 GET /api/thumbnail/:type/:db/:id     # Get video thumbnail
+```
+
+#### Audio & Subtitles
+```
 GET /api/audio-tracks/:series/:id    # Get available audio tracks
 GET /api/subtitle-tracks/:series/:id # Get available subtitle tracks
 GET /api/subtitle/:series/:id/:track # Stream subtitle file (full)
 GET /api/subtitle-chunk/:series/:id/:track/:start/:duration # Stream subtitle chunk
+```
+
+#### Progress Tracking
+```
 POST /api/watch-progress             # Save watch progress
 GET /api/watch-progress/:video_id    # Get watch progress
 ```
 
 ## 🎬 Advanced Features
+
+### Multi-User System
+- **User Profiles** with custom avatars generated from initials
+- **Unique Color Coding** for each user (background and text colors)
+- **PIN Authentication** with secure 4-digit PIN system
+- **Session Management** using HTTP-only cookies
+- **User-Specific Progress** tracking across all content
+- **Admin Controls** for user management and system settings
+
+### Continue Watching
+- **Smart Progress Calculation** for both movies and series
+- **Series Progress** based on episode completion percentage
+- **Movie Progress** based on actual watch time vs. total duration
+- **Recent Activity** tracking with last opened timestamps
+- **Progress Persistence** across user sessions
+- **Filtered Display** (movies on movies page, series on series page)
 
 ### Multi-Audio Track Support
 - **Automatic detection** of audio streams
@@ -138,44 +230,83 @@ GET /api/watch-progress/:video_id    # Get watch progress
 - **Responsive grid layouts**
 - **Smooth animations** and transitions
 - **Keyboard navigation** for TV browsers
+- **User profile integration** in headers
 
 ## 🗄️ Database Schema
 
-### Main Database (home.db)
+### User Database (home.db)
 ```sql
--- Videos table
-videos (
-  id INTEGER PRIMARY KEY,
-  title TEXT,
-  path TEXT,
-  duration REAL,
-  size INTEGER,
-  created_at DATETIME
+-- Users table
+users (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  username TEXT UNIQUE NOT NULL,
+  pin_hash TEXT NOT NULL,
+  display_name TEXT NOT NULL,
+  avatar_emoji TEXT DEFAULT '👤',
+  avatar_bg_color TEXT DEFAULT '#ff0000',
+  avatar_text_color TEXT DEFAULT '#ffffff',
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  last_login DATETIME,
+  is_active BOOLEAN DEFAULT 1
 )
 
--- Watch progress table
-watch_progress (
-  id INTEGER PRIMARY KEY,
-  video_id TEXT,
-  current_time REAL,
-  duration REAL,
-  last_watched DATETIME
+-- System settings table
+system_settings (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  setting_key TEXT UNIQUE NOT NULL,
+  setting_value TEXT NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 )
 ```
 
-### Series Databases (*.sqlite3)
-- Individual databases for each series
-- Same schema as main database
-- Isolated progress tracking per series
+### Video Metadata Databases (*.sqlite3)
+```sql
+-- Video metadata table (per database)
+video_metadata (
+  video_id TEXT NOT NULL,
+  user_id TEXT DEFAULT 'guest',
+  current_time REAL DEFAULT 0,
+  last_opened TEXT,
+  size INTEGER,
+  length REAL, -- Video duration in seconds
+  active INTEGER DEFAULT 0,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (user_id, video_id)
+)
+```
+
+### Database Organization
+- **home.db** - User accounts and system settings
+- **home.sqlite3** - Movies metadata and progress
+- **series_name.sqlite3** - Individual series metadata and progress
+- **Composite Primary Keys** - (user_id, video_id) for multi-user support
 
 ## 🔄 Data Flow
 
+### User Authentication
+1. **Client** submits PIN on login page
+2. **user.service.js** validates PIN against hashed values
+3. **Session cookie** set with user ID
+4. **User data** returned with avatar and preferences
+5. **Redirect** to appropriate page
+
 ### Video Streaming
 1. **Client** requests video via `/api/video/:series/:id`
-2. **Controller** validates request and calls service
+2. **Controller** validates request and user session
 3. **video.service.js** resolves file path and checks existence
-4. **FFmpeg streaming** with range request support
-5. **Dynamic transcoding** based on client capabilities
+4. **Progress tracking** saves current position for user
+5. **FFmpeg streaming** with range request support
+6. **Dynamic transcoding** based on client capabilities
+
+### Continue Watching
+1. **Client** requests continue watching content
+2. **user.service.js** queries all video databases for user
+3. **Progress calculation** for movies and series
+4. **Series progress** calculated from episode completion
+5. **Filtered results** based on page type (movies/series)
+6. **Sorted by** last opened timestamp
 
 ### Subtitle Loading
 1. **Client** requests subtitles via chunked API
@@ -200,18 +331,21 @@ watch_progress (
 - **Smart caching** with hash-based filenames
 - **Connection pooling** for database operations
 - **Range request support** for large files
+- **User-specific queries** with proper indexing
 
 ### Frontend
 - **Chunked loading** for immediate response
 - **Image lazy loading** for better performance
 - **Debounced API calls** to prevent spam
 - **Memory-efficient** subtitle chunk management
+- **User session** persistence
 
 ### Database
 - **SQLite indexes** on frequently queried columns
 - **Prepared statements** for security and performance
 - **Connection reuse** across requests
 - **Batch operations** for metadata updates
+- **Composite primary keys** for efficient user-specific queries
 
 ## 🎯 Browser Compatibility
 
@@ -237,7 +371,10 @@ watch_progress (
 - **Path validation** to prevent directory traversal
 - **Input sanitization** for all API endpoints
 - **CORS configuration** for cross-origin requests
-- **Rate limiting** (can be added with middleware)
+- **PIN hashing** with SHA256 for secure authentication
+- **Session management** with HTTP-only cookies
+- **Admin PIN protection** for sensitive operations
+- **User data isolation** with proper database design
 
 ## 📱 Responsive Design
 
@@ -245,5 +382,22 @@ watch_progress (
 - **TV browser optimization** with keyboard navigation
 - **Tablet-specific** layouts and touch controls
 - **4K display support** with high-DPI assets
+- **User profile** integration across all screen sizes
 
-This architecture provides a scalable, maintainable, and feature-rich video streaming platform that rivals commercial solutions like Netflix or Plex.
+## 🎨 UI/UX Features
+
+### User Experience
+- **Personalized avatars** with unique color schemes
+- **Continue watching** with accurate progress tracking
+- **Smooth transitions** between user sessions
+- **Intuitive navigation** with clear user feedback
+- **Admin controls** for system management
+
+### Visual Design
+- **Glassmorphism effects** with backdrop blur
+- **Dynamic color schemes** per user
+- **Responsive grid layouts** for all content types
+- **Smooth animations** and micro-interactions
+- **Netflix-inspired** interface design
+
+This architecture provides a scalable, maintainable, and feature-rich video streaming platform with comprehensive multi-user support that rivals commercial solutions like Netflix or Plex.
