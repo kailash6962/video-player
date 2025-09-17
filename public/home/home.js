@@ -44,7 +44,6 @@ const playerContainer = document.getElementById('playerContainer');
 const videoPlayer = document.getElementById('videoPlayer');
 
 const video = document.getElementById('videoPlayer');
-// const source = document.getElementById("videoPlayer");
 var manualDuration = 10; // seconds
 
 const playPause = document.getElementById('playPause');

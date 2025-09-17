@@ -90,13 +90,11 @@ class VideoService {
 
   getVideoMetadata(filePath) {
     return new Promise((resolve, reject) => {
-      // console.log("Getting basic metadata for:", filePath);
       ffmpeg.ffprobe(filePath, (err, metadata) => {
         if (err) {
           console.error("Basic FFprobe error:", err.message);
           return reject(err);
         }
-        // console.log("Basic metadata retrieved successfully, streams:", metadata.streams?.length || 0);
         resolve(metadata);
       });
     });
@@ -128,15 +126,6 @@ class VideoService {
           return reject(err);
         }
         
-        // console.log("🎬 Detailed metadata retrieved successfully");
-        // console.log("🎬 Raw metadata keys:", Object.keys(metadata || {}));
-        // console.log("🎬 Metadata structure:", {
-        //   hasStreams: !!metadata.streams,
-        //   streamsLength: metadata.streams?.length || 0,
-        //   hasFormat: !!metadata.format,
-        //   formatDuration: metadata.format?.duration,
-        //   formatFilename: metadata.format?.filename
-        // });
         
         // Log first few streams for debugging
         if (metadata.streams && metadata.streams.length > 0) {

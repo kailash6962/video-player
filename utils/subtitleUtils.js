@@ -116,14 +116,6 @@ function getAllSubtitleTracks(metadata) {
   });
 
   // Processed subtitle tracks
-  //   subtitleTracks.map(track => ({
-  //     index: track.index,
-  //     language: track.language,
-  //     codec: track.codec,
-  //     compatible: track.isBrowserCompatible,
-  //     displayName: track.displayName
-  //   }))
-  // );
 
   return subtitleTracks;
 }
