@@ -18,13 +18,13 @@ function resolveActualFolderName(sanitizedFolderName) {
     const allFolders = fs.readdirSync(VIDEOS_DIR).filter(folder =>
       fs.statSync(path.join(VIDEOS_DIR, folder)).isDirectory()
     );
-    
+
     // Find the folder that matches when sanitized
     const safeFolderName = sanitizedFolderName.replace(/[^a-zA-Z0-9_-]/g, '');
-    const actualFolder = allFolders.find(folder => 
+    const actualFolder = allFolders.find(folder =>
       folder.replace(/[^a-zA-Z0-9_-]/g, '') === safeFolderName
     );
-    
+
     return actualFolder || sanitizedFolderName;
   } catch (error) {
     // Error resolving folder name handled silently

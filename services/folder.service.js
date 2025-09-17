@@ -9,7 +9,7 @@ class FolderService {
   async getAllFolders(req = null) {
     const folders = fs.readdirSync(VIDEOS_DIR).filter(folder =>
       fs.statSync(path.join(VIDEOS_DIR, folder)).isDirectory() &&
-      folder !== process.env.THUMBNAIL_DIR.split('/').pop() && 
+      folder !== process.env.THUMBNAIL_DIR.split('/').pop() &&
       fs.readdirSync(path.join(VIDEOS_DIR, folder)).length > 0
     );
     const results = await Promise.all(
@@ -23,16 +23,16 @@ class FolderService {
           const userId = req?.cookies?.user_id || 'guest';
           const result = await new Promise((resolve) => {
             const db = new sqlite3.Database(dbPath);
-            
+
             // Check if the database has user_id column
             db.all("PRAGMA table_info(video_metadata)", (err, columns) => {
               if (err) {
                 db.close();
                 return resolve({});
               }
-              
+
               const hasUserId = columns && columns.some(col => col.name === 'user_id');
-              
+
               let query, params;
               if (hasUserId) {
                 // Use user-specific query
@@ -49,7 +49,7 @@ class FolderService {
                 `;
                 params = [];
               }
-              
+
               db.get(query, params, (err, row) => {
                 db.close();
                 if (err) return resolve({});
@@ -65,7 +65,7 @@ class FolderService {
         const videoFiles = files.filter(file =>
           VIDEO_EXTENSIONS.includes(path.extname(file).toLowerCase())
         );
-        
+
         // Get the most recent file modification date in this folder
         let mostRecentFileDate = null;
         if (videoFiles.length > 0) {
@@ -76,10 +76,10 @@ class FolderService {
           });
           mostRecentFileDate = new Date(Math.max(...fileDates.map(date => date.getTime())));
         }
-        
+
         // Get folder modification date
         const folderStats = fs.statSync(folderPath);
-        
+
         return {
           name: folder,
           videoCount: videoFiles.length,

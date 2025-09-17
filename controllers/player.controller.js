@@ -44,7 +44,7 @@ class PlayerController {
       await this.thumbnailService.getThumbnail(req, res);
     } catch (err) {
       // Error handled silently
-      res.status(500).send('Failed to generate thumbnail',err);
+      res.status(500).send('Failed to generate thumbnail', err);
     }
   }
 
@@ -78,13 +78,13 @@ class PlayerController {
     try {
       const videoId = req.params.id;
       const series = req.params.series === "home" ? "" : req.params.series || "";
-      
+
       // Handle special characters in folder names
       const { resolveActualFolderName } = require("../utils/folderUtils");
       const actualFolderName = resolveActualFolderName(series);
-      
+
       const filePath = require('path').join(process.env.VIDEO_DIR, actualFolderName, videoId);
-      
+
       if (!require('fs').existsSync(filePath)) {
         return res.status(404).json({ error: 'Video not found' });
       }
@@ -100,11 +100,11 @@ class PlayerController {
     try {
       const videoId = req.params.id;
       const series = req.params.series === "home" ? "" : req.params.series || "";
-      
+
       // Handle special characters in folder names
       const { resolveActualFolderName } = require("../utils/folderUtils");
       const actualFolderName = resolveActualFolderName(series);
-      
+
       const filePath = require('path').join(process.env.VIDEO_DIR, actualFolderName, videoId);
       if (!require('fs').existsSync(filePath)) {
         return res.status(404).json({ error: 'Video not found' });
@@ -123,11 +123,11 @@ class PlayerController {
     try {
       const videoId = req.params.id;
       const series = req.params.series === "home" ? "" : req.params.series || "";
-      
+
       // Handle special characters in folder names
       const { resolveActualFolderName } = require("../utils/folderUtils");
       const actualFolderName = resolveActualFolderName(series);
-      
+
       const filePath = require('path').join(process.env.VIDEO_DIR, actualFolderName, videoId);
       if (!require('fs').existsSync(filePath)) {
         return res.status(404).json({ error: 'Video not found' });

@@ -12,13 +12,13 @@ class ThumbnailService {
     const type = req.params.type;
     const db = req.params.db === "home" ? "" : req.params.db || "";
     const quality = req.query.quality || 'standard'; // Get quality from query parameter
-    
+
     // Thumbnail request processed
-    
+
     // Handle special characters in folder names by finding the actual folder
     const actualFolderName = resolveActualFolderName(db);
     // Actual folder name resolved
-    
+
     let videoPath;
     if (type === "file") {
       videoPath = path.join(VIDEOS_DIR, actualFolderName, videoId);
@@ -29,9 +29,9 @@ class ThumbnailService {
     } else {
       videoPath = this.getFirstFile(path.join(VIDEOS_DIR, actualFolderName));
     }
-    
+
     // Video path resolved
-    
+
     if (!videoPath || !fs.existsSync(videoPath)) {
       // Video not found
       return res.status(404).send('Video not found');
@@ -40,18 +40,18 @@ class ThumbnailService {
     // Create a hash-based filename to avoid "filename too long" errors
     const uniqueString = `${type}_${actualFolderName || 'home'}_${videoId}_${quality}`;
     const hash = crypto.createHash('md5').update(uniqueString).digest('hex');
-    
+
     const thumbDir = path.join(process.env.THUMBNAIL_DIR, 'thumbnails', quality);
     if (!fs.existsSync(thumbDir)) {
       fs.mkdirSync(thumbDir, { recursive: true });
     }
-    
+
     // Use hash-based filename with descriptive prefix
     const thumbFilename = `${type}_${hash}_${quality}.jpeg`;
     const thumbPath = path.join(thumbDir, thumbFilename);
-    
+
     // Thumbnail path resolved
-    
+
     // Get quality settings
     const qualitySettings = this.getQualitySettings(quality);
     // Quality settings applied
@@ -135,13 +135,13 @@ class ThumbnailService {
       // Looking for first video file
       const files = fs.readdirSync(dirPath);
       // Files found
-      
+
       const VIDEO_EXTENSIONS = ['.mp4', '.mov', '.mkv', '.avi', '.webm'];
       const videoFile = files.find(file => {
         const ext = path.extname(file).toLowerCase();
         return VIDEO_EXTENSIONS.includes(ext);
       });
-      
+
       const result = videoFile ? path.join(dirPath, videoFile) : null;
       // Selected video file
       return result;

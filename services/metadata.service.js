@@ -12,11 +12,11 @@ class MetadataService {
   saveWatchProgress(req, res) {
     const { video_id, current_time, size } = req.body;
     const userId = req.cookies.user_id || 'guest';
-    
+
     if (!video_id || current_time === undefined) {
       return res.status(400).json({ error: 'Missing video_id or current_time' });
     }
-    
+
     // Use the full schema since all columns exist according to the table check
     const sql = `
       INSERT OR REPLACE INTO video_metadata 
@@ -26,8 +26,8 @@ class MetadataService {
         datetime('now'),
         COALESCE((SELECT length FROM video_metadata WHERE user_id = ? AND video_id = ?), NULL))
     `;
-    
-    req.db.run(sql, [userId, video_id, current_time, size || 0, userId, video_id, userId, video_id], function(err) {
+
+    req.db.run(sql, [userId, video_id, current_time, size || 0, userId, video_id, userId, video_id], function (err) {
       if (err) {
         return res.status(500).json({ error: 'Database error' });
       }
@@ -47,7 +47,7 @@ class MetadataService {
         if (err) {
           reject(err);
         } else {
-          resolve({ 
+          resolve({
             current_time: row?.current_time || 0,
             user_id: userId,
             last_opened: row?.last_opened || null

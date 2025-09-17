@@ -1,16 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VidStream - Select User</title>
     <link rel="stylesheet" href="/style.css">
-    
+
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#ff0000">
-    
+
     <style>
         .user-selection-container {
             min-height: 100vh;
@@ -21,12 +22,12 @@
             justify-content: center;
             padding: 20px;
         }
-        
+
         .logo-section {
             text-align: center;
             margin-bottom: 40px;
         }
-        
+
         .main-logo {
             display: flex;
             align-items: center;
@@ -34,33 +35,33 @@
             gap: 15px;
             margin-bottom: 10px;
         }
-        
+
         .main-logo svg {
             width: 60px;
             height: 60px;
             color: #ff0000;
         }
-        
+
         .main-logo h1 {
             color: #ff0000;
             font-size: 3rem;
             font-weight: bold;
             margin: 0;
         }
-        
+
         .tagline {
             color: #888;
             font-size: 1.2rem;
             margin-top: 5px;
         }
-        
+
         .selection-title {
             color: white;
             font-size: 2rem;
             margin-bottom: 40px;
             text-align: center;
         }
-        
+
         .users-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 250px));
@@ -68,7 +69,7 @@
             max-width: 1000px;
             margin: 0 auto;
         }
-        
+
         .user-card {
             background: rgba(42, 42, 42, 0.8);
             border-radius: 15px;
@@ -80,14 +81,14 @@
             backdrop-filter: blur(10px);
             position: relative;
         }
-        
+
         .user-card:hover {
             transform: translateY(-10px);
             background: rgba(60, 60, 60, 0.9);
             border-color: #ff0000;
             box-shadow: 0 15px 30px rgba(255, 0, 0, 0.3);
         }
-        
+
         .user-card:focus {
             outline: 3px solid #ffffff;
             outline-offset: 2px;
@@ -95,45 +96,46 @@
             background: rgba(60, 60, 60, 0.9);
             border-color: #ff0000;
         }
-        
+
         .user-avatar {
             width: 80px;
             height: 80px;
             border-radius: 50%;
             margin: 0 auto 15px;
-            background: linear-gradient(135deg, #ff0000, #cc0000); /* Fallback color */
+            background: linear-gradient(135deg, #ff0000, #cc0000);
+            /* Fallback color */
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 2rem;
             color: white;
             font-weight: bold;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
-        
+
         .user-name {
             color: white;
             font-size: 1.3rem;
             font-weight: 600;
             margin-bottom: 8px;
         }
-        
+
         .user-subtitle {
             color: #888;
             font-size: 0.9rem;
         }
-        
+
         .guest-card {
             background: rgba(30, 30, 30, 0.8);
             border: 2px dashed #666;
         }
-        
+
         .guest-card:hover {
             border-color: #999;
             background: rgba(40, 40, 40, 0.9);
         }
-        
+
         .guest-avatar {
             background: linear-gradient(135deg, #666, #444);
             width: 80px;
@@ -145,11 +147,11 @@
             font-size: 2rem;
             color: white;
             font-weight: bold;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             margin: 0 auto 15px;
         }
-        
+
         .add-user-card {
             background: rgba(20, 20, 20, 0.6);
             border: 2px dashed #444;
@@ -158,12 +160,12 @@
             align-items: center;
             justify-content: center;
         }
-        
+
         .add-user-card:hover {
             border-color: #ff0000;
             background: rgba(30, 30, 30, 0.8);
         }
-        
+
         .add-icon {
             width: 80px;
             height: 80px;
@@ -176,12 +178,12 @@
             color: #666;
             margin-bottom: 15px;
         }
-        
+
         .add-user-card:hover .add-icon {
             border-color: #ff0000;
             color: #ff0000;
         }
-        
+
         /* PIN Modal */
         .pin-modal {
             position: fixed;
@@ -195,11 +197,11 @@
             justify-content: center;
             z-index: 1000;
         }
-        
+
         .pin-modal.show {
             display: flex;
         }
-        
+
         .pin-content {
             background: rgba(30, 30, 30, 0.95);
             padding: 40px;
@@ -208,25 +210,25 @@
             backdrop-filter: blur(20px);
             border: 1px solid #444;
         }
-        
+
         .pin-title {
             color: white;
             font-size: 1.5rem;
             margin-bottom: 10px;
         }
-        
+
         .pin-subtitle {
             color: #888;
             margin-bottom: 30px;
         }
-        
+
         .pin-input {
             display: flex;
             gap: 15px;
             justify-content: center;
             margin-bottom: 30px;
         }
-        
+
         .pin-digit {
             width: 60px;
             height: 60px;
@@ -238,18 +240,18 @@
             text-align: center;
             font-weight: bold;
         }
-        
+
         .pin-digit:focus {
             border-color: #ff0000;
             outline: none;
         }
-        
+
         .pin-buttons {
             display: flex;
             gap: 15px;
             justify-content: center;
         }
-        
+
         .pin-btn {
             padding: 12px 24px;
             border: none;
@@ -258,41 +260,41 @@
             cursor: pointer;
             transition: all 0.2s ease;
         }
-        
+
         .pin-btn.primary {
             background: #ff0000;
             color: white;
         }
-        
+
         .pin-btn.primary:hover {
             background: #cc0000;
         }
-        
+
         .pin-btn.secondary {
             background: transparent;
             color: white;
             border: 1px solid #666;
         }
-        
+
         .pin-btn.secondary:hover {
             border-color: #999;
         }
-        
+
         .error-message {
             color: #ff4444;
             margin-top: 15px;
             font-size: 0.9rem;
         }
-        
+
         /* Add User Form */
         .add-user-form {
             margin: 20px 0;
         }
-        
+
         .form-group {
             margin-bottom: 20px;
         }
-        
+
         .form-group label {
             display: block;
             color: white;
@@ -300,7 +302,7 @@
             font-weight: 500;
             margin-bottom: 8px;
         }
-        
+
         .form-group input[type="text"] {
             width: 100%;
             padding: 12px 16px;
@@ -311,24 +313,24 @@
             font-size: 1rem;
             transition: border-color 0.3s ease;
         }
-        
+
         .form-group input[type="text"]:focus {
             outline: none;
             border-color: #ff0000;
         }
-        
+
         .form-hint {
             color: #888;
             font-size: 0.8rem;
             margin-top: 5px;
         }
-        
+
         /* TV Remote Support */
         @media (min-width: 1200px) {
             .user-card {
                 min-height: 180px;
             }
-            
+
             .users-grid {
                 grid-template-columns: repeat(auto-fit, minmax(250px, 280px));
                 gap: 40px;
@@ -336,22 +338,23 @@
         }
     </style>
 </head>
+
 <body>
     <div class="user-selection-container">
         <!-- Logo Section -->
         <div class="logo-section">
             <div class="main-logo">
                 <svg viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M8 5v14l11-7z"/>
+                    <path d="M8 5v14l11-7z" />
                 </svg>
                 <h1>VidStream</h1>
             </div>
             <div class="tagline">Personal Cinema</div>
         </div>
-        
+
         <!-- Selection Title -->
         <h2 class="selection-title">Who's watching?</h2>
-        
+
         <!-- Users Grid -->
         <div class="users-grid" id="usersGrid">
             <!-- Guest User (Always Available) -->
@@ -360,9 +363,9 @@
                 <div class="user-name">Guest</div>
                 <div class="user-subtitle">Watch without saving progress</div>
             </div>
-            
+
             <!-- Regular Users (will be populated by JavaScript) -->
-            
+
             <!-- Add New User -->
             <div class="user-card add-user-card" tabindex="0" onclick="showAddUserModal()">
                 <div class="add-icon">+</div>
@@ -371,67 +374,72 @@
             </div>
         </div>
     </div>
-    
+
     <!-- PIN Modal -->
     <div class="pin-modal" id="pinModal">
         <div class="pin-content">
             <div class="pin-title" id="pinTitle">Enter PIN</div>
             <div class="pin-subtitle" id="pinSubtitle">Please enter your 4-digit PIN</div>
-            
+
             <div class="pin-input">
-                <input type="password" class="pin-digit" id="pin1" maxlength="1" onkeyup="handlePinInput(1)" onkeydown="handlePinKeydown(event, 1)">
-                <input type="password" class="pin-digit" id="pin2" maxlength="1" onkeyup="handlePinInput(2)" onkeydown="handlePinKeydown(event, 2)">
-                <input type="password" class="pin-digit" id="pin3" maxlength="1" onkeyup="handlePinInput(3)" onkeydown="handlePinKeydown(event, 3)">
-                <input type="password" class="pin-digit" id="pin4" maxlength="1" onkeyup="handlePinInput(4)" onkeydown="handlePinKeydown(event, 4)">
+                <input type="password" class="pin-digit" id="pin1" maxlength="1" onkeyup="handlePinInput(1)"
+                    onkeydown="handlePinKeydown(event, 1)">
+                <input type="password" class="pin-digit" id="pin2" maxlength="1" onkeyup="handlePinInput(2)"
+                    onkeydown="handlePinKeydown(event, 2)">
+                <input type="password" class="pin-digit" id="pin3" maxlength="1" onkeyup="handlePinInput(3)"
+                    onkeydown="handlePinKeydown(event, 3)">
+                <input type="password" class="pin-digit" id="pin4" maxlength="1" onkeyup="handlePinInput(4)"
+                    onkeydown="handlePinKeydown(event, 4)">
             </div>
-            
+
             <div class="pin-buttons">
                 <button class="pin-btn primary" onclick="submitPin()">Continue</button>
                 <button class="pin-btn secondary" onclick="closePinModal()">Cancel</button>
             </div>
-            
+
             <div class="error-message" id="errorMessage"></div>
         </div>
     </div>
-    
+
     <!-- Add User Modal -->
     <div class="pin-modal" id="addUserModal">
         <div class="pin-content">
             <div class="pin-title">Create New User</div>
             <div class="pin-subtitle">Enter a name for the new user</div>
-            
+
             <div class="add-user-form">
                 <div class="form-group">
                     <label for="newUserName">Name</label>
-                    <input type="text" id="newUserName" placeholder="Enter name (e.g., John Smith)" onkeydown="handleAddUserKeydown(event)">
+                    <input type="text" id="newUserName" placeholder="Enter name (e.g., John Smith)"
+                        onkeydown="handleAddUserKeydown(event)">
                     <div class="form-hint">Avatar will be generated from initials</div>
                 </div>
             </div>
-            
+
             <div class="pin-buttons">
                 <button class="pin-btn primary" onclick="submitNewUser()">Create User</button>
                 <button class="pin-btn secondary" onclick="closeAddUserModal()">Cancel</button>
             </div>
-            
+
             <div class="error-message" id="addUserError"></div>
         </div>
     </div>
-    
+
     <script>
         let selectedUserId = null;
         let isAddingUser = false;
-        
+
         // Load users when page loads
         document.addEventListener('DOMContentLoaded', () => {
             loadUsers();
             checkRegistrationStatus();
         });
-        
+
         async function loadUsers() {
             try {
                 const response = await fetch('/api/users');
                 const users = await response.json();
-                
+
                 renderUsers(users);
             } catch (error) {
                 console.error('Error loading users:', error);
@@ -439,16 +447,16 @@
                 createDefaultUsers();
             }
         }
-        
+
         function renderUsers(users) {
             const grid = document.getElementById('usersGrid');
             const guestCard = grid.querySelector('.guest-card');
             const addCard = grid.querySelector('.add-user-card');
-            
+
             // Remove existing user cards (keep guest and add card)
             const existingUserCards = grid.querySelectorAll('.user-card:not(.guest-card):not(.add-user-card)');
             existingUserCards.forEach(card => card.remove());
-            
+
             // Add user cards before the add card
             users.forEach(user => {
                 if (user.username !== 'guest') {
@@ -461,34 +469,34 @@
                     }
                 }
             });
-            
+
             console.log(`Rendered ${users.length} users`); // Debug log
         }
-        
+
         function createUserCard(user) {
             const card = document.createElement('div');
             card.className = 'user-card';
             card.tabIndex = 0;
             card.onclick = () => selectUser(user.id);
-            
+
             const lastActive = user.last_login ? new Date(user.last_login).toLocaleDateString() : 'Never';
-            
+
             console.log(`Creating card for user: ${user.display_name} (ID: ${user.id})`); // Debug log
-            
+
             // Create avatar with dynamic colors
-            const avatarStyle = user.avatar_bg_color && user.avatar_text_color 
-                ? `style="background: ${user.avatar_bg_color}; color: ${user.avatar_text_color};"` 
+            const avatarStyle = user.avatar_bg_color && user.avatar_text_color
+                ? `style="background: ${user.avatar_bg_color}; color: ${user.avatar_text_color};"`
                 : '';
-            
+
             card.innerHTML = `
                 <div class="user-avatar" ${avatarStyle}>${user.avatar_emoji}</div>
                 <div class="user-name">${user.display_name}</div>
                 <div class="user-subtitle">Last active: ${lastActive}</div>
             `;
-            
+
             return card;
         }
-        
+
         function selectUser(userId) {
             if (userId === 'guest') {
                 // Guest login - no PIN required
@@ -499,54 +507,54 @@
                 showPinModal(`Enter PIN for user`, 'Please enter your 4-digit PIN');
             }
         }
-        
+
         function loginAsGuest() {
             // Set guest session and redirect
             document.cookie = 'user_id=guest; path=/; max-age=86400'; // 24 hours
             window.location.href = '/home';
         }
-        
+
         function showAddUserModal() {
             isAddingUser = true;
             showPinModal('Create New User', 'Enter a 4-digit PIN for the new user');
         }
-        
+
         function showPinModal(title, subtitle) {
             document.getElementById('pinTitle').textContent = title;
             document.getElementById('pinSubtitle').textContent = subtitle;
             document.getElementById('pinModal').classList.add('show');
             document.getElementById('errorMessage').textContent = '';
-            
+
             // Clear and focus first input
             clearPinInputs();
             document.getElementById('pin1').focus();
         }
-        
+
         function closePinModal() {
             document.getElementById('pinModal').classList.remove('show');
             selectedUserId = null;
             isAddingUser = false;
         }
-        
+
         function clearPinInputs() {
             for (let i = 1; i <= 4; i++) {
                 document.getElementById(`pin${i}`).value = '';
             }
         }
-        
+
         function handlePinInput(position) {
             const current = document.getElementById(`pin${position}`);
-            
+
             if (current.value.length === 1 && position < 4) {
                 document.getElementById(`pin${position + 1}`).focus();
             }
-            
+
             // Auto-submit if all digits entered
             if (position === 4 && current.value.length === 1) {
                 setTimeout(submitPin, 100);
             }
         }
-        
+
         function handlePinKeydown(event, position) {
             if (event.key === 'Backspace' && position > 1) {
                 const current = document.getElementById(`pin${position}`);
@@ -555,7 +563,7 @@
                 }
             }
         }
-        
+
         async function submitPin() {
             let pin = '';
             for (let i = 1; i <= 4; i++) {
@@ -566,7 +574,7 @@
                 }
                 pin += digit;
             }
-            
+
             try {
                 if (isAddingUser) {
                     await createNewUser(pin);
@@ -577,44 +585,44 @@
                 showError('Invalid PIN. Please try again.');
             }
         }
-        
+
         async function createNewUser(pin) {
             // Show add user form
             showAddUserForm(pin);
         }
-        
+
         function showAddUserForm(pin) {
             document.getElementById('pinModal').classList.remove('show');
-            
+
             const addUserModal = document.getElementById('addUserModal');
             addUserModal.classList.add('show');
-            
+
             // Store PIN for later use
             addUserModal.dataset.pin = pin;
-            
+
             // Clear form
             document.getElementById('newUserName').value = '';
             document.getElementById('newUserName').focus();
         }
-        
+
         async function submitNewUser() {
             const addUserModal = document.getElementById('addUserModal');
             const pin = addUserModal.dataset.pin;
             const displayName = document.getElementById('newUserName').value.trim();
-            
+
             if (!displayName) {
                 document.getElementById('addUserError').textContent = 'Please enter a name';
                 return;
             }
-            
+
             // Generate username from display name
             const username = displayName.toLowerCase().replace(/[^a-z0-9]/g, '');
-            
+
             if (username.length === 0) {
                 document.getElementById('addUserError').textContent = 'Please enter a valid name';
                 return;
             }
-            
+
             try {
                 const response = await fetch('/api/users', {
                     method: 'POST',
@@ -625,16 +633,16 @@
                         display_name: displayName
                     })
                 });
-                
+
                 const result = await response.json();
-                
+
                 if (response.ok && result.success) {
                     closeAddUserModal();
                     showSuccess(`Created user: ${displayName}`);
-                    
+
                     // Refresh user list to show the new user
                     await loadUsers();
-                    
+
                     // Also refresh registration status in case it was changed
                     await checkRegistrationStatus();
                     window.location.reload();
@@ -645,19 +653,19 @@
                 document.getElementById('addUserError').textContent = 'Connection error';
             }
         }
-        
+
         function closeAddUserModal() {
             document.getElementById('addUserModal').classList.remove('show');
             document.getElementById('addUserError').textContent = '';
         }
-        
+
         async function loginUser(userId, pin) {
             const response = await fetch('/api/users/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ user_id: userId, pin })
             });
-            
+
             if (response.ok) {
                 const result = await response.json();
                 document.cookie = `user_id=${userId}; path=/; max-age=86400`; // 24 hours
@@ -666,13 +674,13 @@
                 showError('Invalid PIN. Please try again.');
             }
         }
-        
+
         function showError(message) {
             document.getElementById('errorMessage').textContent = message;
             clearPinInputs();
             document.getElementById('pin1').focus();
         }
-        
+
         function showSuccess(message) {
             const errorDiv = document.getElementById('errorMessage');
             if (errorDiv) {
@@ -683,11 +691,11 @@
                     errorDiv.textContent = '';
                 }, 3000);
             }
-            
+
             // Also show a temporary success notification
             showNotification(message, 'success');
         }
-        
+
         function showNotification(message, type = 'success') {
             // Create notification element
             const notification = document.createElement('div');
@@ -706,14 +714,14 @@
                 transition: transform 0.3s ease;
             `;
             notification.textContent = message;
-            
+
             document.body.appendChild(notification);
-            
+
             // Slide in
             setTimeout(() => {
                 notification.style.transform = 'translateX(0)';
             }, 100);
-            
+
             // Slide out and remove
             setTimeout(() => {
                 notification.style.transform = 'translateX(100%)';
@@ -724,19 +732,19 @@
                 }, 300);
             }, 3000);
         }
-        
-        
+
+
         function handleAddUserKeydown(event) {
             if (event.key === 'Enter') {
                 submitNewUser();
             }
         }
-        
+
         async function checkRegistrationStatus() {
             try {
                 const response = await fetch('/api/users/registration-status');
                 const data = await response.json();
-                
+
                 const addUserCard = document.querySelector('.add-user-card');
                 if (addUserCard) {
                     if (data.allowRegistration) {
@@ -768,4 +776,5 @@
         });
     </script>
 </body>
+
 </html>

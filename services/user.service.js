@@ -10,7 +10,7 @@ class UserService {
 
     async initDatabase() {
         const db = new sqlite3.Database('./databases/home.db');
-        
+
         return new Promise((resolve, reject) => {
             db.serialize(() => {
                 // Create users table if it doesn't exist
@@ -30,7 +30,7 @@ class UserService {
                 `, (err) => {
                     // Users table creation error handled silently
                 });
-                
+
                 // Add color columns if they don't exist (for existing databases)
                 db.run(`ALTER TABLE users ADD COLUMN avatar_bg_color TEXT DEFAULT '#ff0000'`, (err) => {
                     // Error adding avatar_bg_color column handled silently
@@ -38,7 +38,7 @@ class UserService {
                 db.run(`ALTER TABLE users ADD COLUMN avatar_text_color TEXT DEFAULT '#ffffff'`, (err) => {
                     // Error adding avatar_text_color column handled silently
                 });
-                
+
                 // Ensure video_metadata table has the correct multi-user schema
                 db.run(`
                     CREATE TABLE IF NOT EXISTS video_metadata (
@@ -54,12 +54,12 @@ class UserService {
                         PRIMARY KEY (user_id, video_id)
                     )
                 `, (err) => {
-                        // Video metadata table creation/update handled silently
+                    // Video metadata table creation/update handled silently
                 });
-                
+
                 // Create indexes for better performance (ignore errors if they exist)
-                db.run('CREATE INDEX IF NOT EXISTS idx_users_username ON users(username)', () => {});
-                
+                db.run('CREATE INDEX IF NOT EXISTS idx_users_username ON users(username)', () => { });
+
                 // Update existing users with colors if they don't have them
                 this.updateUsersWithColors(db, () => {
                     // User database initialized successfully
@@ -80,21 +80,21 @@ class UserService {
             if (err || !users || users.length === 0) {
                 return callback();
             }
-            
+
             // Updating users with unique colors
-            
+
             let completed = 0;
             users.forEach(user => {
                 const colors = this.generateAvatarColor(user.username);
                 // User color assignment handled silently
-                
+
                 db.run(
                     'UPDATE users SET avatar_bg_color = ?, avatar_text_color = ? WHERE id = ?',
                     [colors.bg, colors.text, user.id],
                     (updateErr) => {
                         completed++;
                         // Error updating user handled silently
-                        
+
                         if (completed === users.length) {
                             // All users updated with unique colors
                             callback();
@@ -107,9 +107,9 @@ class UserService {
 
     generateAvatar(displayName) {
         if (!displayName) return 'U';
-        
+
         const words = displayName.trim().split(/\s+/);
-        
+
         if (words.length === 1) {
             // Single word - use first letter
             return words[0].charAt(0).toUpperCase();
@@ -155,7 +155,7 @@ class UserService {
             { bg: '#ff69b4', text: '#ffffff' }, // Hot Pink
             { bg: '#ff6347', text: '#ffffff' }  // Tomato
         ];
-        
+
         // Create a hash from the username
         let hash = 0;
         for (let i = 0; i < username.length; i++) {
@@ -163,7 +163,7 @@ class UserService {
             hash = ((hash << 5) - hash) + char;
             hash = hash & hash; // Convert to 32-bit integer
         }
-        
+
         // Use absolute value and modulo to get a color index
         const colorIndex = Math.abs(hash) % colors.length;
         return colors[colorIndex];
@@ -176,7 +176,7 @@ class UserService {
     async getAllUsers() {
         return new Promise((resolve, reject) => {
             const db = new sqlite3.Database('./databases/home.db');
-            
+
             db.all(`
                 SELECT id, username, display_name, avatar_emoji, avatar_bg_color, avatar_text_color, last_login, is_active
                 FROM users 
@@ -194,17 +194,17 @@ class UserService {
         return new Promise((resolve, reject) => {
             const db = new sqlite3.Database('./databases/home.db');
             const pinHash = this.hashPin(pin);
-            
+
             // Generate avatar from name initials
             const avatarEmoji = this.generateAvatar(displayName);
-            
+
             // Generate unique color based on username
             const avatarColor = this.generateAvatarColor(username);
-            
+
             db.run(`
                 INSERT INTO users (username, pin_hash, display_name, avatar_emoji, avatar_bg_color, avatar_text_color)
                 VALUES (?, ?, ?, ?, ?, ?)
-            `, [username, pinHash, displayName, avatarEmoji, avatarColor.bg, avatarColor.text], function(err) {
+            `, [username, pinHash, displayName, avatarEmoji, avatarColor.bg, avatarColor.text], function (err) {
                 db.close();
                 if (err) reject(err);
                 else resolve(this.lastID);
@@ -216,7 +216,7 @@ class UserService {
         return new Promise((resolve, reject) => {
             const db = new sqlite3.Database('./databases/home.db');
             const pinHash = this.hashPin(pin);
-            
+
             db.get(`
                 SELECT * FROM users 
                 WHERE id = ? AND pin_hash = ? AND is_active = 1
@@ -226,13 +226,13 @@ class UserService {
                     reject(err);
                     return;
                 }
-                
+
                 if (!user) {
                     db.close();
                     reject(new Error('Invalid PIN'));
                     return;
                 }
-                
+
                 // Update last login
                 db.run(`
                     UPDATE users 
@@ -250,7 +250,7 @@ class UserService {
     async getUserById(userId) {
         return new Promise((resolve, reject) => {
             const db = new sqlite3.Database('./databases/home.db');
-            
+
             db.get(`
                 SELECT id, username, display_name, avatar_emoji, avatar_bg_color, avatar_text_color, last_login
                 FROM users 
@@ -266,7 +266,7 @@ class UserService {
     async getUserProgress(userId, videoId) {
         return new Promise((resolve, reject) => {
             const db = new sqlite3.Database('./databases/home.db');
-            
+
             db.get(`
                 SELECT * FROM video_metadata 
                 WHERE user_id = ? AND video_id = ?
@@ -281,7 +281,7 @@ class UserService {
     async updateUserProgress(userId, videoId, currentTime, size = 0) {
         return new Promise((resolve, reject) => {
             const db = new sqlite3.Database('./databases/home.db');
-            
+
             db.run(`
                 INSERT OR REPLACE INTO video_metadata 
                 (user_id, video_id, current_time, size, last_opened, active, created_at, updated_at)
@@ -300,7 +300,7 @@ class UserService {
     async setActiveVideo(userId, videoId) {
         return new Promise((resolve, reject) => {
             const db = new sqlite3.Database('./databases/home.db');
-            
+
             db.serialize(() => {
                 // Clear all active flags for this user
                 db.run(`
@@ -308,7 +308,7 @@ class UserService {
                     SET active = 0 
                     WHERE user_id = ?
                 `, [userId]);
-                
+
                 // Set new active video
                 db.run(`
                     UPDATE video_metadata 
@@ -326,7 +326,7 @@ class UserService {
     async getUserStats(userId) {
         return new Promise((resolve, reject) => {
             const db = new sqlite3.Database('./databases/home.db');
-            
+
             db.get(`
                 SELECT 
                     COUNT(*) as total_videos,
@@ -347,7 +347,7 @@ class UserService {
     async getAllUsersIncludingSuspended() {
         return new Promise((resolve, reject) => {
             const db = new sqlite3.Database('./databases/home.db');
-            
+
             db.all(`
                 SELECT id, username, display_name, avatar_emoji, avatar_bg_color, avatar_text_color, 
                        created_at, last_login, is_active
@@ -364,12 +364,12 @@ class UserService {
     async suspendUser(userId) {
         return new Promise((resolve, reject) => {
             const db = new sqlite3.Database('./databases/home.db');
-            
+
             db.run(`
                 UPDATE users 
                 SET is_active = 0 
                 WHERE id = ?
-            `, [userId], function(err) {
+            `, [userId], function (err) {
                 db.close();
                 if (err) {
                     // Error suspending user handled silently
@@ -385,12 +385,12 @@ class UserService {
     async activateUser(userId) {
         return new Promise((resolve, reject) => {
             const db = new sqlite3.Database('./databases/home.db');
-            
+
             db.run(`
                 UPDATE users 
                 SET is_active = 1 
                 WHERE id = ?
-            `, [userId], function(err) {
+            `, [userId], function (err) {
                 db.close();
                 if (err) {
                     // Error activating user handled silently
@@ -405,38 +405,38 @@ class UserService {
 
     async getContinueWatching(userId) {
         // Getting continue watching for user
-        
+
         // Get all series databases
         const fs = require('fs');
         const path = require('path');
         const databasesDir = path.join(__dirname, '..', 'databases');
-        
+
         if (!fs.existsSync(databasesDir)) {
             // Databases directory does not exist
             return [];
         }
-        
+
         const dbFiles = fs.readdirSync(databasesDir)
             .filter(file => file.endsWith('.sqlite3') && file !== 'home.db');
-        
+
         // Found video databases
-        
+
         let continueWatching = [];
-        
+
         if (dbFiles.length === 0) {
             // No video databases found
             return [];
         }
-        
+
         // Process databases sequentially to handle async operations
         for (const dbFile of dbFiles) {
             const seriesName = dbFile.replace('.sqlite3', '');
             const seriesDbPath = path.join(databasesDir, dbFile);
-            
+
             // Checking database
-            
+
             const seriesDb = new sqlite3.Database(seriesDbPath);
-            
+
             try {
                 const videos = await new Promise((resolve, reject) => {
                     seriesDb.all(`
@@ -459,11 +459,11 @@ class UserService {
                 });
 
                 // Found videos with watch progress
-                
+
                 if (videos.length > 0) {
                     // Determine if this is a series or movie based on database name
                     const isSeries = seriesName !== 'home'; // home.sqlite3 = movies, others = series
-                    
+
                     if (isSeries) {
                         // This is a series - create one card with overall progress
                         const VIDEOS_DIR = process.env.VIDEO_DIR;
@@ -471,21 +471,21 @@ class UserService {
                         const path = require('path');
                         const VIDEO_EXTENSIONS = ['.mp4', '.mov', '.mkv', '.avi', '.webm'];
                         const { resolveActualFolderName } = require('../utils/folderUtils');
-                        
+
                         let totalVideosInFolder = 0;
-                        
+
                         try {
                             // Resolve the actual folder name (handles special characters)
                             const actualFolderName = resolveActualFolderName(seriesName);
                             // Resolving series folder
-                            
+
                             const folderPath = path.join(VIDEOS_DIR, actualFolderName);
                             // Checking series folder path
-                            
+
                             if (fs.existsSync(folderPath)) {
                                 const files = fs.readdirSync(folderPath);
                                 // Files in series folder
-                                totalVideosInFolder = files.filter(file => 
+                                totalVideosInFolder = files.filter(file =>
                                     VIDEO_EXTENSIONS.includes(path.extname(file).toLowerCase())
                                 ).length;
                                 // Total videos in series calculated
@@ -497,16 +497,16 @@ class UserService {
                             // Error reading series folder handled silently
                             totalVideosInFolder = videos.length; // Fallback
                         }
-                        
+
                         // Simple calculation: count watched episodes
                         const watchedVideos = videos.filter(video => {
                             return video.watch_time && video.watch_time !== '0' && video.watch_time !== '';
                         }).length;
-                        
+
                         // Simple progress: (watched episodes / total episodes) * 100
-                        const overallProgress = totalVideosInFolder > 0 ? 
+                        const overallProgress = totalVideosInFolder > 0 ?
                             Math.round((watchedVideos / totalVideosInFolder) * 100) : 0;
-                        
+
                         // Create a single series card
                         const seriesCard = {
                             video_id: seriesName, // Use series name as the ID
@@ -518,35 +518,35 @@ class UserService {
                             watched_episodes: watchedVideos,
                             is_series: true
                         };
-                        
+
                         // Series card created
                         continueWatching.push(seriesCard);
                     } else {
                         // This is a movie (from home.sqlite3) - show individual cards
                         // Process videos sequentially to handle async duration fetching
                         const processedVideos = [];
-                        
+
                         for (const video of videos) {
                             // Processing video for continue watching
                             video.series = 'home'; // Set series to 'home' for movies
                             video.is_series = false;
                             video.current_time = video.watch_time; // Map watch_time to current_time for API response
-                            
+
                             // Calculate actual completion percentage from watch_time and length
                             if (video.watch_time) {
                                 try {
                                     // Convert current_time to seconds
                                     let currentSeconds = 0;
-                                    
+
                                     // Parse watch_time (could be in HH:MM:SS format or seconds)
                                     if (typeof video.watch_time === 'string' && video.watch_time.includes(':')) {
                                         // HH:MM:SS format - convert to seconds
                                         const timeParts = video.watch_time.split(':');
-                                        currentSeconds = (parseInt(timeParts[0]) * 3600) + 
-                                                       (parseInt(timeParts[1]) * 60) + 
-                                                       parseFloat(timeParts[2]);
+                                        currentSeconds = (parseInt(timeParts[0]) * 3600) +
+                                            (parseInt(timeParts[1]) * 60) +
+                                            parseFloat(timeParts[2]);
                                         // Converting watch_time to seconds
-                                        
+
                                         // Check if the converted time is reasonable
                                         if (video.length && currentSeconds > video.length * 1.1) {
                                             // Corrupted watch_time detected, resetting to 0
@@ -556,9 +556,9 @@ class UserService {
                                         // Already in seconds
                                         currentSeconds = parseFloat(video.watch_time) || 0;
                                     }
-                                    
+
                                     let totalSeconds = 0;
-                                    
+
                                     // Get length from database (should be set when video was first opened)
                                     if (video.length) {
                                         totalSeconds = parseInt(video.length) || 0;
@@ -566,20 +566,20 @@ class UserService {
                                         // No length stored for video
                                         totalSeconds = 0;
                                     }
-                                    
+
                                     // Calculate percentage
                                     if (totalSeconds > 0) {
                                         const rawPercentage = (currentSeconds / totalSeconds) * 100;
                                         // Cap at 100% to prevent impossible percentages
                                         video.completion_percentage = Math.min(Math.round(rawPercentage), 100);
-                                        
+
                                         if (rawPercentage > 100) {
                                             // Impossible percentage detected, capped at 100%
                                         }
                                     } else {
                                         video.completion_percentage = 0;
                                     }
-                                    
+
                                     // Movie progress calculated
                                 } catch (error) {
                                     // Error calculating progress handled silently
@@ -588,10 +588,10 @@ class UserService {
                             } else {
                                 video.completion_percentage = 0;
                             }
-                            
+
                             processedVideos.push(video);
                         }
-                        
+
                         // Movies added to continue watching
                         continueWatching = continueWatching.concat(processedVideos);
                     }

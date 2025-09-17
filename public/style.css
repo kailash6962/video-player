@@ -1,2626 +1,2645 @@
 /* YouTube-inspired styling */
-     body {
-        font-family: 'Roboto', Arial, sans-serif;
-        background-color: #0f0f0f;
-        color: #f1f1f1;
-        margin: 0;
-        padding: 0;
-        line-height: 1.4;
-    }
+body {
+    font-family: 'Roboto', Arial, sans-serif;
+    background-color: #0f0f0f;
+    color: #f1f1f1;
+    margin: 0;
+    padding: 0;
+    line-height: 1.4;
+}
 
-    /* Header styling */
-    .header {
-        display: flex;
-        align-items: center;
-        padding: 16px 24px;
-        background-color: #0f0f0f;
-        border-bottom: 1px solid #303030;
-        position: sticky;
-        top: 0;
-        z-index: 10;
-    }
+/* Header styling */
+.header {
+    display: flex;
+    align-items: center;
+    padding: 16px 24px;
+    background-color: #0f0f0f;
+    border-bottom: 1px solid #303030;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
 
-    .logo {
-        color: #ff0000;
-        font-size: 1.8rem;
-        font-weight: bold;
-        display: flex;
-        align-items: center;
-        text-decoration: none;
-    }
+.logo {
+    color: #ff0000;
+    font-size: 1.8rem;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+}
 
-    .logo i {
-        margin-right: 6px;
-    }
+.logo i {
+    margin-right: 6px;
+}
 
-    /* Main container */
-    .container {
-        display: flex;
-        flex-direction: column;
-        max-width: 1600px;
-        margin: 0 auto;
-        padding: 20px;
-    }
+/* Main container */
+.container {
+    display: flex;
+    flex-direction: column;
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 20px;
+}
 
-    /* Video player section */
+/* Video player section */
+.player-section {
+    display: flex;
+    margin-bottom: 24px;
+    flex-direction: column;
+}
+
+/* Video player */
+#playerContainer {
+    background-color: #000;
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+    aspect-ratio: 16 / 9;
+    width: 100%;
+    max-height: 70vh;
+}
+
+#playerContainer.hide-cursor {
+    cursor: none !important;
+}
+
+#videoPlayer {
+    width: 100%;
+    height: 100%;
+    background-color: #000;
+    object-fit: contain;
+}
+
+/* Video controls - YouTube style */
+.controls {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+#playerContainer:hover .controls {
+    opacity: 1;
+}
+
+.controls button {
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+
+.controls button:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.time {
+    color: #fff;
+    font-size: 14px;
+    min-width: 45px;
+}
+
+/* Custom slider styling for progress bar */
+#seek {
+    flex-grow: 1;
+    height: 3px;
+    appearance: none;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 2px;
+    outline: none;
+    cursor: pointer;
+    transition: height 0.2s ease;
+}
+
+#seek:hover,
+.controls:hover #seek {
+    height: 5px;
+}
+
+#seek::-webkit-slider-thumb {
+    appearance: none;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background: #f00;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+#seek:hover::-webkit-slider-thumb {
+    opacity: 1;
+}
+
+/* Volume control */
+#volume {
+    width: 80px;
+    height: 3px;
+    appearance: none;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 2px;
+    outline: none;
+    cursor: pointer;
+}
+
+#volume::-webkit-slider-thumb {
+    appearance: none;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: white;
+    cursor: pointer;
+}
+
+/* Video title and info */
+.video-info {
+    padding: 16px 0;
+}
+
+.video-title {
+    font-size: 20px;
+    font-weight: 500;
+    margin: 0 0 12px 0;
+    color: #fff;
+    text-align: left;
+}
+
+.video-meta {
+    display: flex;
+    align-items: center;
+    color: #aaa;
+    font-size: 14px;
+    text-align: left;
+}
+
+.video-meta span {
+    margin-right: 16px;
+}
+
+/* Video gallery */
+.gallery-title {
+    font-size: 18px;
+    font-weight: 500;
+    margin: 20px 0;
+    color: #fff;
+    text-align: left;
+    border-bottom: 1px solid #303030;
+    padding-bottom: 16px;
+}
+
+.gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+    width: 100%;
+}
+
+.video {
+    background: transparent;
+    border-radius: 12px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    position: relative;
+}
+
+.video:hover {
+    transform: scale(1.02);
+}
+
+.video video {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.video-thumbnail-container {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.watched-time {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    background-color: #f00;
+    transition: width 0.1s ease;
+    z-index: 1;
+}
+
+.details {
+    padding: 10px 0;
+    font-size: 13px;
+    color: #aaa;
+    background: transparent;
+    text-align: left;
+}
+
+.video-name {
+    font-weight: 500;
+    color: #fff;
+    font-size: 14px;
+    margin-bottom: 4px;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: block;
+}
+
+.video-stats {
+    display: flex;
+    flex-direction: column;
+    font-size: 12px;
+}
+
+/* Responsive design */
+@media (min-width: 992px) {
     .player-section {
-        display: flex;
-        margin-bottom: 24px;
-        flex-direction: column;
+        flex-direction: row;
     }
 
-    /* Video player */
     #playerContainer {
-        background-color: #000;
-        border-radius: 12px;
-        overflow: hidden;
-        position: relative;
-        aspect-ratio: 16 / 9;
-        width: 100%;
-        max-height: 70vh;
+        flex: 0 0 70%;
+        margin-right: 24px;
     }
 
-    #playerContainer.hide-cursor {
-        cursor: none !important;
+    .related-videos {
+        flex: 0 0 30%;
     }
+}
 
-    #videoPlayer {
-        width: 100%;
-        height: 100%;
-        background-color: #000;
-        object-fit: contain;
-    }
 
-    /* Video controls - YouTube style */
-    .controls {
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
-        padding: 10px 16px;
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        opacity: 0;
-        transition: opacity 0.3s ease;
-    }
-
-    #playerContainer:hover .controls {
-        opacity: 1;
-    }
-
-    .controls button {
-        background: transparent;
-        border: none;
-        color: white;
-        font-size: 16px;
-        cursor: pointer;
-        width: 36px;
-        height: 36px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 50%;
-    }
-
-    .controls button:hover {
-        background-color: rgba(255, 255, 255, 0.2);
-    }
-
-    .time {
-        color: #fff;
-        font-size: 14px;
-        min-width: 45px;
-    }
-
-    /* Custom slider styling for progress bar */
-    #seek {
-        flex-grow: 1;
-        height: 3px;
-        appearance: none;
-        background: rgba(255, 255, 255, 0.3);
-        border-radius: 2px;
-        outline: none;
-        cursor: pointer;
-        transition: height 0.2s ease;
-    }
-
-    #seek:hover,
-    .controls:hover #seek {
-        height: 5px;
-    }
-
-    #seek::-webkit-slider-thumb {
-        appearance: none;
-        width: 15px;
-        height: 15px;
-        border-radius: 50%;
-        background: #f00;
-        cursor: pointer;
-        opacity: 0;
-        transition: opacity 0.2s;
-    }
-
-    #seek:hover::-webkit-slider-thumb {
-        opacity: 1;
-    }
-
-    /* Volume control */
-    #volume {
-        width: 80px;
-        height: 3px;
-        appearance: none;
-        background: rgba(255, 255, 255, 0.3);
-        border-radius: 2px;
-        outline: none;
-        cursor: pointer;
-    }
-
-    #volume::-webkit-slider-thumb {
-        appearance: none;
-        width: 12px;
-        height: 12px;
-        border-radius: 50%;
-        background: white;
-        cursor: pointer;
-    }
-
-    /* Video title and info */
-    .video-info {
-        padding: 16px 0;
-    }
-
-    .video-title {
-        font-size: 20px;
-        font-weight: 500;
-        margin: 0 0 12px 0;
-        color: #fff;
-        text-align: left;
-    }
-
-    .video-meta {
-        display: flex;
-        align-items: center;
-        color: #aaa;
-        font-size: 14px;
-        text-align: left;
-    }
-
-    .video-meta span {
-        margin-right: 16px;
-    }
-
-    /* Video gallery */
-    .gallery-title {
-        font-size: 18px;
-        font-weight: 500;
-        margin: 20px 0;
-        color: #fff;
-        text-align: left;
-        border-bottom: 1px solid #303030;
-        padding-bottom: 16px;
-    }
-
+@media (max-width: 768px) {
     .gallery {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-        gap: 16px;
-        width: 100%;
-    }
-
-    .video {
-        background: transparent;
-        border-radius: 12px;
-        overflow: hidden;
-        cursor: pointer;
-        transition: transform 0.2s ease;
-        position: relative;
-    }
-
-    .video:hover {
-        transform: scale(1.02);
-    }
-
-    .video video {
-        width: 100%;
-        aspect-ratio: 16 / 9;
-        object-fit: cover;
-        border-radius: 8px;
-    }
-
-    .video-thumbnail-container {
-        position: relative;
-        width: 100%;
-        aspect-ratio: 16 / 9;
-        border-radius: 8px;
-        overflow: hidden;
-    }
-
-    .watched-time {
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        height: 3px;
-        background-color: #f00;
-        transition: width 0.1s ease;
-        z-index: 1;
-    }
-
-    .details {
-        padding: 10px 0;
-        font-size: 13px;
-        color: #aaa;
-        background: transparent;
-        text-align: left;
-    }
-
-    .video-name {
-        font-weight: 500;
-        color: #fff;
-        font-size: 14px;
-        margin-bottom: 4px;
-        max-width: 100%;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        display: block;
-    }
-
-    .video-stats {
-        display: flex;
-        flex-direction: column;
-        font-size: 12px;
-    }
-
-    /* Responsive design */
-    @media (min-width: 992px) {
-        .player-section {
-            flex-direction: row;
-        }
-
-        #playerContainer {
-            flex: 0 0 70%;
-            margin-right: 24px;
-        }
-
-        .related-videos {
-            flex: 0 0 30%;
-        }
-    }
-
-
-    @media (max-width: 768px) {
-        .gallery {
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-        }
-    }
-
-    .thumbnail {
-        width: 100%;
-    }
-
-    .cc-button {
-        font-family: Arial, sans-serif;
-        font-weight: bold;
-        font-size: 14px;
-        background-color: transparent;
-        color: white;
-        border: 1px solid white;
-        border-radius: 3px;
-        padding: 2px 4px;
-        cursor: pointer;
-        margin: 0 5px;
-    }
-
-    .cc-button.active {
-        background-color: white;
-        color: black;
-    }
-
-    /* Audio track button */
-    .audio-track-button {
-        background-color: rgba(0, 0, 0, 0.7);
-        color: white;
-        border: 1px solid rgba(255, 255, 255, 0.3);
-        border-radius: 4px;
-        padding: 8px;
-        cursor: pointer;
-        margin: 0 5px;
-        display: flex;
-        align-items: center;
-        gap: 4px;
-        font-size: 11px;
-        min-width: 50px;
-        position: relative;
-        transition: all 0.2s ease;
-    }
-
-    .audio-track-button:hover {
-        background-color: rgba(0, 0, 0, 0.8);
-        border-color: rgba(255, 255, 255, 0.5);
-    }
-
-    .audio-track-button:focus {
-        outline: none;
-        border-color: #ff0000;
-        box-shadow: 0 0 0 2px rgba(255, 0, 0, 0.3);
-    }
-
-    .audio-track-label {
-        font-weight: bold;
-        font-size: 10px;
-        text-transform: uppercase;
-    }
-
-    /* Audio track menu */
-    .audio-track-menu {
-        position: absolute;
-        bottom: 50px;
-        right: 16px;
-        background-color: rgba(0, 0, 0, 0.95);
-        border: 1px solid rgba(255, 255, 255, 0.3);
-        border-radius: 8px;
-        padding: 8px 0;
-        min-width: 200px;
-        max-width: 300px;
-        z-index: 1000;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-        max-height: 300px;
-        overflow-y: auto;
-    }
-
-    .audio-track-menu-item {
-        padding: 12px 16px;
-        color: white;
-        cursor: pointer;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        transition: background-color 0.2s ease;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .audio-track-menu-item:last-child {
-        border-bottom: none;
-    }
-
-    .audio-track-menu-item:hover {
-        background-color: rgba(255, 255, 255, 0.1);
-    }
-
-    .audio-track-menu-item.active {
-        background-color: rgba(255, 0, 0, 0.3);
-        color: #ff6b6b;
-    }
-
-    .audio-track-menu-item .track-info {
-        display: flex;
-        flex-direction: column;
-        gap: 2px;
-    }
-
-    .audio-track-menu-item .track-language {
-        font-weight: bold;
-        font-size: 14px;
-    }
-
-    .audio-track-menu-item .track-quality {
-        font-size: 12px;
-        color: rgba(255, 255, 255, 0.7);
-    }
-
-    .audio-track-menu-item .track-checkmark {
-        color: #ff0000;
-        font-weight: bold;
-    }
-
-    /* Subtitle track button */
-    .subtitle-track-button {
-        background-color: rgba(0, 0, 0, 0.7);
-        color: white;
-        border: 1px solid rgba(255, 255, 255, 0.3);
-        border-radius: 4px;
-        padding: 8px;
-        cursor: pointer;
-        margin: 0 5px;
-        display: flex;
-        align-items: center;
-        gap: 4px;
-        font-size: 14px;
-        transition: all 0.2s ease;
-        position: relative;
-    }
-
-    .subtitle-track-button:hover {
-        background-color: rgba(0, 0, 0, 0.8);
-        border-color: rgba(255, 255, 255, 0.5);
-    }
-
-    .subtitle-track-button:focus {
-        outline: none;
-        border-color: #ff0000;
-        box-shadow: 0 0 0 2px rgba(255, 0, 0, 0.3);
-    }
-
-    .subtitle-track-label {
-        font-weight: bold;
-        font-size: 10px;
-        text-transform: uppercase;
-    }
-
-    /* Subtitle track menu */
-    .subtitle-track-menu {
-        position: absolute;
-        bottom: 50px;
-        right: 16px;
-        background-color: rgba(0, 0, 0, 0.95);
-        border: 1px solid rgba(255, 255, 255, 0.3);
-        border-radius: 8px;
-        padding: 8px 0;
-        min-width: 200px;
-        max-width: 300px;
-        z-index: 1000;
-        backdrop-filter: blur(10px);
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-        color: white;
-    }
-
-    .subtitle-track-menu-item {
-        padding: 12px 16px;
-        color: white;
-        cursor: pointer;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        transition: background-color 0.2s ease;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .subtitle-track-menu-item:last-child {
-        border-bottom: none;
-    }
-
-    .subtitle-track-menu-item:hover {
-        background-color: rgba(255, 255, 255, 0.1);
-    }
-
-    .subtitle-track-menu-item.active {
-        background-color: rgba(255, 0, 0, 0.3);
-        color: #ff6b6b;
-    }
-
-    .subtitle-track-menu-item .track-info {
-        display: flex;
-        flex-direction: column;
-        gap: 2px;
-    }
-
-    .subtitle-track-menu-item .track-language {
-        font-weight: bold;
-        font-size: 14px;
-    }
-
-    .subtitle-track-menu-item .track-codec {
-        font-size: 12px;
-        color: rgba(255, 255, 255, 0.7);
-    }
-
-    .subtitle-track-menu-item .track-checkmark {
-        color: #ff0000;
-        font-weight: bold;
-    }
-
-    /* Keep controls visible when subtitle button is focused or hovered */
-    .controls:has(.subtitle-track-button:focus),
-    .controls:has(.subtitle-track-button:hover),
-    .controls:has(.audio-track-button:focus),
-    .controls:has(.audio-track-button:hover) {
-        opacity: 1 !important;
-    }
-
-    /* Fallback for browsers that don't support :has() */
-    .controls.show-audio-button,
-    .controls.show-subtitle-button {
-        opacity: 1 !important;
-    }
-
-    /* Subtitle styling */
-    .subtitles-container {
-        position: absolute;
-        bottom: 50px;
-        left: 0;
-        right: 0;
-        text-align: center;
-        color: white;
-        background-color: rgba(0, 0, 0, 0.5);
-        padding: 5px;
-        font-size: 16px;
-        display: none;
-    }
-
-    /* Player container position */
-    #playerContainer {
-        position: relative;
-    }
-
-    /* Movie title styling */
-    #player-title {
-        position: absolute;
-        top: 10px;
-        left: 50%;
-        transform: translateX(-50%);
-        color: white;
-        font-size: 18px;
-        font-weight: bold;
-        z-index: 2;
-        text-align: center;
-    }
-    .duration {
-        position: absolute;
-        bottom: 10px;
-        right: 10px;
-        background-color: rgba(0, 0, 0, 0.7);
-        color: white;
-        padding: 2px 5px;
-        border-radius: 4px;
-        font-size: 12px;
-        font-weight: 500;
-        z-index: 1;
-    }
-    .thumbnailoverlay-text {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.6);
-        color: white;
-        font-size: 16px;
-        font-weight: 500;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-    @keyframes spin {
-      0% { transform: rotate(0deg);}
-      100% { transform: rotate(360deg);}
-    }
-    .play-pause-anim {
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      z-index: 20;
-      transform: translate(-50%, -50%) scale(1);
-      opacity: 0.85;
-      pointer-events: none;
-      transition: opacity 0.2s;
-    }
-    .play-pause-anim svg {
-      width: 90px;
-      height: 90px;
-      filter: drop-shadow(0 2px 8px #0008);
-    }
-    .play-pause-anim.show {
-      animation: pop-fade 0.7s cubic-bezier(.4,2,.6,1) forwards;
-      display: block !important;
-    }
-
-    /* ===== NETFLIX-STYLE HOME PAGE ===== */
-    
-    /* Netflix Header */
-    .netflix-header {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        z-index: 1000;
-        background: linear-gradient(180deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0) 100%);
-        padding: 15px 0;
-        transition: all 0.3s ease;
-        backdrop-filter: blur(10px);
-    }
-
-    .netflix-header.scrolled {
-        background: rgba(0, 0, 0, 0.9);
-        backdrop-filter: blur(15px);
-    }
-
-    .header-content {
-        max-width: 1400px;
-        margin: 0 auto;
-        padding: 0 60px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-    }
-    
-    /* User Section */
-    .user-section {
-        display: flex;
-        align-items: center;
-        gap: 15px;
-    }
-    
-    .current-user {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        background: rgba(255, 255, 255, 0.1);
-        padding: 8px 12px;
-        border-radius: 8px;
-        transition: all 0.3s ease;
-    }
-    
-    .current-user:hover {
-        background: rgba(255, 255, 255, 0.15);
-    }
-    
-    .user-avatar {
-        font-size: 0.9rem;
-        width: 32px;
-        height: 32px;
-        border-radius: 50%;
-        background: linear-gradient(135deg, #ff0000, #cc0000); /* Fallback color */
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-weight: bold;
-        text-shadow: 0 1px 2px rgba(0,0,0,0.3);
-        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-    }
-    
-    .user-name {
-        color: white;
-        font-size: 0.9rem;
-        font-weight: 500;
-    }
-    
-    .logout-btn {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        padding: 8px 12px;
-        background: rgba(255, 255, 255, 0.1);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        border-radius: 8px;
-        color: #ccc;
-        font-size: 0.85rem;
-        font-weight: 500;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        text-decoration: none;
-        white-space: nowrap;
-    }
-    
-    .logout-btn:hover {
-        background: rgba(255, 0, 0, 0.15);
-        border-color: rgba(255, 0, 0, 0.3);
-        color: #ff0000;
-        transform: translateY(-1px);
-    }
-    
-    .logout-btn:active {
-        transform: translateY(0);
-    }
-    
-    .logout-btn svg {
-        width: 16px;
-        height: 16px;
-        transition: transform 0.3s ease;
-    }
-    
-    .logout-btn:hover svg {
-        transform: translateX(2px);
-    }
-    
-    .logout-btn span {
-        font-family: inherit;
-    }
-
-    .logo {
-        display: flex;
-        align-items: center;
-        gap: 16px;
-        color: #ffffff;
-        text-decoration: none;
-        transition: all 0.3s ease;
-    }
-
-    .logo:hover {
-        transform: scale(1.05);
-    }
-
-    .logo-icon {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 50px;
-        height: 50px;
-        background: linear-gradient(135deg, #e50914 0%, #ff1e30 100%);
-        border-radius: 12px;
-        box-shadow: 0 4px 12px rgba(229, 9, 20, 0.3);
-        transition: all 0.3s ease;
-    }
-
-    .logo:hover .logo-icon {
-        transform: rotate(5deg);
-        box-shadow: 0 6px 20px rgba(229, 9, 20, 0.5);
-    }
-
-    .logo-icon svg {
-        color: white;
-        filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
-    }
-
-    .logo-brand {
-        display: flex;
-        flex-direction: column;
-        gap: 2px;
-    }
-
-    .logo-text {
-        font-family: 'Arial', sans-serif;
-        font-size: 28px;
-        font-weight: 700;
-        letter-spacing: -1px;
-        color: #ffffff;
-        line-height: 1;
-    }
-
-    .logo-tagline {
-        font-family: 'Arial', sans-serif;
-        font-size: 12px;
-        font-weight: 400;
-        color: #b3b3b3;
-        letter-spacing: 0.5px;
-        text-transform: uppercase;
-    }
-
-    .header-nav {
-        display: flex;
-        align-items: center;
-        gap: 32px;
-    }
-
-    .nav-link {
-        color: #b3b3b3;
-        text-decoration: none;
-        font-size: 16px;
-        font-weight: 500;
-        padding: 8px 16px;
-        border-radius: 8px;
-        transition: all 0.3s ease;
-        position: relative;
-    }
-
-    .nav-link:hover {
-        color: #ffffff;
-        background: rgba(255, 255, 255, 0.1);
-    }
-
-    .nav-link.active {
-        color: #ffffff;
-        background: rgba(229, 9, 20, 0.2);
-        border: 1px solid rgba(229, 9, 20, 0.3);
-    }
-
-    .nav-link.active::before {
-        content: '';
-        position: absolute;
-        bottom: -2px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 20px;
-        height: 2px;
-        background: #e50914;
-        border-radius: 1px;
-    }
-
-    .page-indicator {
-        display: flex;
-        align-items: center;
-        padding: 8px 16px;
-        background: rgba(255, 255, 255, 0.05);
-        border-radius: 8px;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    .page-title {
-        color: #e5e5e5;
-        font-size: 14px;
-        font-weight: 500;
-    }
-
-    /* Main Content */
-    .netflix-main {
-        margin-top: 0;
-        background: #141414;
-        min-height: 100vh;
-    }
-
-    /* Hero Slideshow Section */
-    .hero-slideshow {
-        position: relative;
-        height: 70vh;
-        min-height: 500px;
-        overflow: hidden;
-        background: #000;
-    }
-
-    .slideshow-container {
-        position: relative;
-        width: 100%;
-        height: 100%;
-    }
-
-    .slide {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        opacity: 0;
-        transition: opacity 1s ease-in-out;
-        display: flex;
-        align-items: center;
-    }
-
-    .slide.active {
-        opacity: 1;
-    }
-
-    .slide-background {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
-        filter: brightness(0.4);
-    }
-
-    .slide-gradient {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(
-            90deg,
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    }
+}
+
+.thumbnail {
+    width: 100%;
+}
+
+.cc-button {
+    font-family: Arial, sans-serif;
+    font-weight: bold;
+    font-size: 14px;
+    background-color: transparent;
+    color: white;
+    border: 1px solid white;
+    border-radius: 3px;
+    padding: 2px 4px;
+    cursor: pointer;
+    margin: 0 5px;
+}
+
+.cc-button.active {
+    background-color: white;
+    color: black;
+}
+
+/* Audio track button */
+.audio-track-button {
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 4px;
+    padding: 8px;
+    cursor: pointer;
+    margin: 0 5px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    min-width: 50px;
+    position: relative;
+    transition: all 0.2s ease;
+}
+
+.audio-track-button:hover {
+    background-color: rgba(0, 0, 0, 0.8);
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+.audio-track-button:focus {
+    outline: none;
+    border-color: #ff0000;
+    box-shadow: 0 0 0 2px rgba(255, 0, 0, 0.3);
+}
+
+.audio-track-label {
+    font-weight: bold;
+    font-size: 10px;
+    text-transform: uppercase;
+}
+
+/* Audio track menu */
+.audio-track-menu {
+    position: absolute;
+    bottom: 50px;
+    right: 16px;
+    background-color: rgba(0, 0, 0, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 8px;
+    padding: 8px 0;
+    min-width: 200px;
+    max-width: 300px;
+    z-index: 1000;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.audio-track-menu-item {
+    padding: 12px 16px;
+    color: white;
+    cursor: pointer;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    transition: background-color 0.2s ease;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.audio-track-menu-item:last-child {
+    border-bottom: none;
+}
+
+.audio-track-menu-item:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.audio-track-menu-item.active {
+    background-color: rgba(255, 0, 0, 0.3);
+    color: #ff6b6b;
+}
+
+.audio-track-menu-item .track-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.audio-track-menu-item .track-language {
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.audio-track-menu-item .track-quality {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.audio-track-menu-item .track-checkmark {
+    color: #ff0000;
+    font-weight: bold;
+}
+
+/* Subtitle track button */
+.subtitle-track-button {
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 4px;
+    padding: 8px;
+    cursor: pointer;
+    margin: 0 5px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 14px;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.subtitle-track-button:hover {
+    background-color: rgba(0, 0, 0, 0.8);
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+.subtitle-track-button:focus {
+    outline: none;
+    border-color: #ff0000;
+    box-shadow: 0 0 0 2px rgba(255, 0, 0, 0.3);
+}
+
+.subtitle-track-label {
+    font-weight: bold;
+    font-size: 10px;
+    text-transform: uppercase;
+}
+
+/* Subtitle track menu */
+.subtitle-track-menu {
+    position: absolute;
+    bottom: 50px;
+    right: 16px;
+    background-color: rgba(0, 0, 0, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 8px;
+    padding: 8px 0;
+    min-width: 200px;
+    max-width: 300px;
+    z-index: 1000;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    color: white;
+}
+
+.subtitle-track-menu-item {
+    padding: 12px 16px;
+    color: white;
+    cursor: pointer;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    transition: background-color 0.2s ease;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.subtitle-track-menu-item:last-child {
+    border-bottom: none;
+}
+
+.subtitle-track-menu-item:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.subtitle-track-menu-item.active {
+    background-color: rgba(255, 0, 0, 0.3);
+    color: #ff6b6b;
+}
+
+.subtitle-track-menu-item .track-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.subtitle-track-menu-item .track-language {
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.subtitle-track-menu-item .track-codec {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.subtitle-track-menu-item .track-checkmark {
+    color: #ff0000;
+    font-weight: bold;
+}
+
+/* Keep controls visible when subtitle button is focused or hovered */
+.controls:has(.subtitle-track-button:focus),
+.controls:has(.subtitle-track-button:hover),
+.controls:has(.audio-track-button:focus),
+.controls:has(.audio-track-button:hover) {
+    opacity: 1 !important;
+}
+
+/* Fallback for browsers that don't support :has() */
+.controls.show-audio-button,
+.controls.show-subtitle-button {
+    opacity: 1 !important;
+}
+
+/* Subtitle styling */
+.subtitles-container {
+    position: absolute;
+    bottom: 50px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    color: white;
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 5px;
+    font-size: 16px;
+    display: none;
+}
+
+/* Player container position */
+#playerContainer {
+    position: relative;
+}
+
+/* Movie title styling */
+#player-title {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+    z-index: 2;
+    text-align: center;
+}
+
+.duration {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 2px 5px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+    z-index: 1;
+}
+
+.thumbnailoverlay-text {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    color: white;
+    font-size: 16px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.play-pause-anim {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    z-index: 20;
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.85;
+    pointer-events: none;
+    transition: opacity 0.2s;
+}
+
+.play-pause-anim svg {
+    width: 90px;
+    height: 90px;
+    filter: drop-shadow(0 2px 8px #0008);
+}
+
+.play-pause-anim.show {
+    animation: pop-fade 0.7s cubic-bezier(.4, 2, .6, 1) forwards;
+    display: block !important;
+}
+
+/* ===== NETFLIX-STYLE HOME PAGE ===== */
+
+/* Netflix Header */
+.netflix-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.4) 50%, rgba(0, 0, 0, 0) 100%);
+    padding: 15px 0;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+.netflix-header.scrolled {
+    background: rgba(0, 0, 0, 0.9);
+    backdrop-filter: blur(15px);
+}
+
+.header-content {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* User Section */
+.user-section {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.current-user {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 8px 12px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.current-user:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.user-avatar {
+    font-size: 0.9rem;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #ff0000, #cc0000);
+    /* Fallback color */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.user-name {
+    color: white;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.logout-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    color: #ccc;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.logout-btn:hover {
+    background: rgba(255, 0, 0, 0.15);
+    border-color: rgba(255, 0, 0, 0.3);
+    color: #ff0000;
+    transform: translateY(-1px);
+}
+
+.logout-btn:active {
+    transform: translateY(0);
+}
+
+.logout-btn svg {
+    width: 16px;
+    height: 16px;
+    transition: transform 0.3s ease;
+}
+
+.logout-btn:hover svg {
+    transform: translateX(2px);
+}
+
+.logout-btn span {
+    font-family: inherit;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    color: #ffffff;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.logo:hover {
+    transform: scale(1.05);
+}
+
+.logo-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, #e50914 0%, #ff1e30 100%);
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(229, 9, 20, 0.3);
+    transition: all 0.3s ease;
+}
+
+.logo:hover .logo-icon {
+    transform: rotate(5deg);
+    box-shadow: 0 6px 20px rgba(229, 9, 20, 0.5);
+}
+
+.logo-icon svg {
+    color: white;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.logo-brand {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.logo-text {
+    font-family: 'Arial', sans-serif;
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -1px;
+    color: #ffffff;
+    line-height: 1;
+}
+
+.logo-tagline {
+    font-family: 'Arial', sans-serif;
+    font-size: 12px;
+    font-weight: 400;
+    color: #b3b3b3;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.header-nav {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+}
+
+.nav-link {
+    color: #b3b3b3;
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: 500;
+    padding: 8px 16px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.nav-link:hover {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.nav-link.active {
+    color: #ffffff;
+    background: rgba(229, 9, 20, 0.2);
+    border: 1px solid rgba(229, 9, 20, 0.3);
+}
+
+.nav-link.active::before {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 20px;
+    height: 2px;
+    background: #e50914;
+    border-radius: 1px;
+}
+
+.page-indicator {
+    display: flex;
+    align-items: center;
+    padding: 8px 16px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.page-title {
+    color: #e5e5e5;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+/* Main Content */
+.netflix-main {
+    margin-top: 0;
+    background: #141414;
+    min-height: 100vh;
+}
+
+/* Hero Slideshow Section */
+.hero-slideshow {
+    position: relative;
+    height: 70vh;
+    min-height: 500px;
+    overflow: hidden;
+    background: #000;
+}
+
+.slideshow-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.slide {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    transition: opacity 1s ease-in-out;
+    display: flex;
+    align-items: center;
+}
+
+.slide.active {
+    opacity: 1;
+}
+
+.slide-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    filter: brightness(0.4);
+}
+
+.slide-gradient {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg,
             rgba(0, 0, 0, 0.8) 0%,
             rgba(0, 0, 0, 0.4) 50%,
-            rgba(0, 0, 0, 0.8) 100%
-        );
+            rgba(0, 0, 0, 0.8) 100%);
+}
+
+.slide-content {
+    position: relative;
+    z-index: 3;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 40px;
+    color: white;
+}
+
+.slide-badge {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.slide-type {
+    background: #e50914;
+    color: white;
+    font-weight: 900;
+    font-size: 0.9rem;
+    padding: 4px 12px;
+    border-radius: 4px;
+    letter-spacing: 1px;
+}
+
+.slide-quality {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    font-weight: 600;
+    font-size: 0.8rem;
+    padding: 4px 8px;
+    border-radius: 4px;
+    backdrop-filter: blur(10px);
+}
+
+.slide-title {
+    font-size: 3.5rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 16px;
+    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.8);
+    line-height: 1.1;
+    max-width: 80%;
+}
+
+.slide-description {
+    font-size: 1.4rem;
+    color: #e5e5e5;
+    margin-bottom: 20px;
+    max-width: 70%;
+    line-height: 1.4;
+}
+
+.slide-metadata {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.slide-year,
+.slide-duration {
+    color: #b3b3b3;
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+.slide-rating {
+    background: #46d369;
+    color: #000;
+    font-weight: 700;
+    font-size: 0.9rem;
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+
+.slide-languages {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+}
+
+.lang-badge {
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 6px 12px;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+}
+
+.slide-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.slide-play-btn,
+.slide-info-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.slide-play-btn {
+    background: #ffffff;
+    color: #000;
+}
+
+.slide-play-btn:hover {
+    background: #e5e5e5;
+    transform: scale(1.05);
+}
+
+.slide-info-btn {
+    background: rgba(109, 109, 110, 0.7);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.slide-info-btn:hover {
+    background: rgba(109, 109, 110, 0.9);
+    transform: scale(1.05);
+}
+
+.slideshow-controls {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: calc(100% - 80px);
+    /* Account for padding */
+    left: 40px;
+    /* Center the container with padding */
+    display: flex;
+    justify-content: space-between;
+    z-index: 4;
+    pointer-events: none;
+}
+
+.slide-nav {
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    pointer-events: all;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.slide-nav:hover {
+    background: rgba(0, 0, 0, 0.8);
+    transform: scale(1.15);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.slide-nav:active {
+    transform: scale(1.05);
+}
+
+.slide-nav svg {
+    width: 24px;
+    height: 24px;
+    stroke-width: 2.5;
+}
+
+.slide-indicators {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 12px;
+    z-index: 4;
+}
+
+.slide-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.5);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.slide-dot.active {
+    background: #e50914;
+    transform: scale(1.2);
+}
+
+.slide-dot:hover {
+    background: rgba(255, 255, 255, 0.8);
+}
+
+/* Content Sections */
+.content-section {
+    padding: 40px 0;
+    position: relative;
+}
+
+.section-header {
+    max-width: 1600px;
+    margin: 0 auto 30px auto;
+    padding: 0 40px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.section-title {
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: #ffffff;
+    margin: 0;
+    white-space: nowrap;
+}
+
+.section-line {
+    height: 2px;
+    background: linear-gradient(90deg, #e50914 0%, transparent 100%);
+    flex: 1;
+    border-radius: 1px;
+}
+
+.section-count {
+    font-size: 0.9rem;
+    color: #b3b3b3;
+    font-weight: 400;
+    white-space: nowrap;
+}
+
+/* Grid Container */
+.grid-container {
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 0 40px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 16px;
+    position: relative;
+}
+
+/* Netflix-style Cards */
+.netflix-card {
+    background: #1a1a1a;
+    border-radius: 8px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: column;
+    height: auto;
+}
+
+.netflix-card:hover {
+    transform: scale(1.03);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+    z-index: 10;
+}
+
+.netflix-card:focus {
+    outline: 3px solid #e50914;
+    outline-offset: 2px;
+    transform: scale(1.03);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+    z-index: 10;
+}
+
+.netflix-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.8) 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 2;
+}
+
+.netflix-card:hover::before,
+.netflix-card:focus::before {
+    opacity: 1;
+}
+
+.card-thumbnail {
+    width: 100%;
+    aspect-ratio: 16/9;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+    flex-shrink: 0;
+}
+
+.netflix-card:hover .card-thumbnail,
+.netflix-card:focus .card-thumbnail {
+    transform: scale(1.02);
+}
+
+.card-content {
+    padding: 12px;
+    background: #1a1a1a;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+    z-index: 3;
+}
+
+.card-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #ffffff;
+    margin: 0 0 6px 0;
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    min-height: 2.4em;
+}
+
+.card-meta {
+    font-size: 0.75rem;
+    color: #b3b3b3;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.card-meta-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.75rem;
+}
+
+.card-duration {
+    color: #e50914;
+    font-weight: 500;
+}
+
+.card-last-viewed {
+    color: #888;
+}
+
+.card-progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.2);
+    z-index: 4;
+}
+
+.card-progress-bar {
+    height: 100%;
+    background: #e50914;
+    transition: width 0.3s ease;
+}
+
+/* Series Card Specific */
+.series-card {
+    /* Inherits grid sizing */
+}
+
+.episode-count {
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 4px 6px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 500;
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 5;
+    backdrop-filter: blur(4px);
+}
+
+.watching-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    color: #e50914;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    font-weight: 600;
+    z-index: 6;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 0.8;
     }
 
-    .slide-content {
-        position: relative;
-        z-index: 3;
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 0 40px;
-        color: white;
+    50% {
+        opacity: 1;
+    }
+}
+
+/* Animations */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
     }
 
-    .slide-badge {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        margin-bottom: 16px;
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-30px);
     }
 
-    .slide-type {
-        background: #e50914;
-        color: white;
-        font-weight: 900;
-        font-size: 0.9rem;
-        padding: 4px 12px;
-        border-radius: 4px;
-        letter-spacing: 1px;
+    to {
+        opacity: 1;
+        transform: translateX(0);
     }
+}
 
-    .slide-quality {
-        background: rgba(255, 255, 255, 0.2);
-        color: white;
-        font-weight: 600;
-        font-size: 0.8rem;
-        padding: 4px 8px;
-        border-radius: 4px;
-        backdrop-filter: blur(10px);
-    }
-
-    .slide-title {
-        font-size: 3.5rem;
-        font-weight: 700;
-        color: #ffffff;
-        margin-bottom: 16px;
-        text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.8);
-        line-height: 1.1;
-        max-width: 80%;
-    }
-
-    .slide-description {
-        font-size: 1.4rem;
-        color: #e5e5e5;
-        margin-bottom: 20px;
-        max-width: 70%;
-        line-height: 1.4;
-    }
-
-    .slide-metadata {
-        display: flex;
-        align-items: center;
-        gap: 16px;
-        margin-bottom: 20px;
-        flex-wrap: wrap;
-    }
-
-    .slide-year,
-    .slide-duration {
-        color: #b3b3b3;
-        font-size: 1.1rem;
-        font-weight: 500;
-    }
-
-    .slide-rating {
-        background: #46d369;
-        color: #000;
-        font-weight: 700;
-        font-size: 0.9rem;
-        padding: 4px 8px;
-        border-radius: 4px;
-    }
-
-    .slide-languages {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        margin-bottom: 24px;
-        flex-wrap: wrap;
-    }
-
-    .lang-badge {
-        background: rgba(255, 255, 255, 0.15);
-        color: white;
-        font-size: 0.85rem;
-        font-weight: 600;
-        padding: 6px 12px;
-        border-radius: 20px;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        backdrop-filter: blur(10px);
-    }
-
-    .slide-actions {
-        display: flex;
-        align-items: center;
-        gap: 16px;
-    }
-
-    .slide-play-btn,
-    .slide-info-btn {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        padding: 12px 24px;
-        border: none;
-        border-radius: 6px;
-        font-weight: 600;
-        font-size: 1rem;
-        cursor: pointer;
-        transition: all 0.3s ease;
-    }
-
-    .slide-play-btn {
-        background: #ffffff;
-        color: #000;
-    }
-
-    .slide-play-btn:hover {
-        background: #e5e5e5;
-        transform: scale(1.05);
-    }
-
-    .slide-info-btn {
-        background: rgba(109, 109, 110, 0.7);
-        color: white;
-        border: 1px solid rgba(255, 255, 255, 0.5);
-    }
-
-    .slide-info-btn:hover {
-        background: rgba(109, 109, 110, 0.9);
-        transform: scale(1.05);
-    }
-
-    .slideshow-controls {
-        position: absolute;
-        top: 50%;
-        transform: translateY(-50%);
-        width: calc(100% - 80px); /* Account for padding */
-        left: 40px; /* Center the container with padding */
-        display: flex;
-        justify-content: space-between;
-        z-index: 4;
-        pointer-events: none;
-    }
-
-    .slide-nav {
-        background: rgba(0, 0, 0, 0.6);
-        color: white;
-        border: none;
-        border-radius: 50%;
-        width: 60px;
-        height: 60px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        pointer-events: all;
-        backdrop-filter: blur(10px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-        border: 2px solid rgba(255, 255, 255, 0.1);
-    }
-
-    .slide-nav:hover {
-        background: rgba(0, 0, 0, 0.8);
-        transform: scale(1.15);
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
-        border-color: rgba(255, 255, 255, 0.3);
-    }
-
-    .slide-nav:active {
-        transform: scale(1.05);
-    }
-
-    .slide-nav svg {
-        width: 24px;
-        height: 24px;
-        stroke-width: 2.5;
-    }
-
-    .slide-indicators {
-        position: absolute;
-        bottom: 30px;
-        left: 50%;
-        transform: translateX(-50%);
-        display: flex;
-        gap: 12px;
-        z-index: 4;
-    }
-
-    .slide-dot {
-        width: 12px;
-        height: 12px;
-        border-radius: 50%;
-        background: rgba(255, 255, 255, 0.5);
-        cursor: pointer;
-        transition: all 0.3s ease;
-    }
-
-    .slide-dot.active {
-        background: #e50914;
-        transform: scale(1.2);
-    }
-
-    .slide-dot:hover {
-        background: rgba(255, 255, 255, 0.8);
-    }
-
-    /* Content Sections */
-    .content-section {
-        padding: 40px 0;
-        position: relative;
-    }
-
-    .section-header {
-        max-width: 1600px;
-        margin: 0 auto 30px auto;
-        padding: 0 40px;
-        display: flex;
-        align-items: center;
+/* TV and Large Screen Optimization */
+@media (min-width: 1920px) {
+    .grid-container {
+        max-width: 2000px;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
         gap: 20px;
     }
 
-    .section-title {
-        font-size: 1.8rem;
-        font-weight: 600;
-        color: #ffffff;
-        margin: 0;
-        white-space: nowrap;
-    }
-
-    .section-line {
-        height: 2px;
-        background: linear-gradient(90deg, #e50914 0%, transparent 100%);
-        flex: 1;
-        border-radius: 1px;
-    }
-
-    .section-count {
-        font-size: 0.9rem;
-        color: #b3b3b3;
-        font-weight: 400;
-        white-space: nowrap;
-    }
-
-    /* Grid Container */
-    .grid-container {
-        max-width: 1600px;
-        margin: 0 auto;
-        padding: 0 40px;
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-        gap: 16px;
-        position: relative;
-    }
-
-    /* Netflix-style Cards */
-    .netflix-card {
-        background: #1a1a1a;
-        border-radius: 8px;
-        overflow: hidden;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        position: relative;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-        display: flex;
-        flex-direction: column;
-        height: auto;
-    }
-
-    .netflix-card:hover {
-        transform: scale(1.03);
-        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
-        z-index: 10;
-    }
-
-    .netflix-card:focus {
-        outline: 3px solid #e50914;
-        outline-offset: 2px;
-        transform: scale(1.03);
-        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
-        z-index: 10;
-    }
-
-    .netflix-card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.8) 100%);
-        opacity: 0;
-        transition: opacity 0.3s ease;
-        z-index: 2;
-    }
-
-    .netflix-card:hover::before,
-    .netflix-card:focus::before {
-        opacity: 1;
-    }
-
-    .card-thumbnail {
-        width: 100%;
-        aspect-ratio: 16/9;
-        object-fit: cover;
-        transition: transform 0.3s ease;
-        flex-shrink: 0;
-    }
-
-    .netflix-card:hover .card-thumbnail,
-    .netflix-card:focus .card-thumbnail {
-        transform: scale(1.02);
-    }
-
-    .card-content {
-        padding: 12px;
-        background: #1a1a1a;
-        flex-grow: 1;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        position: relative;
-        z-index: 3;
-    }
-
-    .card-title {
-        font-size: 0.9rem;
-        font-weight: 600;
-        color: #ffffff;
-        margin: 0 0 6px 0;
-        line-height: 1.3;
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-        min-height: 2.4em;
-    }
-
-    .card-meta {
-        font-size: 0.75rem;
-        color: #b3b3b3;
-        margin: 0;
-        display: flex;
-        flex-direction: column;
-        gap: 2px;
-    }
-
-    .card-meta-row {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        font-size: 0.75rem;
-    }
-
-    .card-duration {
-        color: #e50914;
-        font-weight: 500;
-    }
-
-    .card-last-viewed {
-        color: #888;
-    }
-
-    .card-progress {
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        height: 3px;
-        background: rgba(255, 255, 255, 0.2);
-        z-index: 4;
-    }
-
-    .card-progress-bar {
-        height: 100%;
-        background: #e50914;
-        transition: width 0.3s ease;
-    }
-
-    /* Series Card Specific */
-    .series-card {
-        /* Inherits grid sizing */
-    }
-
-    .episode-count {
-        background: rgba(0, 0, 0, 0.8);
-        color: white;
-        padding: 4px 6px;
-        border-radius: 4px;
-        font-size: 0.7rem;
-        font-weight: 500;
-        position: absolute;
-        top: 8px;
-        right: 8px;
-        z-index: 5;
-        backdrop-filter: blur(4px);
-    }
-
-    .watching-overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0, 0, 0, 0.7);
-        color: #e50914;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.2rem;
-        font-weight: 600;
-        z-index: 6;
-        animation: pulse 2s infinite;
-    }
-
-    @keyframes pulse {
-        0%, 100% {
-            opacity: 0.8;
-        }
-        50% {
-            opacity: 1;
-        }
-    }
-
-    /* Animations */
-    @keyframes fadeInUp {
-        from {
-            opacity: 0;
-            transform: translateY(30px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    @keyframes slideInLeft {
-        from {
-            opacity: 0;
-            transform: translateX(-30px);
-        }
-        to {
-            opacity: 1;
-            transform: translateX(0);
-        }
-    }
-
-    /* TV and Large Screen Optimization */
-    @media (min-width: 1920px) {
-        .grid-container {
-            max-width: 2000px;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 20px;
-        }
-        
-        .section-header {
-            max-width: 2000px;
-            padding: 0 50px;
-        }
-        
-        .hero-title {
-            font-size: 5rem;
-        }
-        
-        .hero-subtitle {
-            font-size: 1.8rem;
-        }
-        
-        .section-title {
-            font-size: 2.2rem;
-        }
-        
-        .card-title {
-            font-size: 1rem;
-        }
-        
-        .card-meta {
-            font-size: 0.8rem;
-        }
-    }
-
-    /* 4K and Ultra-wide screens */
-    @media (min-width: 2560px) {
-        .grid-container {
-            max-width: 2400px;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 24px;
-        }
-        
-        .section-header {
-            max-width: 2400px;
-            padding: 0 60px;
-        }
-        
-        .hero-title {
-            font-size: 6rem;
-        }
-        
-        .hero-subtitle {
-            font-size: 2rem;
-        }
-        
-        .section-title {
-            font-size: 2.5rem;
-        }
-        
-        .card-title {
-            font-size: 1.1rem;
-        }
-        
-        .card-meta {
-            font-size: 0.85rem;
-        }
-    }
-
-    /* Standard Desktop */
-    @media (max-width: 1919px) and (min-width: 1200px) {
-        .grid-container {
-            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-        }
-    }
-
-    /* Tablet Landscape */
-    @media (max-width: 1199px) and (min-width: 768px) {
-        .header-content,
-        .section-header {
-            padding: 0 30px;
-        }
-        
-        .grid-container {
-            padding: 0 30px;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 16px;
-        }
-        
-        .hero-title {
-            font-size: 3rem;
-        }
-        
-        .hero-subtitle {
-            font-size: 1.2rem;
-        }
-        
-        .section-title {
-            font-size: 1.6rem;
-        }
-    }
-
-    /* Tablet Portrait */
-    @media (max-width: 767px) and (min-width: 481px) {
-        .header-content,
-        .section-header {
-            padding: 0 20px;
-        }
-        
-        .grid-container {
-            padding: 0 20px;
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-            gap: 14px;
-        }
-        
-        .hero-title {
-            font-size: 2.5rem;
-        }
-        
-        .hero-subtitle {
-            font-size: 1rem;
-        }
-        
-        .section-title {
-            font-size: 1.4rem;
-        }
-        
-        .card-title {
-            font-size: 0.85rem;
-        }
-        
-        .card-meta {
-            font-size: 0.7rem;
-        }
-        
-        .card-content {
-            padding: 10px;
-        }
-    }
-
-    /* Mobile */
-    @media (max-width: 480px) {
-        .hero-section {
-            height: 50vh;
-        }
-        
-        .header-content,
-        .section-header {
-            padding: 0 15px;
-        }
-        
-        .grid-container {
-            padding: 0 15px;
-            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-            gap: 12px;
-        }
-        
-        .hero-title {
-            font-size: 2rem;
-        }
-        
-        .hero-subtitle {
-            font-size: 0.9rem;
-        }
-        
-        /* Slideshow controls for mobile */
-        .slideshow-controls {
-            width: calc(100% - 40px);
-            left: 20px;
-        }
-        
-        .slide-nav {
-            width: 45px;
-            height: 45px;
-        }
-        
-        .slide-nav svg {
-            width: 20px;
-            height: 20px;
-        }
-        
-        /* Header responsive for mobile */
-        .header-content {
-            padding: 0 20px;
-        }
-        
-        .logo-text {
-            font-size: 20px;
-        }
-        
-        .logo-tagline {
-            font-size: 10px;
-        }
-        
-        .logo-icon {
-            width: 40px;
-            height: 40px;
-        }
-        
-        /* User section responsive */
-        .user-section {
-            gap: 10px;
-        }
-        
-        .logout-btn {
-            padding: 6px 8px;
-            font-size: 0.75rem;
-        }
-        
-        .logout-btn span {
-            display: none;
-        }
-        
-        .logout-btn svg {
-            width: 18px;
-            height: 18px;
-        }
-        
-        .current-user {
-            padding: 6px 8px;
-        }
-        
-        .user-avatar {
-            font-size: 0.8rem;
-            width: 28px;
-            height: 28px;
-        }
-        
-        .user-name {
-            font-size: 0.8rem;
-        }
-        
-        .logo-icon svg {
-            width: 24px;
-            height: 24px;
-        }
-        
-        .header-nav {
-            gap: 16px;
-        }
-        
-        .nav-link {
-            font-size: 14px;
-            padding: 6px 12px;
-        }
-        
-        .page-indicator {
-            display: none;
-        }
-        }
-        
-        .section-title {
-            font-size: 1.2rem;
-        }
-        
-        .card-title {
-            font-size: 0.8rem;
-        }
-        
-        .card-meta {
-            font-size: 0.65rem;
-        }
-        
-        .card-content {
-            padding: 8px;
-        }
-    }
-
-    /* Keyboard navigation for TV browsers */
-    .netflix-card {
-        tabindex: 0;
-    }
-    
-    /* High contrast mode support */
-    @media (prefers-contrast: high) {
-        .netflix-card:focus {
-            outline: 4px solid #ffffff;
-        }
-        
-        .card-progress-bar {
-            background: #ffffff;
-        }
-    }
-    
-    /* Reduced motion support */
-    @media (prefers-reduced-motion: reduce) {
-        .netflix-card {
-            transition: none;
-        }
-        
-        .card-thumbnail {
-            transition: none;
-        }
-        
-        .card-content {
-            transition: none;
-        }
-        
-        .hero-title,
-        .hero-subtitle {
-            animation: none;
-        }
-    }
-
-    /* ===== PLAY PAGE SPECIFIC STYLES ===== */
-    
-    /* Player Section */
-    .player-section-netflix {
-        padding: 100px 0 40px 0;
-        background: #0f0f0f;
-    }
-
-    .player-container-wrapper {
-        max-width: 1600px;
-        margin: 0 auto;
-        padding: 0 40px;
-        display: grid;
-        grid-template-columns: 2fr 1fr;
-        gap: 40px;
-        align-items: start;
-    }
-
-    /* Netflix Hero Banner */
-    .netflix-hero-banner {
-        position: relative;
-        height: 60vh;
-        min-height: 400px;
-        max-height: 600px;
-        background: linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.8) 100%);
-        display: flex;
-        align-items: flex-end;
-        overflow: hidden;
-        border-radius: 8px;
-        margin-bottom: 40px;
-    }
-
-    .hero-background-image {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
-        z-index: 1;
-    }
-
-    .hero-gradient-overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: linear-gradient(
-            180deg,
-            rgba(0,0,0,0.1) 0%,
-            rgba(0,0,0,0.3) 50%,
-            rgba(0,0,0,0.8) 100%
-        );
-        z-index: 2;
-    }
-
-    .main-content-card {
-        position: absolute;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        left: 0;
-        padding: 40px 60px 60px;
-        display: flex;
-        align-items: flex-end;
-        justify-content: flex-end;
-        z-index: 3;
-    }
-
-    .movie-info-card {
-        /* background: rgba(0, 0, 0, 0.85); */
-        backdrop-filter: blur(15px);
-        border-radius: 12px;
-        /* padding: 32px; */
-        /* border: 1px solid rgba(255, 255, 255, 0.15); */
-        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
-        max-width: 500px;
-        width: 100%;
-        color: white;
-    }
-
-    .main-title {
-        font-size: 2.5rem;
-        font-weight: 700;
-        color: #ffffff;
-        line-height: 1.2;
-        letter-spacing: -0.5px;
-    }
-
-    .file-quality-info {
-        font-size: 1.1rem;
-        font-weight: 600;
-        color: #e0e0e0;
-        margin-bottom: 20px;
-        line-height: 1.4;
-        padding: 12px 16px;
-        background: rgba(255, 255, 255, 0.08);
-        border-radius: 8px;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    .main-metadata {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        margin-bottom: 24px;
-        flex-wrap: wrap;
-    }
-
-    .video-details-section {
-        margin: 24px 0;
-        padding: 20px;
-        background: rgba(255, 255, 255, 0.05);
-        border-radius: 8px;
-        border: 1px solid rgba(255, 255, 255, 0.08);
-    }
-
-    .detail-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 8px 0;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-    }
-
-    .detail-row:last-child {
-        border-bottom: none;
-    }
-
-    .detail-label {
-        font-size: 0.9rem;
-        color: #b3b3b3;
-        font-weight: 500;
-    }
-
-    .detail-value {
-        font-size: 0.9rem;
-        color: #ffffff;
-        font-weight: 600;
-    }
-
-    .main-actions {
-        display: flex;
-        align-items: center;
-        gap: 16px;
-        margin-top: 24px;
-        flex-wrap: wrap;
-    }
-
-    .language-badges-section {
-        margin-top: 16px;
-    }
-
-    .languages-container {
-        display: flex;
-        gap: 8px;
-        flex-wrap: wrap;
-        justify-content: flex-end;
-    }
-
-    .hero-lang-badge {
-        background: linear-gradient(135deg, #e50914, #ff4757);
-        color: white;
-        padding: 6px 12px;
-        border-radius: 20px;
-        font-size: 0.8rem;
-        font-weight: 600;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        box-shadow: 0 2px 8px rgba(229, 9, 20, 0.3);
-        transition: all 0.2s ease;
-    }
-
-    .hero-lang-badge:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 4px 12px rgba(229, 9, 20, 0.4);
-    }
-
-    .netflix-badge {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        margin-bottom: 16px;
-        flex-wrap: wrap;
-    }
-    
-    .movie-name {
-        flex: 1;
-        min-width: 0;
-        word-wrap: break-word;
-        overflow-wrap: break-word;
-        hyphens: auto;
-        font-size: 1.2rem;
-        font-weight: 600;
-        line-height: 1.1;
-    }
-
-    .netflix-logo {
-        background: #e50914;
-        color: white;
-        font-weight: 900;
-        font-size: 1.1rem;
-        padding: 4px 8px;
-        border-radius: 2px;
-        line-height: 1;
-    }
-
-    .content-type {
-        font-size: 0.9rem;
-        font-weight: 600;
-        color: #ffffff;
-        text-transform: uppercase;
-        letter-spacing: 1px;
+    .section-header {
+        max-width: 2000px;
+        padding: 0 50px;
     }
 
     .hero-title {
-        font-size: 3.5rem;
-        font-weight: 700;
-        color: #ffffff;
-        margin: 0 0 20px 0;
-        line-height: 1.1;
-        letter-spacing: -1px;
-        text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        font-size: 5rem;
     }
 
-    .hero-metadata {
-        display: flex;
-        align-items: center;
-        gap: 8px;
+    .hero-subtitle {
+        font-size: 1.8rem;
+    }
+
+    .section-title {
+        font-size: 2.2rem;
+    }
+
+    .card-title {
+        font-size: 1rem;
+    }
+
+    .card-meta {
+        font-size: 0.8rem;
+    }
+}
+
+/* 4K and Ultra-wide screens */
+@media (min-width: 2560px) {
+    .grid-container {
+        max-width: 2400px;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 24px;
+    }
+
+    .section-header {
+        max-width: 2400px;
+        padding: 0 60px;
+    }
+
+    .hero-title {
+        font-size: 6rem;
+    }
+
+    .hero-subtitle {
+        font-size: 2rem;
+    }
+
+    .section-title {
+        font-size: 2.5rem;
+    }
+
+    .card-title {
+        font-size: 1.1rem;
+    }
+
+    .card-meta {
+        font-size: 0.85rem;
+    }
+}
+
+/* Standard Desktop */
+@media (max-width: 1919px) and (min-width: 1200px) {
+    .grid-container {
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    }
+}
+
+/* Tablet Landscape */
+@media (max-width: 1199px) and (min-width: 768px) {
+
+    .header-content,
+    .section-header {
+        padding: 0 30px;
+    }
+
+    .grid-container {
+        padding: 0 30px;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 16px;
+    }
+
+    .hero-title {
+        font-size: 3rem;
+    }
+
+    .hero-subtitle {
+        font-size: 1.2rem;
+    }
+
+    .section-title {
+        font-size: 1.6rem;
+    }
+}
+
+/* Tablet Portrait */
+@media (max-width: 767px) and (min-width: 481px) {
+
+    .header-content,
+    .section-header {
+        padding: 0 20px;
+    }
+
+    .grid-container {
+        padding: 0 20px;
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 14px;
+    }
+
+    .hero-title {
+        font-size: 2.5rem;
+    }
+
+    .hero-subtitle {
+        font-size: 1rem;
+    }
+
+    .section-title {
+        font-size: 1.4rem;
+    }
+
+    .card-title {
+        font-size: 0.85rem;
+    }
+
+    .card-meta {
+        font-size: 0.7rem;
+    }
+
+    .card-content {
+        padding: 10px;
+    }
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+    .hero-section {
+        height: 50vh;
+    }
+
+    .header-content,
+    .section-header {
+        padding: 0 15px;
+    }
+
+    .grid-container {
+        padding: 0 15px;
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+        gap: 12px;
+    }
+
+    .hero-title {
+        font-size: 2rem;
+    }
+
+    .hero-subtitle {
+        font-size: 0.9rem;
+    }
+
+    /* Slideshow controls for mobile */
+    .slideshow-controls {
+        width: calc(100% - 40px);
+        left: 20px;
+    }
+
+    .slide-nav {
+        width: 45px;
+        height: 45px;
+    }
+
+    .slide-nav svg {
+        width: 20px;
+        height: 20px;
+    }
+
+    /* Header responsive for mobile */
+    .header-content {
+        padding: 0 20px;
+    }
+
+    .logo-text {
+        font-size: 20px;
+    }
+
+    .logo-tagline {
+        font-size: 10px;
+    }
+
+    .logo-icon {
+        width: 40px;
+        height: 40px;
+    }
+
+    /* User section responsive */
+    .user-section {
+        gap: 10px;
+    }
+
+    .logout-btn {
+        padding: 6px 8px;
+        font-size: 0.75rem;
+    }
+
+    .logout-btn span {
+        display: none;
+    }
+
+    .logout-btn svg {
+        width: 18px;
+        height: 18px;
+    }
+
+    .current-user {
+        padding: 6px 8px;
+    }
+
+    .user-avatar {
+        font-size: 0.8rem;
+        width: 28px;
+        height: 28px;
+    }
+
+    .user-name {
+        font-size: 0.8rem;
+    }
+
+    .logo-icon svg {
+        width: 24px;
+        height: 24px;
+    }
+
+    .header-nav {
+        gap: 16px;
+    }
+
+    .nav-link {
+        font-size: 14px;
+        padding: 6px 12px;
+    }
+
+    .page-indicator {
+        display: none;
+    }
+}
+
+.section-title {
+    font-size: 1.2rem;
+}
+
+.card-title {
+    font-size: 0.8rem;
+}
+
+.card-meta {
+    font-size: 0.65rem;
+}
+
+.card-content {
+    padding: 8px;
+}
+}
+
+/* Keyboard navigation for TV browsers */
+.netflix-card {
+    tabindex: 0;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .netflix-card:focus {
+        outline: 4px solid #ffffff;
+    }
+
+    .card-progress-bar {
+        background: #ffffff;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    .netflix-card {
+        transition: none;
+    }
+
+    .card-thumbnail {
+        transition: none;
+    }
+
+    .card-content {
+        transition: none;
+    }
+
+    .hero-title,
+    .hero-subtitle {
+        animation: none;
+    }
+}
+
+/* ===== PLAY PAGE SPECIFIC STYLES ===== */
+
+/* Player Section */
+.player-section-netflix {
+    padding: 100px 0 40px 0;
+    background: #0f0f0f;
+}
+
+.player-container-wrapper {
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 0 40px;
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 40px;
+    align-items: start;
+}
+
+/* Netflix Hero Banner */
+.netflix-hero-banner {
+    position: relative;
+    height: 60vh;
+    min-height: 400px;
+    max-height: 600px;
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0.8) 100%);
+    display: flex;
+    align-items: flex-end;
+    overflow: hidden;
+    border-radius: 8px;
+    margin-bottom: 40px;
+}
+
+.hero-background-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    z-index: 1;
+}
+
+.hero-gradient-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(180deg,
+            rgba(0, 0, 0, 0.1) 0%,
+            rgba(0, 0, 0, 0.3) 50%,
+            rgba(0, 0, 0, 0.8) 100%);
+    z-index: 2;
+}
+
+.main-content-card {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    padding: 40px 60px 60px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-end;
+    z-index: 3;
+}
+
+.movie-info-card {
+    /* background: rgba(0, 0, 0, 0.85); */
+    backdrop-filter: blur(15px);
+    border-radius: 12px;
+    /* padding: 32px; */
+    /* border: 1px solid rgba(255, 255, 255, 0.15); */
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+    max-width: 500px;
+    width: 100%;
+    color: white;
+}
+
+.main-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #ffffff;
+    line-height: 1.2;
+    letter-spacing: -0.5px;
+}
+
+.file-quality-info {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #e0e0e0;
+    margin-bottom: 20px;
+    line-height: 1.4;
+    padding: 12px 16px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.main-metadata {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+}
+
+.video-details-section {
+    margin: 24px 0;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.detail-row:last-child {
+    border-bottom: none;
+}
+
+.detail-label {
+    font-size: 0.9rem;
+    color: #b3b3b3;
+    font-weight: 500;
+}
+
+.detail-value {
+    font-size: 0.9rem;
+    color: #ffffff;
+    font-weight: 600;
+}
+
+.main-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-top: 24px;
+    flex-wrap: wrap;
+}
+
+.language-badges-section {
+    margin-top: 16px;
+}
+
+.languages-container {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+.hero-lang-badge {
+    background: linear-gradient(135deg, #e50914, #ff4757);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 2px 8px rgba(229, 9, 20, 0.3);
+    transition: all 0.2s ease;
+}
+
+.hero-lang-badge:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(229, 9, 20, 0.4);
+}
+
+.netflix-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+}
+
+.movie-name {
+    flex: 1;
+    min-width: 0;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+    font-size: 1.2rem;
+    font-weight: 600;
+    line-height: 1.1;
+}
+
+.netflix-logo {
+    background: #e50914;
+    color: white;
+    font-weight: 900;
+    font-size: 1.1rem;
+    padding: 4px 8px;
+    border-radius: 2px;
+    line-height: 1;
+}
+
+.content-type {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #ffffff;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.hero-title {
+    font-size: 3.5rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0 0 20px 0;
+    line-height: 1.1;
+    letter-spacing: -1px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.hero-metadata {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+}
+
+.metadata-item {
+    font-size: 0.9rem;
+    color: #ffffff;
+    font-weight: 400;
+}
+
+.metadata-separator {
+    color: #b3b3b3;
+    font-size: 0.9rem;
+}
+
+.rating-badge {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.hero-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.play-button,
+.info-button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.play-button {
+    background: #ffffff;
+    color: #000000;
+}
+
+.play-button:hover {
+    background: rgba(255, 255, 255, 0.8);
+}
+
+.info-button {
+    background: rgba(109, 109, 110, 0.7);
+    color: #ffffff;
+}
+
+.info-button:hover {
+    background: rgba(109, 109, 110, 0.4);
+}
+
+.last-viewed-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Movie Info Modal */
+.movie-info-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 9999;
+    animation: fadeIn 0.3s ease;
+}
+
+.movie-info-modal.show {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(5px);
+}
+
+.modal-content {
+    position: relative;
+    background: #141414;
+    border-radius: 8px;
+    max-width: 90vw;
+    max-height: 90vh;
+    width: 800px;
+    overflow: hidden;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7);
+    animation: slideInUp 0.3s ease;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px 32px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    background: #1a1a1a;
+}
+
+.modal-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    color: #ffffff;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 4px;
+    transition: background 0.2s ease;
+}
+
+.modal-close:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.modal-body {
+    padding: 32px;
+    max-height: calc(90vh - 100px);
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #333 transparent;
+}
+
+.modal-body::-webkit-scrollbar {
+    width: 6px;
+}
+
+.modal-body::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.modal-body::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 3px;
+}
+
+.modal-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+}
+
+.modal-column {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+}
+
+.modal-section {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.modal-section-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #ffffff;
+    margin: 0;
+}
+
+/* Modal Technical Details */
+.modal-tech-grid {
+    display: grid;
+    gap: 12px;
+}
+
+.modal-tech-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.modal-tech-item:last-child {
+    border-bottom: none;
+}
+
+.modal-tech-label {
+    font-size: 0.9rem;
+    color: #b3b3b3;
+    font-weight: 400;
+}
+
+.modal-tech-value {
+    font-size: 0.9rem;
+    color: #ffffff;
+    font-weight: 500;
+}
+
+/* Modal Audio Tracks */
+.modal-audio-tracks {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.modal-audio-track {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 12px 16px;
+    border-radius: 6px;
+    border-left: 3px solid #e50914;
+}
+
+.modal-audio-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+}
+
+.modal-audio-language {
+    font-weight: 600;
+    color: #ffffff;
+    font-size: 0.95rem;
+}
+
+.modal-audio-quality {
+    font-size: 0.8rem;
+    color: #b3b3b3;
+    font-weight: 400;
+}
+
+.modal-audio-details {
+    font-size: 0.8rem;
+    color: #b3b3b3;
+    font-weight: 400;
+}
+
+/* Modal Viewing History */
+.modal-viewing-info {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.modal-viewing-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.modal-viewing-item:last-child {
+    border-bottom: none;
+}
+
+.modal-viewing-label {
+    font-size: 0.9rem;
+    color: #b3b3b3;
+    font-weight: 400;
+}
+
+.modal-viewing-value {
+    font-size: 0.9rem;
+    color: #ffffff;
+    font-weight: 500;
+}
+
+/* Modal Description */
+.modal-description {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: #d0d0d0;
+    font-weight: 400;
+}
+
+.modal-description p {
+    margin: 0 0 16px 0;
+}
+
+.modal-description p:last-child {
+    margin-bottom: 0;
+}
+
+.modal-description strong {
+    color: #ffffff;
+    font-weight: 600;
+}
+
+/* Modal Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive Player Layout */
+@media (max-width: 1199px) {
+    .player-container-wrapper {
+        grid-template-columns: 1fr;
+        gap: 32px;
+        padding: 0 30px;
+    }
+
+    .netflix-hero-banner {
+        height: 50vh;
+        min-height: 350px;
+        margin-bottom: 30px;
+    }
+
+    .main-content-card {
+        padding: 30px 40px 40px;
+    }
+
+    .movie-info-card {
+        padding: 28px;
+        max-width: 450px;
+    }
+
+    .main-title {
+        font-size: 2.2rem;
+    }
+
+    .movie-name {
+        font-size: 1.6rem;
+    }
+
+    /* Slideshow controls for large screens */
+    .slideshow-controls {
+        width: calc(100% - 100px);
+        left: 50px;
+    }
+
+    .slide-nav {
+        width: 70px;
+        height: 70px;
+    }
+
+    .slide-nav svg {
+        width: 28px;
+        height: 28px;
+    }
+
+    .file-quality-info {
+        font-size: 1rem;
+        padding: 10px 14px;
+    }
+
+    .video-details-section {
+        padding: 16px;
+    }
+
+    .hero-title {
+        font-size: 2.8rem;
+    }
+
+    .details-grid {
+        gap: 40px;
+    }
+
+    .details-column {
+        gap: 24px;
+    }
+
+    .section-title {
+        font-size: 1.3rem;
+    }
+}
+
+@media (max-width: 767px) {
+    .player-section-netflix {
+        padding: 80px 0 20px 0;
+    }
+
+    .player-container-wrapper {
+        padding: 0 20px;
+        gap: 24px;
+    }
+
+    .netflix-hero-banner {
+        height: 40vh;
+        min-height: 300px;
         margin-bottom: 24px;
-        flex-wrap: wrap;
+    }
+
+    .main-content-card {
+        padding: 20px 30px 30px;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .movie-info-card {
+        padding: 24px;
+        max-width: 100%;
+    }
+
+    .main-title {
+        font-size: 1.8rem;
+    }
+
+    .movie-name {
+        font-size: 1.3rem;
+    }
+
+    /* Slideshow controls for tablets */
+    .slideshow-controls {
+        width: calc(100% - 60px);
+        left: 30px;
+    }
+
+    .slide-nav {
+        width: 55px;
+        height: 55px;
+    }
+
+    .slide-nav svg {
+        width: 22px;
+        height: 22px;
+    }
+
+    .file-quality-info {
+        font-size: 0.9rem;
+        padding: 8px 12px;
+    }
+
+    .main-metadata {
+        justify-content: flex-start;
+    }
+
+    .languages-container {
+        justify-content: flex-start;
+    }
+
+    .video-details-section {
+        padding: 14px;
+    }
+
+    .detail-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+        padding: 6px 0;
+    }
+
+    .hero-title {
+        font-size: 2.2rem;
+        margin-bottom: 16px;
+    }
+
+    .netflix-logo {
+        font-size: 1rem;
+        padding: 3px 6px;
+    }
+
+    .content-type {
+        font-size: 0.8rem;
     }
 
     .metadata-item {
-        font-size: 0.9rem;
-        color: #ffffff;
-        font-weight: 400;
-    }
-
-    .metadata-separator {
-        color: #b3b3b3;
-        font-size: 0.9rem;
-    }
-
-    .rating-badge {
-        background: rgba(255, 255, 255, 0.2);
-        padding: 2px 8px;
-        border-radius: 4px;
         font-size: 0.8rem;
-        font-weight: 600;
-        border: 1px solid rgba(255, 255, 255, 0.3);
-    }
-
-    .hero-actions {
-        display: flex;
-        align-items: center;
-        gap: 16px;
-        flex-wrap: wrap;
     }
 
     .play-button,
     .info-button {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        padding: 12px 24px;
-        border: none;
-        border-radius: 4px;
-        font-size: 1rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.2s ease;
-    }
-
-    .play-button {
-        background: #ffffff;
-        color: #000000;
-    }
-
-    .play-button:hover {
-        background: rgba(255, 255, 255, 0.8);
-    }
-
-    .info-button {
-        background: rgba(109, 109, 110, 0.7);
-        color: #ffffff;
-    }
-
-    .info-button:hover {
-        background: rgba(109, 109, 110, 0.4);
+        padding: 10px 20px;
+        font-size: 0.9rem;
     }
 
     .last-viewed-badge {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        background: rgba(0, 0, 0, 0.7);
-        padding: 8px 16px;
-        border-radius: 4px;
+        padding: 6px 12px;
+        font-size: 0.8rem;
+    }
+
+    .modal-content {
+        width: 95vw;
+        max-width: 600px;
+    }
+
+    .modal-grid {
+        grid-template-columns: 1fr;
+        gap: 24px;
+    }
+
+    .details-grid {
+        grid-template-columns: 1fr;
+        gap: 32px;
+    }
+
+    .section-title {
+        font-size: 1.2rem;
+    }
+
+    .tech-label,
+    .viewing-label {
         font-size: 0.9rem;
-        color: #ffffff;
-        border: 1px solid rgba(255, 255, 255, 0.2);
     }
 
-    /* Movie Info Modal */
-    .movie-info-modal {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        z-index: 9999;
-        animation: fadeIn 0.3s ease;
+    .tech-value,
+    .viewing-value {
+        font-size: 0.9rem;
     }
 
-    .movie-info-modal.show {
-        display: flex;
+    .movie-description {
+        font-size: 0.95rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .player-section-netflix {
+        padding: 70px 0 15px 0;
+    }
+
+    .player-container-wrapper {
+        padding: 0 15px;
+        gap: 20px;
+    }
+
+    .netflix-hero-banner {
+        height: 35vh;
+        min-height: 250px;
+        margin-bottom: 20px;
+    }
+
+    .main-content-card {
+        padding: 15px 20px 25px;
         align-items: center;
         justify-content: center;
     }
 
-    .modal-overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0, 0, 0, 0.8);
-        backdrop-filter: blur(5px);
+    .movie-info-card {
+        padding: 20px;
+        max-width: 100%;
+    }
+
+    .main-title {
+        font-size: 1.5rem;
+        margin: 12px 0 16px 0;
+    }
+
+    .movie-name {
+        font-size: 1.1rem;
+    }
+
+    .file-quality-info {
+        font-size: 0.8rem;
+        padding: 6px 10px;
+    }
+
+    .main-metadata {
+        justify-content: flex-start;
+        gap: 4px;
+        margin-bottom: 16px;
+    }
+
+    .languages-container {
+        justify-content: flex-start;
+        gap: 6px;
+    }
+
+    .hero-lang-badge {
+        padding: 4px 8px;
+        font-size: 0.7rem;
+    }
+
+    .video-details-section {
+        padding: 12px;
+        margin: 16px 0;
+    }
+
+    .main-actions {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .play-button,
+    .info-button {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .hero-title {
+        font-size: 1.8rem;
+        line-height: 1.2;
+        margin-bottom: 12px;
+    }
+
+    .netflix-badge {
+        margin-bottom: 12px;
+        gap: 6px;
+    }
+
+    .movie-name {
+        flex: 1;
+        min-width: 200px;
+        line-height: 1.1;
+        font-size: 1.4rem;
+        font-weight: 600;
+    }
+
+    .netflix-logo {
+        font-size: 0.9rem;
+        padding: 2px 5px;
+    }
+
+    .content-type {
+        font-size: 0.7rem;
+    }
+
+    .hero-metadata {
+        margin-bottom: 16px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+    }
+
+    .metadata-separator {
+        display: none;
+    }
+
+    .metadata-item {
+        font-size: 0.75rem;
+    }
+
+    .hero-actions {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .play-button,
+    .info-button {
+        padding: 8px 16px;
+        font-size: 0.85rem;
+        width: 100%;
+        justify-content: center;
+    }
+
+    .last-viewed-badge {
+        padding: 4px 8px;
+        font-size: 0.7rem;
+        width: 100%;
+        justify-content: center;
     }
 
     .modal-content {
-        position: relative;
-        background: #141414;
-        border-radius: 8px;
-        max-width: 90vw;
-        max-height: 90vh;
-        width: 800px;
-        overflow: hidden;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7);
-        animation: slideInUp 0.3s ease;
+        width: 95vw;
+        max-width: 400px;
     }
 
     .modal-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 24px 32px;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        background: #1a1a1a;
+        padding: 16px 20px;
     }
 
     .modal-title {
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: #ffffff;
-        margin: 0;
-    }
-
-    .modal-close {
-        background: none;
-        border: none;
-        color: #ffffff;
-        cursor: pointer;
-        padding: 8px;
-        border-radius: 4px;
-        transition: background 0.2s ease;
-    }
-
-    .modal-close:hover {
-        background: rgba(255, 255, 255, 0.1);
+        font-size: 1.2rem;
     }
 
     .modal-body {
-        padding: 32px;
-        max-height: calc(90vh - 100px);
-        overflow-y: auto;
-        scrollbar-width: thin;
-        scrollbar-color: #333 transparent;
-    }
-
-    .modal-body::-webkit-scrollbar {
-        width: 6px;
-    }
-
-    .modal-body::-webkit-scrollbar-track {
-        background: transparent;
-    }
-
-    .modal-body::-webkit-scrollbar-thumb {
-        background: rgba(255, 255, 255, 0.3);
-        border-radius: 3px;
+        padding: 20px;
     }
 
     .modal-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 40px;
+        gap: 20px;
     }
 
     .modal-column {
-        display: flex;
+        gap: 20px;
+    }
+
+    .details-grid {
+        gap: 24px;
+    }
+
+    .details-column {
+        gap: 20px;
+    }
+
+    .section-title {
+        font-size: 1.1rem;
+    }
+
+    .tech-item,
+    .viewing-item {
         flex-direction: column;
-        gap: 32px;
+        align-items: flex-start;
+        gap: 4px;
+        padding: 6px 0;
     }
 
-    .modal-section {
-        display: flex;
+    .audio-track-item {
+        padding: 10px 12px;
+    }
+
+    .audio-track-header {
         flex-direction: column;
-        gap: 16px;
+        align-items: flex-start;
+        gap: 4px;
     }
 
-    .modal-section-title {
-        font-size: 1.2rem;
-        font-weight: 600;
-        color: #ffffff;
-        margin: 0;
-    }
-
-    /* Modal Technical Details */
-    .modal-tech-grid {
-        display: grid;
-        gap: 12px;
-    }
-
-    .modal-tech-item {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 8px 0;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    }
-
-    .modal-tech-item:last-child {
-        border-bottom: none;
-    }
-
-    .modal-tech-label {
+    .movie-description {
         font-size: 0.9rem;
-        color: #b3b3b3;
-        font-weight: 400;
     }
-
-    .modal-tech-value {
-        font-size: 0.9rem;
-        color: #ffffff;
-        font-weight: 500;
-    }
-
-    /* Modal Audio Tracks */
-    .modal-audio-tracks {
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-    }
-
-    .modal-audio-track {
-        background: rgba(255, 255, 255, 0.05);
-        padding: 12px 16px;
-        border-radius: 6px;
-        border-left: 3px solid #e50914;
-    }
-
-    .modal-audio-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 4px;
-    }
-
-    .modal-audio-language {
-        font-weight: 600;
-        color: #ffffff;
-        font-size: 0.95rem;
-    }
-
-    .modal-audio-quality {
-        font-size: 0.8rem;
-        color: #b3b3b3;
-        font-weight: 400;
-    }
-
-    .modal-audio-details {
-        font-size: 0.8rem;
-        color: #b3b3b3;
-        font-weight: 400;
-    }
-
-    /* Modal Viewing History */
-    .modal-viewing-info {
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-    }
-
-    .modal-viewing-item {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 8px 0;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    }
-
-    .modal-viewing-item:last-child {
-        border-bottom: none;
-    }
-
-    .modal-viewing-label {
-        font-size: 0.9rem;
-        color: #b3b3b3;
-        font-weight: 400;
-    }
-
-    .modal-viewing-value {
-        font-size: 0.9rem;
-        color: #ffffff;
-        font-weight: 500;
-    }
-
-    /* Modal Description */
-    .modal-description {
-        font-size: 0.95rem;
-        line-height: 1.6;
-        color: #d0d0d0;
-        font-weight: 400;
-    }
-
-    .modal-description p {
-        margin: 0 0 16px 0;
-    }
-
-    .modal-description p:last-child {
-        margin-bottom: 0;
-    }
-
-    .modal-description strong {
-        color: #ffffff;
-        font-weight: 600;
-    }
-
-    /* Modal Animations */
-    @keyframes fadeIn {
-        from {
-            opacity: 0;
-        }
-        to {
-            opacity: 1;
-        }
-    }
-
-    @keyframes slideInUp {
-        from {
-            opacity: 0;
-            transform: translateY(30px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    /* Responsive Player Layout */
-    @media (max-width: 1199px) {
-        .player-container-wrapper {
-            grid-template-columns: 1fr;
-            gap: 32px;
-            padding: 0 30px;
-        }
-        
-        .netflix-hero-banner {
-            height: 50vh;
-            min-height: 350px;
-            margin-bottom: 30px;
-        }
-        
-        .main-content-card {
-            padding: 30px 40px 40px;
-        }
-        
-        .movie-info-card {
-            padding: 28px;
-            max-width: 450px;
-        }
-        
-        .main-title {
-            font-size: 2.2rem;
-        }
-        
-        .movie-name {
-            font-size: 1.6rem;
-        }
-        
-        /* Slideshow controls for large screens */
-        .slideshow-controls {
-            width: calc(100% - 100px);
-            left: 50px;
-        }
-        
-        .slide-nav {
-            width: 70px;
-            height: 70px;
-        }
-        
-        .slide-nav svg {
-            width: 28px;
-            height: 28px;
-        }
-        
-        .file-quality-info {
-            font-size: 1rem;
-            padding: 10px 14px;
-        }
-        
-        .video-details-section {
-            padding: 16px;
-        }
-        
-        .hero-title {
-            font-size: 2.8rem;
-        }
-        
-        .details-grid {
-            gap: 40px;
-        }
-        
-        .details-column {
-            gap: 24px;
-        }
-        
-        .section-title {
-            font-size: 1.3rem;
-        }
-    }
-
-    @media (max-width: 767px) {
-        .player-section-netflix {
-            padding: 80px 0 20px 0;
-        }
-        
-        .player-container-wrapper {
-            padding: 0 20px;
-            gap: 24px;
-        }
-        
-        .netflix-hero-banner {
-            height: 40vh;
-            min-height: 300px;
-            margin-bottom: 24px;
-        }
-        
-        .main-content-card {
-            padding: 20px 30px 30px;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .movie-info-card {
-            padding: 24px;
-            max-width: 100%;
-        }
-        
-        .main-title {
-            font-size: 1.8rem;
-        }
-        
-        .movie-name {
-            font-size: 1.3rem;
-        }
-        
-        /* Slideshow controls for tablets */
-        .slideshow-controls {
-            width: calc(100% - 60px);
-            left: 30px;
-        }
-        
-        .slide-nav {
-            width: 55px;
-            height: 55px;
-        }
-        
-        .slide-nav svg {
-            width: 22px;
-            height: 22px;
-        }
-        
-        .file-quality-info {
-            font-size: 0.9rem;
-            padding: 8px 12px;
-        }
-        
-        .main-metadata {
-            justify-content: flex-start;
-        }
-        
-        .languages-container {
-            justify-content: flex-start;
-        }
-        
-        .video-details-section {
-            padding: 14px;
-        }
-        
-        .detail-row {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 4px;
-            padding: 6px 0;
-        }
-        
-        .hero-title {
-            font-size: 2.2rem;
-            margin-bottom: 16px;
-        }
-        
-        .netflix-logo {
-            font-size: 1rem;
-            padding: 3px 6px;
-        }
-        
-        .content-type {
-            font-size: 0.8rem;
-        }
-        
-        .metadata-item {
-            font-size: 0.8rem;
-        }
-        
-        .play-button,
-        .info-button {
-            padding: 10px 20px;
-            font-size: 0.9rem;
-        }
-        
-        .last-viewed-badge {
-            padding: 6px 12px;
-            font-size: 0.8rem;
-        }
-        
-        .modal-content {
-            width: 95vw;
-            max-width: 600px;
-        }
-        
-        .modal-grid {
-            grid-template-columns: 1fr;
-            gap: 24px;
-        }
-        
-        .details-grid {
-            grid-template-columns: 1fr;
-            gap: 32px;
-        }
-        
-        .section-title {
-            font-size: 1.2rem;
-        }
-        
-        .tech-label,
-        .viewing-label {
-            font-size: 0.9rem;
-        }
-        
-        .tech-value,
-        .viewing-value {
-            font-size: 0.9rem;
-        }
-        
-        .movie-description {
-            font-size: 0.95rem;
-        }
-    }
-
-    @media (max-width: 480px) {
-        .player-section-netflix {
-            padding: 70px 0 15px 0;
-        }
-        
-        .player-container-wrapper {
-            padding: 0 15px;
-            gap: 20px;
-        }
-        
-        .netflix-hero-banner {
-            height: 35vh;
-            min-height: 250px;
-            margin-bottom: 20px;
-        }
-        
-        .main-content-card {
-            padding: 15px 20px 25px;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .movie-info-card {
-            padding: 20px;
-            max-width: 100%;
-        }
-        
-        .main-title {
-            font-size: 1.5rem;
-            margin: 12px 0 16px 0;
-        }
-        
-        .movie-name {
-            font-size: 1.1rem;
-        }
-        
-        .file-quality-info {
-            font-size: 0.8rem;
-            padding: 6px 10px;
-        }
-        
-        .main-metadata {
-            justify-content: flex-start;
-            gap: 4px;
-            margin-bottom: 16px;
-        }
-        
-        .languages-container {
-            justify-content: flex-start;
-            gap: 6px;
-        }
-        
-        .hero-lang-badge {
-            padding: 4px 8px;
-            font-size: 0.7rem;
-        }
-        
-        .video-details-section {
-            padding: 12px;
-            margin: 16px 0;
-        }
-        
-        .main-actions {
-            flex-direction: column;
-            gap: 12px;
-        }
-        
-        .play-button,
-        .info-button {
-            width: 100%;
-            justify-content: center;
-        }
-        
-        .hero-title {
-            font-size: 1.8rem;
-            line-height: 1.2;
-            margin-bottom: 12px;
-        }
-        
-        .netflix-badge {
-            margin-bottom: 12px;
-            gap: 6px;
-        }
-        
-        .movie-name {
-            flex: 1;
-            min-width: 200px;
-            line-height: 1.1;
-            font-size: 1.4rem;
-            font-weight: 600;
-        }
-        
-        .netflix-logo {
-            font-size: 0.9rem;
-            padding: 2px 5px;
-        }
-        
-        .content-type {
-            font-size: 0.7rem;
-        }
-        
-        .hero-metadata {
-            margin-bottom: 16px;
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 4px;
-        }
-        
-        .metadata-separator {
-            display: none;
-        }
-        
-        .metadata-item {
-            font-size: 0.75rem;
-        }
-        
-        .hero-actions {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 12px;
-        }
-        
-        .play-button,
-        .info-button {
-            padding: 8px 16px;
-            font-size: 0.85rem;
-            width: 100%;
-            justify-content: center;
-        }
-        
-        .last-viewed-badge {
-            padding: 4px 8px;
-            font-size: 0.7rem;
-            width: 100%;
-            justify-content: center;
-        }
-        
-        .modal-content {
-            width: 95vw;
-            max-width: 400px;
-        }
-        
-        .modal-header {
-            padding: 16px 20px;
-        }
-        
-        .modal-title {
-            font-size: 1.2rem;
-        }
-        
-        .modal-body {
-            padding: 20px;
-        }
-        
-        .modal-grid {
-            gap: 20px;
-        }
-        
-        .modal-column {
-            gap: 20px;
-        }
-        
-        .details-grid {
-            gap: 24px;
-        }
-        
-        .details-column {
-            gap: 20px;
-        }
-        
-        .section-title {
-            font-size: 1.1rem;
-        }
-        
-        .tech-item,
-        .viewing-item {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 4px;
-            padding: 6px 0;
-        }
-        
-        .audio-track-item {
-            padding: 10px 12px;
-        }
-        
-        .audio-track-header {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 4px;
-        }
-        
-        .movie-description {
-            font-size: 0.9rem;
-        }
-    }
+}

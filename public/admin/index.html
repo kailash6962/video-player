@@ -1,30 +1,31 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VidStream - Admin Panel</title>
     <link rel="stylesheet" href="/style.css">
-    
+
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#ff0000">
-    
+
     <style>
         .admin-container {
             min-height: 100vh;
             background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 50%, #0f0f0f 100%);
             padding: 20px;
         }
-        
+
         .admin-header {
             text-align: center;
             margin-bottom: 40px;
             padding: 20px 0;
             border-bottom: 2px solid #333;
         }
-        
+
         .admin-title {
             color: #ff0000;
             font-size: 2.5rem;
@@ -35,13 +36,13 @@
             justify-content: center;
             gap: 15px;
         }
-        
+
         .admin-subtitle {
             color: #ccc;
             font-size: 1.1rem;
             margin-top: 10px;
         }
-        
+
         .settings-panel {
             max-width: 1200px;
             margin: 0 auto 30px;
@@ -51,37 +52,37 @@
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
-        
+
         .settings-title {
             color: #ff0000;
             font-size: 1.3rem;
             font-weight: 600;
             margin: 0 0 20px;
         }
-        
+
         .settings-row {
             display: flex;
             align-items: center;
             justify-content: space-between;
             padding: 15px 0;
         }
-        
+
         .setting-info {
             flex: 1;
         }
-        
+
         .setting-label {
             color: white;
             font-size: 1rem;
             font-weight: 600;
             margin-bottom: 5px;
         }
-        
+
         .setting-description {
             color: #888;
             font-size: 0.9rem;
         }
-        
+
         /* Toggle Switch */
         .toggle-switch {
             position: relative;
@@ -89,13 +90,13 @@
             width: 60px;
             height: 34px;
         }
-        
+
         .toggle-switch input {
             opacity: 0;
             width: 0;
             height: 0;
         }
-        
+
         .slider {
             position: absolute;
             cursor: pointer;
@@ -108,7 +109,7 @@
             border-radius: 34px;
             border: 2px solid #555;
         }
-        
+
         .slider:before {
             position: absolute;
             content: "";
@@ -120,21 +121,21 @@
             transition: 0.4s;
             border-radius: 50%;
         }
-        
-        input:checked + .slider {
+
+        input:checked+.slider {
             background-color: #ff0000;
             border-color: #ff0000;
         }
-        
-        input:checked + .slider:before {
+
+        input:checked+.slider:before {
             transform: translateX(26px);
             background-color: white;
         }
-        
+
         .slider:hover {
             box-shadow: 0 0 10px rgba(255, 0, 0, 0.3);
         }
-        
+
         .users-table-container {
             max-width: 1200px;
             margin: 0 auto;
@@ -144,13 +145,13 @@
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
-        
+
         .users-table {
             width: 100%;
             border-collapse: collapse;
             color: white;
         }
-        
+
         .users-table th {
             background: rgba(255, 0, 0, 0.1);
             color: #ff0000;
@@ -159,22 +160,22 @@
             font-weight: 600;
             border-bottom: 2px solid #333;
         }
-        
+
         .users-table td {
             padding: 15px;
             border-bottom: 1px solid #333;
         }
-        
+
         .users-table tr:hover {
             background: rgba(255, 255, 255, 0.05);
         }
-        
+
         .user-avatar-cell {
             display: flex;
             align-items: center;
             gap: 10px;
         }
-        
+
         .user-avatar-admin {
             width: 40px;
             height: 40px;
@@ -186,25 +187,25 @@
             font-weight: bold;
             font-size: 1rem;
             color: white;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
-        
+
         .user-info {
             display: flex;
             flex-direction: column;
         }
-        
+
         .user-display-name {
             font-weight: 600;
             color: white;
         }
-        
+
         .user-username {
             font-size: 0.9rem;
             color: #888;
         }
-        
+
         .status-badge {
             padding: 5px 12px;
             border-radius: 20px;
@@ -212,19 +213,19 @@
             font-weight: 600;
             text-transform: uppercase;
         }
-        
+
         .status-active {
             background: rgba(50, 205, 50, 0.2);
             color: #32cd32;
             border: 1px solid #32cd32;
         }
-        
+
         .status-suspended {
             background: rgba(255, 69, 0, 0.2);
             color: #ff4500;
             border: 1px solid #ff4500;
         }
-        
+
         .action-btn {
             padding: 8px 16px;
             border: none;
@@ -235,29 +236,29 @@
             transition: all 0.3s ease;
             text-transform: uppercase;
         }
-        
+
         .suspend-btn {
             background: rgba(255, 69, 0, 0.2);
             color: #ff4500;
             border: 1px solid #ff4500;
         }
-        
+
         .suspend-btn:hover {
             background: rgba(255, 69, 0, 0.3);
             transform: translateY(-1px);
         }
-        
+
         .activate-btn {
             background: rgba(50, 205, 50, 0.2);
             color: #32cd32;
             border: 1px solid #32cd32;
         }
-        
+
         .activate-btn:hover {
             background: rgba(50, 205, 50, 0.3);
             transform: translateY(-1px);
         }
-        
+
         .back-btn {
             position: fixed;
             top: 20px;
@@ -273,13 +274,13 @@
             gap: 8px;
             transition: all 0.3s ease;
         }
-        
+
         .back-btn:hover {
             background: rgba(255, 255, 255, 0.2);
             color: white;
             transform: translateY(-1px);
         }
-        
+
         /* PIN Modal */
         .pin-modal {
             position: fixed;
@@ -296,12 +297,12 @@
             visibility: hidden;
             transition: all 0.3s ease;
         }
-        
+
         .pin-modal.show {
             opacity: 1;
             visibility: visible;
         }
-        
+
         .pin-content {
             background: rgba(30, 30, 30, 0.95);
             padding: 40px;
@@ -311,26 +312,26 @@
             backdrop-filter: blur(10px);
             min-width: 400px;
         }
-        
+
         .pin-title {
             color: #ff0000;
             font-size: 1.5rem;
             font-weight: bold;
             margin-bottom: 10px;
         }
-        
+
         .pin-subtitle {
             color: #ccc;
             margin-bottom: 30px;
         }
-        
+
         .pin-input {
             display: flex;
             gap: 15px;
             justify-content: center;
             margin-bottom: 30px;
         }
-        
+
         .pin-digit {
             width: 50px;
             height: 50px;
@@ -342,18 +343,18 @@
             font-size: 1.5rem;
             font-weight: bold;
         }
-        
+
         .pin-digit:focus {
             outline: none;
             border-color: #ff0000;
         }
-        
+
         .pin-buttons {
             display: flex;
             gap: 15px;
             justify-content: center;
         }
-        
+
         .pin-btn {
             padding: 12px 30px;
             border: none;
@@ -363,53 +364,53 @@
             cursor: pointer;
             transition: all 0.3s ease;
         }
-        
+
         .pin-btn.primary {
             background: #ff0000;
             color: white;
         }
-        
+
         .pin-btn.primary:hover {
             background: #cc0000;
             transform: translateY(-1px);
         }
-        
+
         .pin-btn.secondary {
             background: transparent;
             color: #ccc;
             border: 1px solid #666;
         }
-        
+
         .pin-btn.secondary:hover {
             border-color: #999;
         }
-        
+
         .error-message {
             color: #ff4444;
             margin-top: 15px;
             font-size: 0.9rem;
         }
-        
+
         .success-message {
             color: #32cd32;
             margin-top: 15px;
             font-size: 0.9rem;
         }
-        
+
         @media (max-width: 768px) {
             .admin-container {
                 padding: 10px;
             }
-            
+
             .users-table-container {
                 padding: 20px;
                 overflow-x: auto;
             }
-            
+
             .admin-title {
                 font-size: 2rem;
             }
-            
+
             .pin-content {
                 margin: 20px;
                 padding: 30px 20px;
@@ -423,7 +424,7 @@
     <!-- Back Button -->
     <a href="/" class="back-btn">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+            <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" />
         </svg>
         Back to Home
     </a>
@@ -433,7 +434,8 @@
         <div class="admin-header">
             <h1 class="admin-title">
                 <svg width="40" height="40" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L15 1V3C9.48 3 5 7.48 5 13S9.48 23 15 23C20.52 23 25 18.52 25 13H23C23 17.42 19.42 21 15 21S7 17.42 7 13S10.58 5 15 5V7L21 9ZM15 13C15 14.1 14.1 15 13 15S11 14.1 11 13S11.9 11 13 11S15 11.9 15 13Z"/>
+                    <path
+                        d="M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L15 1V3C9.48 3 5 7.48 5 13S9.48 23 15 23C20.52 23 25 18.52 25 13H23C23 17.42 19.42 21 15 21S7 17.42 7 13S10.58 5 15 5V7L21 9ZM15 13C15 14.1 14.1 15 13 15S11 14.1 11 13S11.9 11 13 11S15 11.9 15 13Z" />
                 </svg>
                 Admin Panel
             </h1>
@@ -479,23 +481,28 @@
         <div class="pin-content">
             <div class="pin-title">Admin Authentication</div>
             <div class="pin-subtitle" id="pinSubtitle">Enter admin PIN to proceed</div>
-            
+
             <div class="pin-input">
-                <input type="password" class="pin-digit" id="pin1" maxlength="1" onkeyup="handlePinInput(1)" onkeydown="handlePinKeydown(event, 1)">
-                <input type="password" class="pin-digit" id="pin2" maxlength="1" onkeyup="handlePinInput(2)" onkeydown="handlePinKeydown(event, 2)">
-                <input type="password" class="pin-digit" id="pin3" maxlength="1" onkeyup="handlePinInput(3)" onkeydown="handlePinKeydown(event, 3)">
-                <input type="password" class="pin-digit" id="pin4" maxlength="1" onkeyup="handlePinInput(4)" onkeydown="handlePinKeydown(event, 4)">
+                <input type="password" class="pin-digit" id="pin1" maxlength="1" onkeyup="handlePinInput(1)"
+                    onkeydown="handlePinKeydown(event, 1)">
+                <input type="password" class="pin-digit" id="pin2" maxlength="1" onkeyup="handlePinInput(2)"
+                    onkeydown="handlePinKeydown(event, 2)">
+                <input type="password" class="pin-digit" id="pin3" maxlength="1" onkeyup="handlePinInput(3)"
+                    onkeydown="handlePinKeydown(event, 3)">
+                <input type="password" class="pin-digit" id="pin4" maxlength="1" onkeyup="handlePinInput(4)"
+                    onkeydown="handlePinKeydown(event, 4)">
             </div>
-            
+
             <div class="pin-buttons">
                 <button class="pin-btn primary" onclick="submitAdminPin()">Confirm</button>
                 <button class="pin-btn secondary" onclick="closePinModal()">Cancel</button>
             </div>
-            
+
             <div class="error-message" id="errorMessage"></div>
         </div>
     </div>
 
     <script src="admin.js"></script>
 </body>
+
 </html>
