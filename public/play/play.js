@@ -167,17 +167,11 @@ document.addEventListener('keydown', (e) => {
   }
 
 
-//   else if (e.code === 'ArrowRight') {
-//     e.preventDefault();
-//     seekForward();
-//   } else if (e.code === 'ArrowLeft') {
 
 
 });
 
 // Seek on button click
-// if (playPrevBtn) playPrevBtn.addEventListener('click', playPrevVideo);
-// if (playNextBtn) playNextBtn.addEventListener('click', playNextVideo);
 if (playPauseBtn) {
   playPauseBtn.onclick = togglePlayPause;
 }
@@ -186,7 +180,6 @@ if (playPauseBtn) {
 if (seekBackwardBtn) seekBackwardBtn.addEventListener('click', seekBackward);
 if (seekForwardBtn) seekForwardBtn.addEventListener('click', seekForward);
 
-// Map playPrevBtn to playPrevVideo
 if (playPrevBtn) playPrevBtn.addEventListener('click', function() {
   playPrevVideo(currentVideoId);
 });
@@ -522,7 +515,6 @@ function playPrevVideo(currentVideoId) {
 let isManual = false;
 
 video.addEventListener('loadedmetadata', () => {
-    // if (!isFinite(video.duration) || video.duration === Infinity) {
     isManual = true;
     durationEl.textContent = formatTime(manualDuration);
     console.log("📢[:198]: manualDuration: ", manualDuration);
@@ -547,11 +539,9 @@ playPause.addEventListener('click', () => {
 video.addEventListener('timeupdate', (e) => {
     seek.value = parseInt(startTime) + parseInt(video.currentTime);
     currentTimeEl.textContent = formatTime(seek.value);
-    // seek.value = video.currentTime;
 });
 
 seek.addEventListener('input', (e) => {
-    // video.currentTime = seek.value;
     const url = new URL(video.src);
     url.searchParams.set('start', seek.value); // update or add start param
     video.src = url.toString();
