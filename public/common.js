@@ -1,7 +1,7 @@
 function renderVideoCard(video) {
     const params = new URLSearchParams(window.location.search);
     const series = params.get('series');
-    const getvideo = params.get('video');
+    const getvideo = params.get('id') || params.get('video');
     const nowPlaying = video.active || video.id == getvideo ? true : false;
 
     const card = document.createElement('div');

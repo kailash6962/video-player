@@ -258,12 +258,11 @@ fetch(`/api/videos/${series}`, {
     }
 
     // Auto-select and click the video card if specified in URL
-    const videoParam = params.get('video');
+    const videoParam = params.get('id') || params.get('video');
     if (videoParam) {
       // Auto-selecting video from URL
       // Decode the video parameter
       const decodedVideoParam = decodeURIComponent(videoParam);
-      // Decoded video parameter
 
       // Find the matching video and its card
       setTimeout(() => {
@@ -277,13 +276,15 @@ fetch(`/api/videos/${series}`, {
           const videoId = video.id || '';
           const videoTitle = video.title || '';
           const videoFilename = video.filename || '';
+          const videoFile = video.file || '';
 
           // Checking video match
 
           // Exact matches (highest priority) - must be identical
           if (videoId === param || videoId === originalParam ||
             videoTitle === param || videoTitle === originalParam ||
-            videoFilename === param || videoFilename === originalParam) {
+            videoFilename === param || videoFilename === originalParam ||
+            videoFile === param || videoFile === originalParam) {
             // Exact match found
             return { type: 'exact', priority: 1 };
           }
@@ -325,18 +326,19 @@ fetch(`/api/videos/${series}`, {
           const idSimilarity = calculateSimilarity(videoId, param);
           const titleSimilarity = calculateSimilarity(videoTitle, param);
           const filenameSimilarity = calculateSimilarity(videoFilename, param);
+          const fileSimilarity = calculateSimilarity(videoFile, param);
 
           // Similarity scores calculated
 
-          if (idSimilarity >= 0.9 || titleSimilarity >= 0.9 || filenameSimilarity >= 0.9) {
+          if (idSimilarity >= 0.9 || titleSimilarity >= 0.9 || filenameSimilarity >= 0.9 || fileSimilarity >= 0.9) {
             // High similarity match found
-            return { type: 'high-similarity', priority: 2, similarity: Math.max(idSimilarity, titleSimilarity, filenameSimilarity) };
+            return { type: 'high-similarity', priority: 2, similarity: Math.max(idSimilarity, titleSimilarity, filenameSimilarity, fileSimilarity) };
           }
 
           // Medium similarity matches (70-89%)
-          if (idSimilarity >= 0.7 || titleSimilarity >= 0.7 || filenameSimilarity >= 0.7) {
+          if (idSimilarity >= 0.7 || titleSimilarity >= 0.7 || filenameSimilarity >= 0.7 || fileSimilarity >= 0.7) {
             // Medium similarity match found
-            return { type: 'medium-similarity', priority: 3, similarity: Math.max(idSimilarity, titleSimilarity, filenameSimilarity) };
+            return { type: 'medium-similarity', priority: 3, similarity: Math.max(idSimilarity, titleSimilarity, filenameSimilarity, fileSimilarity) };
           }
 
           // Normalize and compare (lowest priority)
@@ -344,7 +346,8 @@ fetch(`/api/videos/${series}`, {
           const normalizedParam = normalize(param);
           if (normalize(videoId) === normalizedParam ||
             normalize(videoTitle) === normalizedParam ||
-            normalize(videoFilename) === normalizedParam) {
+            normalize(videoFilename) === normalizedParam ||
+            normalize(videoFile) === normalizedParam) {
             // Normalized match found
             return { type: 'normalized', priority: 4 };
           }
@@ -427,9 +430,11 @@ fetch(`/api/videos/${series}`, {
               id: video.id,
               title: video.title,
               filename: video.filename,
+              file: video.file,
               matches_id: videoId === decodedVideoParam,
               matches_title: video.title === decodedVideoParam,
-              matches_filename: video.filename === decodedVideoParam
+              matches_filename: video.filename === decodedVideoParam,
+              matches_file: video.file === decodedVideoParam
             });
           });
         }
@@ -541,18 +546,21 @@ video.addEventListener('timeupdate', (e) => {
   currentTimeEl.textContent = formatTime(seek.value);
 });
 
+let seekTimeout;
+
 seek.addEventListener('input', (e) => {
   const url = new URL(video.src);
-  url.searchParams.set('start', seek.value); // update or add start param
+  url.searchParams.set('start', seek.value);
+  clearTimeout(seekTimeout);
+  seekTimeout = setTimeout(() => { // update or add start param
   video.src = url.toString();
   video.load();                            // reload video with new source
   video.play();
-
+}, 300);
   startTime = seek.value;
 
   let currTime = formatTime(seek.value);
   currentTimeEl.textContent = currTime;
-
 });
 
 volume.addEventListener('input', () => {
