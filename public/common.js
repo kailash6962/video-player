@@ -142,6 +142,10 @@ function playVideo(videodata, play = true) {
     currentVideoId = videodata.id;
     currentVideoDuration = videodata.duration;
     startTime = 0;
+
+    // Update watching overlay for all video cards
+    updateWatchingOverlay(videodata.id);
+
     // Show the player container
     playerContainer.style.display = 'block';
     // Set the video source. Note: We are using our API to stream the video.
@@ -703,4 +707,27 @@ function generateMovieDescription(metadata) {
 
     return `<p><strong>${title}</strong> (${year}) is an action-packed adventure drama featuring stunning visuals and compelling storytelling. Available in ${languages} with high-quality audio and video.</p>
     <p>This movie delivers an immersive cinematic experience with excellent production values and engaging performances. Watch in your preferred language with crystal-clear audio quality.</p>`;
+}
+
+// Function to update watching overlay for all video cards
+function updateWatchingOverlay(activeVideoId) {
+    // Remove watching overlay from all cards
+    const allCards = document.querySelectorAll('.netflix-card');
+    allCards.forEach(card => {
+        const existingOverlay = card.querySelector('.watching-overlay');
+        if (existingOverlay) {
+            existingOverlay.remove();
+        }
+    });
+    
+    // Add watching overlay to the active card
+    if (activeVideoId) {
+        const activeCard = document.getElementById(activeVideoId);
+        if (activeCard) {
+            const watchingOverlay = document.createElement('div');
+            watchingOverlay.className = 'watching-overlay';
+            watchingOverlay.textContent = 'Watching Now';
+            activeCard.appendChild(watchingOverlay);
+        }
+    }
 }

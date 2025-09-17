@@ -403,6 +403,9 @@ fetch(`/api/videos/${series}`, {
           console.log("📢 Found target video and card:", targetVideo);
           console.log("📢 Auto-clicking card for:", targetVideo.title || targetVideo.id);
 
+          // Update watching overlay immediately
+          updateWatchingOverlay(targetVideo.id);
+
           // Highlight the card briefly to show it's been selected
           targetCard.style.transform = 'scale(1.05)';
           targetCard.style.transition = 'transform 0.3s ease';
