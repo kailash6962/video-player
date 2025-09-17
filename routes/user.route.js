@@ -27,26 +27,26 @@ router.post('/', async (req, res) => {
         if (!registrationAllowed) {
             return res.status(403).json({ error: 'User registration is currently disabled' });
         }
-        
+
         const { username, pin, display_name } = req.body;
-        
+
         if (!username || !pin || !display_name) {
             return res.status(400).json({ error: 'Username, PIN, and display name are required' });
         }
-        
+
         if (pin.length !== 4 || !/^\d{4}$/.test(pin)) {
             return res.status(400).json({ error: 'PIN must be exactly 4 digits' });
         }
-        
+
         if (username.trim().length === 0 || display_name.trim().length === 0) {
             return res.status(400).json({ error: 'Username and display name cannot be empty' });
         }
-        
+
         const userId = await UserService.createUser(username.trim(), pin, display_name.trim());
         const user = await UserService.getUserById(userId);
-        
-        res.json({ 
-            success: true, 
+
+        res.json({
+            success: true,
             userId,
             user: {
                 id: user.id,
@@ -71,14 +71,14 @@ router.post('/', async (req, res) => {
 router.post('/login', async (req, res) => {
     try {
         const { user_id, pin } = req.body;
-        
+
         if (!user_id || !pin) {
             return res.status(400).json({ error: 'User ID and PIN are required' });
         }
-        
+
         const user = await UserService.loginUser(user_id, pin);
-        res.json({ 
-            success: true, 
+        res.json({
+            success: true,
             user: {
                 id: user.id,
                 username: user.username,
@@ -98,7 +98,7 @@ router.post('/login', async (req, res) => {
 router.get('/current', async (req, res) => {
     try {
         const userId = req.cookies.user_id;
-        
+
         if (userId === 'guest') {
             res.json({
                 user: {
@@ -110,16 +110,16 @@ router.get('/current', async (req, res) => {
             });
             return;
         }
-        
+
         if (!userId) {
             return res.status(401).json({ error: 'No user session' });
         }
-        
+
         const user = await UserService.getUserById(userId);
         if (!user) {
             return res.status(401).json({ error: 'Invalid user session' });
         }
-        
+
         res.json({ user });
     } catch (error) {
         // Error getting current user handled silently
@@ -134,7 +134,7 @@ router.get('/continue-watching', async (req, res) => {
         const userId = req.cookies.user_id || 'guest';
         // Continue watching request received for user
         const limit = parseInt(req.query.limit) || 10;
-        
+
         const videos = await UserService.getContinueWatching(userId);
         res.json(videos);
     } catch (error) {
@@ -147,7 +147,7 @@ router.get('/continue-watching', async (req, res) => {
 router.get('/stats', async (req, res) => {
     try {
         const userId = req.cookies.user_id || 'guest';
-        
+
         if (userId === 'guest') {
             res.json({
                 total_videos: 0,
@@ -158,7 +158,7 @@ router.get('/stats', async (req, res) => {
             });
             return;
         }
-        
+
         const stats = await UserService.getUserStats(userId);
         res.json(stats);
     } catch (error) {
@@ -172,11 +172,11 @@ router.post('/progress', async (req, res) => {
     try {
         const userId = req.cookies.user_id || 'guest';
         const { video_id, current_time, size } = req.body;
-        
+
         if (!video_id || current_time === undefined) {
             return res.status(400).json({ error: 'Video ID and current time are required' });
         }
-        
+
         await UserService.updateUserProgress(userId, video_id, current_time, size);
         res.json({ success: true });
     } catch (error) {
@@ -190,11 +190,11 @@ router.post('/active', async (req, res) => {
     try {
         const userId = req.cookies.user_id || 'guest';
         const { video_id } = req.body;
-        
+
         if (!video_id) {
             return res.status(400).json({ error: 'Video ID is required' });
         }
-        
+
         await UserService.setActiveVideo(userId, video_id);
         res.json({ success: true });
     } catch (error) {

@@ -124,7 +124,7 @@ const LANGUAGE_MAP = {
  */
 function getAudioLanguage(stream) {
   if (!stream.tags) return 'Unknown';
-  
+
   // Check multiple possible language fields
   const languageFields = [
     'language',
@@ -136,25 +136,25 @@ function getAudioLanguage(stream) {
     'track_language',
     'TRACK_LANGUAGE'
   ];
-  
+
   for (const field of languageFields) {
     if (stream.tags[field]) {
       const langCode = stream.tags[field].toLowerCase();
       return LANGUAGE_MAP[langCode] || stream.tags[field];
     }
   }
-  
+
   // Check if language is embedded in title
   const title = stream.tags.title || stream.tags.TITLE || '';
   const titleLower = title.toLowerCase();
-  
+
   // Look for language patterns in title
   for (const [code, name] of Object.entries(LANGUAGE_MAP)) {
     if (titleLower.includes(code) || titleLower.includes(name.toLowerCase())) {
       return name;
     }
   }
-  
+
   // Check for common language patterns
   const languagePatterns = [
     { pattern: /(?:audio|track|sound)[\s_-]*(eng|english)/i, lang: 'English' },
@@ -170,13 +170,13 @@ function getAudioLanguage(stream) {
     { pattern: /(?:audio|track|sound)[\s_-]*(kor|korean)/i, lang: 'Korean' },
     { pattern: /(?:audio|track|sound)[\s_-]*(chi|chinese)/i, lang: 'Chinese' }
   ];
-  
+
   for (const { pattern, lang } of languagePatterns) {
     if (pattern.test(title)) {
       return lang;
     }
   }
-  
+
   return 'Unknown';
 }
 
@@ -188,7 +188,7 @@ function getAudioLanguage(stream) {
  */
 function getAudioTitle(stream, index) {
   if (!stream.tags) return `Track ${index + 1}`;
-  
+
   // Check multiple possible title fields
   const titleFields = [
     'title',
@@ -200,19 +200,19 @@ function getAudioTitle(stream, index) {
     'handler_name',
     'HANDLER_NAME'
   ];
-  
+
   for (const field of titleFields) {
     if (stream.tags[field] && stream.tags[field].trim()) {
       return stream.tags[field].trim();
     }
   }
-  
+
   // If no title found, use language + track number
   const language = getAudioLanguage(stream);
   if (language !== 'Unknown') {
     return `${language} Track ${index + 1}`;
   }
-  
+
   return `Track ${index + 1}`;
 }
 
@@ -227,10 +227,10 @@ function getAllAudioTracks(metadata) {
   //   streamsLength: metadata.streams?.length || 0,
   //   streams: metadata.streams?.map(s => ({ index: s.index, codec_type: s.codec_type, codec_name: s.codec_name })) || []
   // });
-  
+
   const audioStreams = metadata.streams.filter(stream => stream.codec_type === 'audio');
   // Filtered audio streams
-  
+
   if (!audioStreams.length) {
     // No audio streams found in metadata
     return [];
@@ -249,7 +249,7 @@ function getAllAudioTracks(metadata) {
     const sampleRate = parseInt(stream.sample_rate) || 48000;
     const channels = parseInt(stream.channels) || 2;
     const codec = stream.codec_name;
-    
+
     // Enhanced language detection - check multiple possible locations
     const language = getAudioLanguage(stream);
     const title = getAudioTitle(stream, index);
@@ -273,11 +273,11 @@ function getAllAudioTracks(metadata) {
       title: title,
       quality: quality,
       isBrowserCompatible: isAudioBrowserCompatible(stream),
-      displayName: language !== 'Unknown' ? 
-        `${language} (${quality} - ${Math.round(bitrate/1000)}kbps)` : 
-        `${title} (${quality} - ${Math.round(bitrate/1000)}kbps)`
+      displayName: language !== 'Unknown' ?
+        `${language} (${quality} - ${Math.round(bitrate / 1000)}kbps)` :
+        `${title} (${quality} - ${Math.round(bitrate / 1000)}kbps)`
     };
-    
+
     // Created audio track
     return track;
   });
@@ -339,7 +339,7 @@ function getOptimalAudioSettingsForTrack(audioTrack) {
  */
 function getOptimalAudioSettings(metadata) {
   const audioStream = metadata.streams.find(stream => stream.codec_type === 'audio');
-  
+
   if (!audioStream) {
     return getDefaultAudioSettings();
   }
@@ -401,15 +401,15 @@ function getStandardQualityAudioSettings() {
  */
 function isAudioBrowserCompatible(audioStream) {
   if (!audioStream) return false;
-  
+
   const codec = audioStream.codec_name;
   const sampleRate = parseInt(audioStream.sample_rate) || 0;
   const channels = parseInt(audioStream.channels) || 0;
-  
+
   // Check if it's AAC and within browser limits
-  return codec === 'aac' && 
-         sampleRate <= 48000 && 
-         channels <= 2;
+  return codec === 'aac' &&
+    sampleRate <= 48000 &&
+    channels <= 2;
 }
 
 /**

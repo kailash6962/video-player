@@ -11,48 +11,48 @@ const VIDEO_EXTENSIONS = [".mp4", ".mov", ".mkv", ".avi", ".webm"];
 
 class VideoService {
   async getVideosList(req, series) {
-    try{
-    // Handle special characters in folder names by finding the actual folder
-    const actualFolderName = resolveActualFolderName(series);
-    
-    const vidDir = path.join(VIDEOS_DIR, actualFolderName);
-    const files = fs.readdirSync(vidDir);
-    const videoFiles = files.filter((file) =>
-      VIDEO_EXTENSIONS.includes(path.extname(file).toLowerCase())
-    );
-    const videos = await Promise.all(
-      videoFiles.map(async (file) => {
-        const videoDetails = await this.getVideoDetails(file, req);
-        const duration = await this.getVideoDuration(path.join(vidDir, file));
-        const filePath = path.join(vidDir, file);
-        const stats = fs.statSync(filePath);
-        return {
-          id: file,
-          title: path.parse(file).name,
-          url: "/video/" + file,
-          file,
-          active: videoDetails?.active,
-          current_time: videoDetails?.current_time || 0,
-          size: stats.size,
-          duration,
-          lastOpened: videoDetails?.last_opened,
-          modifiedDate: stats.mtime, // File modification date
-          createdDate: stats.birthtime, // File creation date (if available)
-        };
-      })
-    );
-    // Sort videos by lastOpened (most recent first, undefined last)
-    if(series=="home") {
+    try {
+      // Handle special characters in folder names by finding the actual folder
+      const actualFolderName = resolveActualFolderName(series);
+
+      const vidDir = path.join(VIDEOS_DIR, actualFolderName);
+      const files = fs.readdirSync(vidDir);
+      const videoFiles = files.filter((file) =>
+        VIDEO_EXTENSIONS.includes(path.extname(file).toLowerCase())
+      );
+      const videos = await Promise.all(
+        videoFiles.map(async (file) => {
+          const videoDetails = await this.getVideoDetails(file, req);
+          const duration = await this.getVideoDuration(path.join(vidDir, file));
+          const filePath = path.join(vidDir, file);
+          const stats = fs.statSync(filePath);
+          return {
+            id: file,
+            title: path.parse(file).name,
+            url: "/video/" + file,
+            file,
+            active: videoDetails?.active,
+            current_time: videoDetails?.current_time || 0,
+            size: stats.size,
+            duration,
+            lastOpened: videoDetails?.last_opened,
+            modifiedDate: stats.mtime, // File modification date
+            createdDate: stats.birthtime, // File creation date (if available)
+          };
+        })
+      );
+      // Sort videos by lastOpened (most recent first, undefined last)
+      if (series == "home") {
         videos.sort((a, b) => {
-        if (!a.lastOpened && !b.lastOpened) return 0;
-        if (!a.lastOpened) return 1;
-        if (!b.lastOpened) return -1;
-        return (
+          if (!a.lastOpened && !b.lastOpened) return 0;
+          if (!a.lastOpened) return 1;
+          if (!b.lastOpened) return -1;
+          return (
             new Date(b.lastOpened).getTime() - new Date(a.lastOpened).getTime()
-        );
+          );
         });
-    }
-    return videos;
+      }
+      return videos;
     } catch (error) {
       console.error("Error reading video directory:", error);
       return [];
@@ -62,7 +62,7 @@ class VideoService {
   getVideoDetails(file, req) {
     return new Promise((resolve, reject) => {
       const userId = req.cookies?.user_id || 'guest';
-      
+
       // Use the full schema since all columns exist
       req.db.get(
         "SELECT * FROM video_metadata WHERE user_id = ? AND video_id = ?",
@@ -105,13 +105,13 @@ class VideoService {
       // Getting detailed metadata
       // File exists check
       // File stats check
-      
+
       // Check if file exists first
       if (!fs.existsSync(filePath)) {
         // File does not exist
         return reject(new Error("File does not exist"));
       }
-      
+
       // Use more detailed FFprobe options to get better metadata
       ffmpeg.ffprobe(filePath, [
         '-v', 'error',  // Changed from 'quiet' to 'error' to see errors
@@ -125,21 +125,14 @@ class VideoService {
           console.error("🎬 Full FFprobe error:", err);
           return reject(err);
         }
-        
-        
+
+
         // Log first few streams for debugging
         if (metadata.streams && metadata.streams.length > 0) {
-          // console.log("🎬 Stream details:");
           metadata.streams.slice(0, 5).forEach((stream, index) => {
-            // console.log(`🎬   Stream ${index}:`, {
-            //   index: stream.index,
-            //   codec_type: stream.codec_type,
-            //   codec_name: stream.codec_name,
-            //   language: stream.tags?.language || 'unspecified'
-            // });
           });
         }
-        
+
         // Check if metadata is empty
         if (!metadata.streams || metadata.streams.length === 0) {
           console.warn("🎬 FFprobe returned empty streams, trying basic probe");
@@ -150,7 +143,6 @@ class VideoService {
               console.error("🎬 Full basic FFprobe error:", basicErr);
               return reject(basicErr);
             }
-            // console.log("🎬 Basic metadata fallback successful, streams:", basicMetadata.streams?.length || 0);
             resolve(basicMetadata);
           });
         } else {
@@ -164,14 +156,14 @@ class VideoService {
     try {
       const metadata = await this.getVideoMetadata(filePath);
       const audioStream = metadata.streams.find(stream => stream.codec_type === 'audio');
-      
+
       if (!audioStream) {
         return { error: "No audio stream found" };
       }
 
       const audioSettings = getOptimalAudioSettings(metadata);
       const isCompatible = isAudioBrowserCompatible(audioStream);
-      
+
       return {
         source: {
           codec: audioStream.codec_name,
@@ -190,37 +182,27 @@ class VideoService {
 
   async getAudioTracks(filePath) {
     try {
-      // console.log("getAudioTracks called for:", filePath);
-      
+
       // Check file existence first
       if (!fs.existsSync(filePath)) {
         console.error("File does not exist:", filePath);
         return { error: "File does not exist" };
       }
-      
+
       // Get file stats
       const stats = fs.statSync(filePath);
-      // console.log("File stats:", {
-      //   size: stats.size,
-      //   isFile: stats.isFile(),
-      //   modified: stats.mtime
-      // });
-      
+
       // Test if we can run FFprobe directly
-      // console.log("Testing FFprobe with simple command...");
       try {
         const testCommand = `ffprobe -v quiet -print_format json -show_streams "${filePath}"`;
-        // console.log("Running test command:", testCommand);
-        
+
         exec(testCommand, (error, stdout, stderr) => {
           if (error) {
             console.error("FFprobe test failed:", error.message);
           } else {
-            // console.log("FFprobe test output length:", stdout.length);
             if (stdout.length > 0) {
               try {
                 const testMetadata = JSON.parse(stdout);
-                // console.log("Test metadata streams:", testMetadata.streams?.length || 0);
               } catch (parseErr) {
                 console.error("Failed to parse test metadata:", parseErr.message);
               }
@@ -230,26 +212,23 @@ class VideoService {
       } catch (testErr) {
         console.error("FFprobe test error:", testErr.message);
       }
-      
+
       // Try detailed metadata first, fallback to basic if it fails
       let metadata;
       try {
         metadata = await this.getDetailedVideoMetadata(filePath);
-        // console.log("Using detailed metadata for audio tracks", metadata);
       } catch (err) {
         console.warn("Detailed metadata failed, using basic metadata:", err.message);
         try {
           metadata = await this.getVideoMetadata(filePath);
-          // console.log("Using basic metadata for audio tracks");
         } catch (basicErr) {
           console.error("Both detailed and basic metadata failed:", basicErr.message);
           return { error: "Could not extract metadata from video file" };
         }
       }
-      
+
       const audioTracks = getAllAudioTracks(metadata);
-      // console.log("getAudioTracks returning:", audioTracks.length, "tracks");
-      
+
       if (!audioTracks.length) {
         console.log("No audio tracks found, returning error");
         return { error: "No audio tracks found" };
@@ -267,27 +246,20 @@ class VideoService {
 
   async getSubtitleTracks(filePath) {
     try {
-      // console.log("getSubtitleTracks called for:", filePath);
-      
+
       // Check file existence first
       if (!fs.existsSync(filePath)) {
         console.error("File does not exist:", filePath);
         return { error: "File does not exist" };
       }
-      
+
       // Get detailed metadata for subtitle detection
       const metadata = await this.getDetailedVideoMetadata(filePath);
-      // console.log("Metadata for subtitle analysis:", {
-      //   streamsCount: metadata.streams?.length || 0,
-      //   subtitleStreams: metadata.streams?.filter(s => s.codec_type === 'subtitle').length || 0
-      // });
-      
+
       // Extract subtitle tracks
       const subtitleTracks = getAllSubtitleTracks(metadata);
-      // console.log("Extracted subtitle tracks:", subtitleTracks.length);
-      
+
       if (subtitleTracks.length === 0) {
-        // console.log("No subtitle tracks found in video");
         return { error: "No subtitle tracks found" };
       }
 
@@ -311,23 +283,12 @@ class VideoService {
     const actualFolderName = resolveActualFolderName(series);
     const filePath = path.join(VIDEOS_DIR, actualFolderName, videoId);
 
-    // console.log("🎬 Subtitle streaming request:", {
-    //   videoId: videoId,
-    //   series: series,
-    //   subtitleTrack: subtitleTrackIndex,
-    //   timeOffset: timeOffset,
-    //   rawVideoId: req.params.id,
-    //   rawSeries: req.params.series,
-    //   filePath: filePath,
-    //   fileExists: fs.existsSync(filePath)
-    // });
-    
     // Additional debugging for file path resolution
     if (!fs.existsSync(filePath)) {
       console.error("🎬 ❌ File not found, debugging path resolution:");
       console.error("🎬 📁 Attempted file path:", filePath);
       console.error("🎬 📂 Base directory exists:", fs.existsSync(path.dirname(filePath)));
-      
+
       // Try to find similar files
       try {
         const dir = path.dirname(filePath);
@@ -344,8 +305,6 @@ class VideoService {
     // Enhanced file resolution with fallback for encoding issues
     let resolvedFilePath = filePath;
     if (!fs.existsSync(filePath)) {
-      // console.log("🎬 🔍 File not found, trying alternative paths...");
-      
       // Try different decoding approaches
       const alternativeVideoIds = [
         decodeURIComponent(videoId),
@@ -353,31 +312,28 @@ class VideoService {
         videoId.replace(/\u00A0/g, ' '), // replace non-breaking spaces
         req.params.id // use raw param
       ];
-      
+
       for (const altVideoId of alternativeVideoIds) {
         const altPath = path.join(VIDEOS_DIR, actualFolderName, altVideoId);
-        // console.log("🎬 🔍 Trying alternative path:", altPath);
         if (fs.existsSync(altPath)) {
-          // console.log("🎬 ✅ Found file with alternative encoding!");
           resolvedFilePath = altPath;
           break;
         }
       }
-      
+
       // If still not found, try finding by partial match
       if (!fs.existsSync(resolvedFilePath)) {
         try {
           const dir = path.join(VIDEOS_DIR, actualFolderName);
           if (fs.existsSync(dir)) {
             const files = fs.readdirSync(dir);
-            const coolieFiiles = files.filter(f => 
-              f.toLowerCase().includes('coolie') && 
+            const coolieFiiles = files.filter(f =>
+              f.toLowerCase().includes('coolie') &&
               f.toLowerCase().includes('2025') &&
               (f.endsWith('.mkv') || f.endsWith('.mp4'))
             );
-            
+
             if (coolieFiiles.length > 0) {
-              // console.log("🎬 🎯 Found Coolie file by partial match:", coolieFiiles[0]);
               resolvedFilePath = path.join(dir, coolieFiiles[0]);
             }
           }
@@ -391,23 +347,13 @@ class VideoService {
       console.error("🎬 Video file not found after all attempts:", resolvedFilePath);
       return res.status(404).send("Video not found");
     }
-    
-    // console.log("🎬 ✅ Using resolved file path:", resolvedFilePath);
 
     try {
       // Get subtitle tracks
-      // console.log("🎬 Getting metadata for subtitle extraction...");
       const metadata = await this.getDetailedVideoMetadata(resolvedFilePath);
-      // console.log("🎬 Metadata for subtitle streaming:", {
-      //   streamsCount: metadata.streams?.length || 0,
-      //   subtitleStreams: metadata.streams?.filter(s => s.codec_type === 'subtitle').length || 0,
-      //   hasStreams: !!metadata.streams,
-      //   metadataKeys: Object.keys(metadata)
-      // });
-      
+
       const subtitleTracks = getAllSubtitleTracks(metadata);
-      // console.log("🎬 Extracted subtitle tracks for streaming:", subtitleTracks.length);
-      
+
       if (subtitleTrackIndex >= subtitleTracks.length) {
         console.error(`🎬 Requested subtitle track ${subtitleTrackIndex} is out of range (max: ${subtitleTracks.length - 1})`);
         return res.status(404).send("Subtitle track not found");
@@ -416,64 +362,44 @@ class VideoService {
       const selectedTrack = subtitleTracks[subtitleTrackIndex];
       const subtitleSettings = getOptimalSubtitleSettings(selectedTrack);
 
-      // console.log("🎬 Streaming subtitle track:", {
-      //   index: selectedTrack.index,
-      //   language: selectedTrack.language,
-      //   codec: selectedTrack.codec,
-      //   streamIndex: selectedTrack.streamIndex,
-      //   settings: subtitleSettings
-      // });
-
       // Set appropriate headers for subtitle content
       res.setHeader("Content-Type", "text/vtt; charset=utf-8");
       res.setHeader("Cache-Control", "public, max-age=3600");
       res.setHeader("Access-Control-Allow-Origin", "*");
 
       ffmpeg.setFfmpegPath("/bin/ffmpeg");
-      
-    // For large SRT files, try direct conversion first (faster than FFmpeg)
-    const subtitleSize = selectedTrack.tags?.NUMBER_OF_BYTES ? 
-      parseInt(selectedTrack.tags.NUMBER_OF_BYTES) : 0;
-    if (selectedTrack.codec === 'subrip' && subtitleSize > 30000) {
-      // console.log("🎬 🚀 Large SRT file detected, attempting direct conversion...");
-      try {
-        const directResult = await this.tryDirectSrtConversion(resolvedFilePath, selectedTrack, res);
-        if (directResult) {
-          // console.log("🎬 ✅ Direct SRT conversion successful!");
-          return;
-        }
-      } catch (err) {
-        // console.log("🎬 ⚠️ Direct conversion failed, trying emergency fallback:", err.message);
-        
-        // Emergency fallback - generate basic WebVTT header for immediate loading
+
+      // For large SRT files, try direct conversion first (faster than FFmpeg)
+      const subtitleSize = selectedTrack.tags?.NUMBER_OF_BYTES ?
+        parseInt(selectedTrack.tags.NUMBER_OF_BYTES) : 0;
+      if (selectedTrack.codec === 'subrip' && subtitleSize > 30000) {
         try {
-          const emergencyResult = await this.tryEmergencySubtitleFallback(resolvedFilePath, selectedTrack, res);
-          if (emergencyResult) {
-            // console.log("🎬 🆘 Emergency subtitle fallback successful!");
+          const directResult = await this.tryDirectSrtConversion(resolvedFilePath, selectedTrack, res);
+          if (directResult) {
             return;
           }
-        } catch (fallbackErr) {
-          console.log("🎬 ⚠️ Emergency fallback also failed:", fallbackErr.message);
+        } catch (err) {
+          // Emergency fallback - generate basic WebVTT header for immediate loading
+          try {
+            const emergencyResult = await this.tryEmergencySubtitleFallback(resolvedFilePath, selectedTrack, res);
+            if (emergencyResult) {
+              return;
+            }
+          } catch (fallbackErr) {
+            console.log("🎬 ⚠️ Emergency fallback also failed:", fallbackErr.message);
+          }
         }
       }
-    }
 
       // Use direct child_process for better control and timeout handling
-      // console.log("🎬 Streaming raw subtitles using direct child_process approach");
-      
+
       const { spawn } = require('child_process');
       // Dynamic timeout based on subtitle file size (already calculated above)
       const baseTimeout = 30000; // 30 seconds base
       const sizeMultiplier = Math.min(Math.max(subtitleSize / 50000, 1), 3); // 1x to 3x based on size
       const SUBTITLE_TIMEOUT = baseTimeout * sizeMultiplier;
-      
-      // console.log("🎬 ⏱️ Dynamic timeout calculation:", {
-      //   subtitleSize: subtitleSize,
-      //   sizeMultiplier: sizeMultiplier,
-      //   timeoutSeconds: SUBTITLE_TIMEOUT / 1000
-      // });
       let isCompleted = false;
-      
+
       // FFmpeg arguments for subtitle extraction with optimizations for large files
       const ffmpegArgs = [
         '-hide_banner',           // Reduce verbose output
@@ -487,18 +413,10 @@ class VideoService {
         '-copyts',                // Copy timestamps to preserve timing
         'pipe:1'
       ];
-      
-      // console.log("🎬 FFmpeg command:", 'ffmpeg', ffmpegArgs.join(' '));
-        // console.log("🎬 Selected track details:", {
-        //   trackIndex: selectedTrack.index, 
-        //   streamIndex: selectedTrack.streamIndex,
-        //   language: selectedTrack.language,
-        //   codec: selectedTrack.codec
-        // });
-      
+
       // Spawn FFmpeg process
       const ffmpegProcess = spawn('ffmpeg', ffmpegArgs);
-      
+
       // Set up timeout
       const timeoutId = setTimeout(() => {
         if (!isCompleted) {
@@ -510,35 +428,31 @@ class VideoService {
           }
         }
       }, SUBTITLE_TIMEOUT);
-      
+
       // Handle FFmpeg stdout (subtitle data)
       let bytesStreamed = 0;
       ffmpegProcess.stdout.on('data', (chunk) => {
         if (!res.headersSent) {
           res.write(chunk);
           bytesStreamed += chunk.length;
-          
+
           // Log progress for large files
           if (subtitleSize > 20000 && bytesStreamed % 10000 === 0) {
             const progress = Math.min((bytesStreamed / subtitleSize) * 100, 100);
-            // console.log(`🎬 📊 Subtitle streaming progress: ${Math.round(progress)}% (${bytesStreamed}/${subtitleSize} bytes)`);
           }
         }
       });
-      
+
       // Handle FFmpeg stderr (logs/errors)
       ffmpegProcess.stderr.on('data', (chunk) => {
-        // console.log("🎬 FFmpeg stderr:", chunk.toString().trim());
       });
-      
+
       // Handle process completion
       ffmpegProcess.on('close', (code) => {
-        // console.log("🎬 FFmpeg process closed with code:", code);
         clearTimeout(timeoutId);
         if (!isCompleted) {
           isCompleted = true;
           if (code === 0) {
-            // console.log("🎬 Subtitle extraction completed successfully");
             res.end();
           } else {
             console.error("🎬 FFmpeg process failed with code:", code);
@@ -550,7 +464,7 @@ class VideoService {
           }
         }
       });
-      
+
       // Handle process errors
       ffmpegProcess.on('error', (err) => {
         console.error("🎬 FFmpeg process error:", err.message);
@@ -562,7 +476,7 @@ class VideoService {
           }
         }
       });
-      
+
       // Handle client disconnect
       req.on('close', () => {
         console.log("🎬 Client disconnected, killing subtitle extraction");
@@ -572,68 +486,6 @@ class VideoService {
           ffmpegProcess.kill('SIGKILL');
         }
       });
-      
-      /* Disabled automatic timing adjustment - using manual control instead
-      if (false) {
-        // Time offset present, extract and adjust timing
-        console.log("🎬 Streaming subtitles with timing adjustment:", timeOffset, "seconds");
-        
-        const { spawn } = require('child_process');
-        
-        // Use direct ffmpeg spawn for better control
-        const ffmpegArgs = [
-          '-i', filePath,
-          '-map', `0:s:${selectedTrack.index}`,
-          '-c:s', 'webvtt',
-          '-f', 'webvtt',
-          '-'
-        ];
-        
-        console.log("🎬 FFmpeg command:", 'ffmpeg', ffmpegArgs.join(' '));
-        
-        const ffmpegProcess = spawn('ffmpeg', ffmpegArgs);
-        
-        let subtitleData = '';
-        
-        ffmpegProcess.stdout.on('data', (chunk) => {
-          subtitleData += chunk.toString();
-        });
-        
-        ffmpegProcess.stderr.on('data', (chunk) => {
-          console.log("🎬 FFmpeg stderr:", chunk.toString());
-        });
-        
-        ffmpegProcess.on('close', (code) => {
-          if (code === 0) {
-            console.log("🎬 Subtitle extraction completed, adjusting timing...");
-            
-            // Adjust subtitle timing
-            const adjustedSubtitles = this.adjustSubtitleTiming(subtitleData, -timeOffset);
-            
-            console.log("🎬 Subtitle timing adjusted successfully");
-            res.end(adjustedSubtitles);
-          } else {
-            console.error("🎬 FFmpeg process exited with code:", code);
-            if (!res.headersSent) {
-              res.status(500).send('Subtitle extraction failed');
-            }
-          }
-        });
-        
-        ffmpegProcess.on('error', (err) => {
-          console.error("🎬 FFmpeg process error:", err.message);
-          if (!res.headersSent) {
-            res.status(500).send('Error extracting subtitles');
-          }
-        });
-
-        // Handle client disconnect
-        req.on('close', () => {
-          console.log("🎬 Client disconnected, killing subtitle extraction");
-          ffmpegProcess.kill('SIGKILL');
-        });
-      }
-      */
 
     } catch (err) {
       console.error("🎬 Error streaming subtitle:", err.message);
@@ -650,7 +502,7 @@ class VideoService {
     const subtitleTrackIndex = parseInt(req.params.trackIndex) || 0;
     const startTime = parseInt(req.params.startTime) || 0; // in seconds
     const duration = parseInt(req.params.duration) || 600; // default 10 minutes
-    
+
     console.log("🎬 📦 Chunked subtitle request:", {
       videoId: videoId,
       series: series,
@@ -669,14 +521,14 @@ class VideoService {
     let resolvedFilePath = filePath;
     if (!fs.existsSync(filePath)) {
       console.log("🎬 🔍 File not found, trying alternative paths...");
-      
+
       const alternativeVideoIds = [
         decodeURIComponent(videoId),
         videoId.replace(/\s+/g, ' '),
         videoId.replace(/\u00A0/g, ' '),
         req.params.id
       ];
-      
+
       for (const altVideoId of alternativeVideoIds) {
         const altPath = path.join(VIDEOS_DIR, actualFolderName, altVideoId);
         if (fs.existsSync(altPath)) {
@@ -684,17 +536,17 @@ class VideoService {
           break;
         }
       }
-      
+
       if (!fs.existsSync(resolvedFilePath)) {
         try {
           const dir = path.join(VIDEOS_DIR, actualFolderName);
           if (fs.existsSync(dir)) {
             const files = fs.readdirSync(dir);
-            const matchingFiles = files.filter(f => 
+            const matchingFiles = files.filter(f =>
               f.toLowerCase().includes(videoId.split('.')[0].toLowerCase().substring(0, 20)) &&
               (f.endsWith('.mkv') || f.endsWith('.mp4'))
             );
-            
+
             if (matchingFiles.length > 0) {
               resolvedFilePath = path.join(dir, matchingFiles[0]);
             }
@@ -714,13 +566,13 @@ class VideoService {
       // Get subtitle tracks
       const metadata = await this.getDetailedVideoMetadata(resolvedFilePath);
       const subtitleTracks = getAllSubtitleTracks(metadata);
-      
+
       if (subtitleTrackIndex >= subtitleTracks.length) {
         return res.status(404).send("Subtitle track not found");
       }
 
       const selectedTrack = subtitleTracks[subtitleTrackIndex];
-      
+
       // Set headers
       res.setHeader("Content-Type", "text/vtt; charset=utf-8");
       res.setHeader("Cache-Control", "public, max-age=3600");
@@ -728,7 +580,7 @@ class VideoService {
 
       // Extract subtitle chunk using FFmpeg with time filtering
       await this.extractSubtitleChunk(resolvedFilePath, selectedTrack, startTime, duration, res);
-      
+
     } catch (err) {
       console.error("🎬 Error streaming subtitle chunk:", err.message);
       if (!res.headersSent) {
@@ -739,16 +591,11 @@ class VideoService {
 
   async extractSubtitleChunk(filePath, selectedTrack, startTime, duration, res) {
     const { spawn } = require('child_process');
-    
-    // console.log("🎬 📦 Extracting subtitle chunk:", {
-    //   startTime: startTime,
-    //   duration: duration,
-    //   trackIndex: selectedTrack.index
-    // });
+
 
     // For SRT files, try direct extraction with copying first (much faster)
     if (selectedTrack.codec === 'subrip') {
-      // console.log("🎬 📦 Trying fast SRT chunk extraction...");
+      console.log("🎬 📦 Trying fast SRT chunk extraction...");
       try {
         const success = await this.extractSrtChunkDirect(filePath, selectedTrack, startTime, duration, res);
         if (success) {
@@ -762,7 +609,7 @@ class VideoService {
     // Fallback to WebVTT conversion with aggressive optimizations
     const startTimeFormatted = this.formatSeconds(startTime);
     const durationFormatted = this.formatSeconds(duration);
-    
+
     // More aggressive FFmpeg options for problematic files
     const ffmpegArgs = [
       '-hide_banner',
@@ -778,13 +625,11 @@ class VideoService {
       '-fflags', '+genpts',             // Generate presentation timestamps
       'pipe:1'
     ];
-    
-    // console.log("🎬 📦 FFmpeg chunk command:", 'ffmpeg', ffmpegArgs.join(' '));
-    
+
     const ffmpegProcess = spawn('ffmpeg', ffmpegArgs);
     let isCompleted = false;
     let hasOutput = false;
-    
+
     // Shorter timeout for chunks - if no output in 15 seconds, something is wrong
     const timeout = setTimeout(() => {
       if (!isCompleted) {
@@ -795,7 +640,7 @@ class VideoService {
         }
       }
     }, 15000);
-    
+
     // Handle output
     ffmpegProcess.stdout.on('data', (chunk) => {
       hasOutput = true;
@@ -803,19 +648,19 @@ class VideoService {
         res.write(chunk);
       }
     });
-    
+
     ffmpegProcess.stderr.on('data', (chunk) => {
       const errorText = chunk.toString().trim();
       if (errorText) {
-        // console.log("🎬 📦 FFmpeg chunk stderr:", errorText);
+        console.log("🎬 📦 FFmpeg chunk stderr:", errorText);
       }
     });
-    
+
     ffmpegProcess.on('close', (code) => {
       clearTimeout(timeout);
       isCompleted = true;
       if (code === 0 && hasOutput) {
-        // console.log("🎬 ✅ Subtitle chunk extraction completed");
+        console.log("🎬 ✅ Subtitle chunk extraction completed");
         res.end();
       } else {
         console.error("🎬 ❌ Subtitle chunk extraction failed - code:", code, "hasOutput:", hasOutput);
@@ -824,7 +669,7 @@ class VideoService {
         }
       }
     });
-    
+
     ffmpegProcess.on('error', (err) => {
       clearTimeout(timeout);
       isCompleted = true;
@@ -833,12 +678,12 @@ class VideoService {
         res.status(500).send('Error extracting subtitle chunk');
       }
     });
-    
+
     // Handle client disconnect
     req.on('close', () => {
       clearTimeout(timeout);
       if (!isCompleted) {
-        // console.log("🎬 Client disconnected, killing chunk extraction");
+        console.log("🎬 Client disconnected, killing chunk extraction");
         ffmpegProcess.kill('SIGKILL');
       }
     });
@@ -846,12 +691,12 @@ class VideoService {
 
   async extractSrtChunkDirect(filePath, selectedTrack, startTime, duration, res) {
     const { spawn } = require('child_process');
-    
+
     return new Promise((resolve, reject) => {
       // Extract raw SRT data for the time range
       const startTimeFormatted = this.formatSeconds(startTime);
       const durationFormatted = this.formatSeconds(duration);
-      
+
       const ffmpegArgs = [
         '-hide_banner',
         '-loglevel', 'panic',
@@ -863,30 +708,30 @@ class VideoService {
         '-f', 'srt',                      // Raw SRT output
         'pipe:1'
       ];
-      
+
       const ffmpegProcess = spawn('ffmpeg', ffmpegArgs);
       let srtContent = '';
       let isCompleted = false;
-      
+
       // 10 second timeout for raw SRT extraction
       const timeout = setTimeout(() => {
         if (!isCompleted) {
-          // console.log("🎬 📦 Fast SRT extraction timeout");
+          console.log("🎬 📦 Fast SRT extraction timeout");
           ffmpegProcess.kill('SIGKILL');
           reject(new Error('SRT extraction timeout'));
         }
       }, 10000);
-      
+
       ffmpegProcess.stdout.on('data', (chunk) => {
         srtContent += chunk.toString();
       });
-      
+
       ffmpegProcess.on('close', (code) => {
         clearTimeout(timeout);
         isCompleted = true;
-        
+
         if (code === 0 && srtContent.trim()) {
-          // console.log("🎬 📦 Fast SRT extraction successful, converting to WebVTT...");
+          console.log("🎬 📦 Fast SRT extraction successful, converting to WebVTT...");
           try {
             // Convert SRT to WebVTT
             const webvttContent = this.convertSrtToWebVtt(srtContent);
@@ -901,7 +746,7 @@ class VideoService {
           reject(new Error(`SRT extraction failed with code ${code}`));
         }
       });
-      
+
       ffmpegProcess.on('error', (err) => {
         clearTimeout(timeout);
         isCompleted = true;
@@ -920,10 +765,10 @@ class VideoService {
   async tryDirectSrtConversion(filePath, selectedTrack, res) {
     const { spawn } = require('child_process');
     const fs = require('fs');
-    
+
     try {
-      // console.log("🎬 🔄 Starting direct SRT extraction...");
-      
+      console.log("🎬 🔄 Starting direct SRT extraction...");
+
       // Extract SRT subtitle using ffmpeg without conversion
       const extractArgs = [
         '-hide_banner',
@@ -934,34 +779,32 @@ class VideoService {
         '-f', 'srt',
         'pipe:1'
       ];
-      
+
       const extractProcess = spawn('ffmpeg', extractArgs);
       let srtContent = '';
-      
+
       // Collect SRT data
       extractProcess.stdout.on('data', (chunk) => {
         srtContent += chunk.toString();
       });
-      
+
       extractProcess.stderr.on('data', (chunk) => {
         console.log("🎬 SRT extraction stderr:", chunk.toString().trim());
       });
-      
+
       return new Promise((resolve, reject) => {
         const timeout = setTimeout(() => {
           extractProcess.kill('SIGKILL');
           reject(new Error('SRT extraction timeout'));
         }, 20000); // 20 second timeout for extraction
-        
+
         extractProcess.on('close', (code) => {
           clearTimeout(timeout);
           if (code === 0 && srtContent) {
-            // console.log("🎬 ✅ SRT extracted, converting to WebVTT...");
             try {
               // Convert SRT to WebVTT
               const webvttContent = this.convertSrtToWebVtt(srtContent);
-              // console.log("🎬 ✅ Conversion complete, sending WebVTT...");
-              
+
               res.write(webvttContent);
               res.end();
               resolve(true);
@@ -973,13 +816,13 @@ class VideoService {
             reject(new Error(`SRT extraction failed with code ${code}`));
           }
         });
-        
+
         extractProcess.on('error', (err) => {
           clearTimeout(timeout);
           reject(err);
         });
       });
-      
+
     } catch (err) {
       console.error("🎬 ❌ Direct SRT conversion error:", err.message);
       throw err;
@@ -987,8 +830,8 @@ class VideoService {
   }
 
   async tryEmergencySubtitleFallback(filePath, selectedTrack, res) {
-    // console.log("🎬 🆘 Attempting emergency subtitle fallback...");
-    
+    console.log("🎬 🆘 Attempting emergency subtitle fallback...");
+
     try {
       // Send a basic WebVTT with a message that subtitles are loading
       const emergencyWebVTT = `WEBVTT
@@ -1002,13 +845,13 @@ Please wait while we process the subtitle file.
 00:01:00.000 --> 00:01:05.000
 If subtitles don't appear, try refreshing the page.
 `;
-      
+
       res.write(emergencyWebVTT);
       res.end();
-      
+
       // Start background processing for this file (could be implemented later)
       console.log("🎬 🆘 Emergency fallback sent, subtitle processing would continue in background");
-      
+
       return true;
     } catch (err) {
       console.error("🎬 🆘 Emergency fallback failed:", err.message);
@@ -1018,47 +861,43 @@ If subtitles don't appear, try refreshing the page.
 
   convertSrtToWebVtt(srtContent) {
     console.log("🎬 🔄 Converting SRT to WebVTT format...");
-    
+
     let webvtt = 'WEBVTT\n\n';
-    
+
     // Split SRT content into blocks
     const blocks = srtContent.trim().split(/\n\s*\n/);
-    
+
     for (const block of blocks) {
       const lines = block.trim().split('\n');
       if (lines.length >= 3) {
         // Skip sequence number (first line)
         const timingLine = lines[1];
         const textLines = lines.slice(2);
-        
+
         // Convert SRT timing format to WebVTT
         // SRT: 00:01:30,500 --> 00:01:33,000
         // WebVTT: 00:01:30.500 --> 00:01:33.000
         const webvttTiming = timingLine.replace(/,/g, '.');
-        
+
         webvtt += webvttTiming + '\n';
         webvtt += textLines.join('\n') + '\n\n';
       }
     }
-    
-    // console.log("🎬 ✅ SRT to WebVTT conversion completed");
+
+    console.log("🎬 ✅ SRT to WebVTT conversion completed");
     return webvtt;
   }
 
   adjustSubtitleTiming(webvttContent, offsetSeconds) {
-    // console.log("🎬 Adjusting subtitle timing by", offsetSeconds, "seconds");
-    
     // WebVTT timing format: HH:MM:SS.mmm --> HH:MM:SS.mmm
     const timingRegex = /(\d{2}:\d{2}:\d{2}\.\d{3})\s*-->\s*(\d{2}:\d{2}:\d{2}\.\d{3})/g;
-    
+
     const adjustedContent = webvttContent.replace(timingRegex, (match, startTime, endTime) => {
       const adjustedStartTime = this.adjustTimeString(startTime, offsetSeconds);
       const adjustedEndTime = this.adjustTimeString(endTime, offsetSeconds);
-      
+
       return `${adjustedStartTime} --> ${adjustedEndTime}`;
     });
-    
-    // console.log("🎬 Subtitle timing adjustment completed");
     return adjustedContent;
   }
 
@@ -1070,22 +909,22 @@ If subtitles don't appear, try refreshing the page.
     const secondsAndMs = parts[2].split('.');
     const seconds = parseInt(secondsAndMs[0]);
     const milliseconds = parseInt(secondsAndMs[1]);
-    
+
     // Convert to total milliseconds
     let totalMs = (hours * 3600 + minutes * 60 + seconds) * 1000 + milliseconds;
-    
+
     // Apply offset
     totalMs += offsetSeconds * 1000;
-    
+
     // Ensure non-negative time
     if (totalMs < 0) totalMs = 0;
-    
+
     // Convert back to HH:MM:SS.mmm
     const newMs = totalMs % 1000;
     const newSeconds = Math.floor(totalMs / 1000) % 60;
     const newMinutes = Math.floor(totalMs / 60000) % 60;
     const newHours = Math.floor(totalMs / 3600000);
-    
+
     return `${String(newHours).padStart(2, '0')}:${String(newMinutes).padStart(2, '0')}:${String(newSeconds).padStart(2, '0')}.${String(newMs).padStart(3, '0')}`;
   }
 
@@ -1099,22 +938,7 @@ If subtitles don't appear, try refreshing the page.
     const videoStartFrom = Number(req.query.start || 0);
     const audioTrackIndex = Number(req.query.audioTrack || 0); // Default to first track
     const subtitleTrackIndex = req.query.subtitleTrack !== undefined ? Number(req.query.subtitleTrack) : -1; // -1 means no subtitles
-    
-    // console.log("Video streaming request:", {
-    //   videoId: videoId,
-    //   start: videoStartFrom,
-    //   audioTrack: audioTrackIndex,
-    //   subtitleTrack: subtitleTrackIndex,
-    //   queryParams: req.query
-    // });
-    
-    // console.log("Audio track parameter analysis:", {
-    //   rawAudioTrack: req.query.audioTrack,
-    //   parsedAudioTrack: audioTrackIndex,
-    //   type: typeof audioTrackIndex,
-    //   isNaN: isNaN(audioTrackIndex)
-    // });
-    
+
     // Audio track selection enabled with improved language detection
     const useAudioTrackSelection = true; // Re-enabled for audio track selection
     const filePath = path.join(VIDEOS_DIR, actualFolderName, videoId);
@@ -1127,51 +951,16 @@ If subtitles don't appear, try refreshing the page.
 
     const duration = await this.getVideoDuration(filePath);
     const durationSeconds = Math.floor(duration); // Store as integer seconds
-    
+
     console.log("🎬 Duration seconds:", durationSeconds);
-    
-    // req.db.run(
-    //   `INSERT OR REPLACE INTO video_metadata 
-    //    (user_id, length, video_id, last_opened, size, active, created_at, updated_at) 
-    //    VALUES (?, ?, ?, ?, ?, 0, 
-    //      COALESCE((SELECT created_at FROM video_metadata WHERE user_id = ? AND video_id = ?), datetime('now')),
-    //      datetime('now'))`,
-    //   [userId, durationSeconds, videoId, new Date().toISOString(), fileSize, userId, videoId]
-    // );
 
-       req.db.run(
-         `INSERT INTO video_metadata (user_id, video_id, last_opened, size, length) VALUES (?, ?, ?, ?, ?) 
+
+    req.db.run(
+      `INSERT INTO video_metadata (user_id, video_id, last_opened, size, length) VALUES (?, ?, ?, ?, ?) 
          ON CONFLICT(user_id, video_id) DO UPDATE SET last_opened = excluded.last_opened, size = excluded.size, length = excluded.length`,
-         [userId, videoId, new Date().toISOString(), fileSize, durationSeconds]
-       );
+      [userId, videoId, new Date().toISOString(), fileSize, durationSeconds]
+    );
 
-     // Debug: Check if length was stored
-    //  req.db.all(
-    //    `SELECT * FROM video_metadata`,
-    //    [],
-    //    (err, rows) => {
-    //      if (err) {
-    //        console.error('Debug query error:', err);
-    //      } else if (rows && rows.length > 0) {
-    //        console.log('🎬 Debug - All stored data:', rows);
-    //        // Also show specific row for current video
-    //        const currentRow = rows.find(row => row.user_id === userId && row.video_id === videoId);
-    //        if (currentRow) {
-    //          console.log('🎬 Debug - Current video data:', {
-    //            user_id: currentRow.user_id,
-    //            video_id: currentRow.video_id,
-    //            last_opened: currentRow.last_opened,
-    //            size: currentRow.size,
-    //            length: currentRow.length,
-    //            length_type: typeof currentRow.length
-    //          });
-    //        }
-    //      } else {
-    //        console.log('🎬 Debug - No rows found in database');
-    //      }
-    //    }
-    //  );
-    
     // Clear all active flags for this user, then set current video as active
     req.db.run(`UPDATE video_metadata SET active = 0 WHERE user_id = ?`, [userId], function (err) {
       if (!err) {
@@ -1192,159 +981,48 @@ If subtitles don't appear, try refreshing the page.
     // Get video metadata to determine optimal audio settings for selected track
     let audioSettings;
     if (useAudioTrackSelection) {
-      // console.log("Audio track selection is ENABLED");
       try {
         let metadata;
         try {
           metadata = await this.getDetailedVideoMetadata(filePath);
-          // console.log("Video metadata streams:", metadata.streams?.length || 0);
         } catch (detailedErr) {
           console.warn("Detailed metadata failed, trying basic metadata:", detailedErr.message);
           metadata = await this.getVideoMetadata(filePath);
-          // console.log("Basic metadata streams:", metadata.streams?.length || 0);
         }
-        
+
         const audioTracks = getAllAudioTracks(metadata);
-        // console.log("Audio tracks found:", audioTracks.length);
-        // console.log("Audio tracks summary:", audioTracks.map(track => ({
-        //   index: track.index,
-        //   streamIndex: track.streamIndex,
-        //   language: track.language,
-        //   codec: track.codec,
-        //   isBrowserCompatible: track.isBrowserCompatible
-        // })));
-        
-        // Test: Verify the track at index 3 is Kannada
-        // console.log("Track verification test:", {
-        //   trackAtIndex0: audioTracks[0] ? { language: audioTracks[0].language, streamIndex: audioTracks[0].streamIndex } : 'NOT_FOUND',
-        //   trackAtIndex1: audioTracks[1] ? { language: audioTracks[1].language, streamIndex: audioTracks[1].streamIndex } : 'NOT_FOUND',
-        //   trackAtIndex2: audioTracks[2] ? { language: audioTracks[2].language, streamIndex: audioTracks[2].streamIndex } : 'NOT_FOUND',
-        //   trackAtIndex3: audioTracks[3] ? { language: audioTracks[3].language, streamIndex: audioTracks[3].streamIndex } : 'NOT_FOUND',
-        //   requestedIndex: audioTrackIndex,
-        //   expectedAtRequestedIndex: audioTracks[audioTrackIndex] ? { language: audioTracks[audioTrackIndex].language, streamIndex: audioTracks[audioTrackIndex].streamIndex } : 'NOT_FOUND'
-        // });
-        
+
         if (audioTracks.length === 0) {
           throw new Error("No audio tracks found");
         }
 
-        // Get the selected audio track (or default to first)
-        // console.log("Available audio tracks:", audioTracks.map(track => ({
-        //   index: track.index,
-        //   streamIndex: track.streamIndex,
-        //   language: track.language,
-        //   codec: track.codec,
-        //   displayName: track.displayName
-        // })));
-        
-        // Also log the raw metadata streams for comparison
-        // console.log("Raw metadata streams:", metadata.streams.map((stream, idx) => ({
-        //   index: idx,
-        //   streamIndex: stream.index,
-        //   codecType: stream.codec_type,
-        //   codecName: stream.codec_name,
-        //   language: stream.tags?.language || 'Unknown',
-        //   title: stream.tags?.title || 'Unknown'
-        // })));
-        
-        // Test: Check if the metadata has the expected audio streams
+
         const audioStreams = metadata.streams.filter(stream => stream.codec_type === 'audio');
-        // console.log("Raw audio streams from metadata:", audioStreams.map((stream, idx) => ({
-        //   arrayIndex: idx,
-        //   streamIndex: stream.index,
-        //   codecName: stream.codec_name,
-        //   language: stream.tags?.language || 'Unknown',
-        //   title: stream.tags?.title || 'Unknown'
-        // })));
-        
-        // console.log("Requested audio track index:", audioTrackIndex);
-        // console.log("Total tracks available:", audioTracks.length);
-        
+
         // Validate the requested index
         let selectedTrack;
-        // console.log("Track selection process:", {
-        //   requestedIndex: audioTrackIndex,
-        //   totalTracks: audioTracks.length,
-        //   isValidIndex: audioTrackIndex >= 0 && audioTrackIndex < audioTracks.length
-        // });
-        
         if (audioTrackIndex >= audioTracks.length) {
           console.warn(`Requested track index ${audioTrackIndex} is out of range (max: ${audioTracks.length - 1}), using first track`);
           selectedTrack = audioTracks[0];
         } else {
           selectedTrack = audioTracks[audioTrackIndex];
-          // console.log("Selected track from array:", {
-          //   arrayIndex: audioTrackIndex,
-          //   selectedTrack: selectedTrack,
-          //   allTracksAtThisIndex: audioTracks.map((track, idx) => ({
-          //     arrayIndex: idx,
-          //     language: track.language,
-          //     streamIndex: track.streamIndex,
-          //     isSelected: idx === audioTrackIndex
-          //   }))
-          // });
         }
-        
-        // Additional validation - check if the selected track makes sense
-        // console.log("Track selection validation:", {
-        //   requestedIndex: audioTrackIndex,
-        //   selectedTrackIndex: selectedTrack.index,
-        //   selectedStreamIndex: selectedTrack.streamIndex,
-        //   selectedLanguage: selectedTrack.language,
-        //   totalTracks: audioTracks.length
-        // });
-        
-        // Test: Show what should happen vs what is happening
-        // console.log("Expected vs Actual:", {
-        //   expected: {
-        //     requestedIndex: audioTrackIndex,
-        //     expectedLanguage: audioTracks[audioTrackIndex]?.language || 'Unknown',
-        //     expectedStreamIndex: audioTracks[audioTrackIndex]?.streamIndex || 'Unknown'
-        //   },
-        //   actual: {
-        //     selectedIndex: selectedTrack.index,
-        //     selectedLanguage: selectedTrack.language,
-        //     selectedStreamIndex: selectedTrack.streamIndex
-        //   }
-        // });
-        
-        // Debug: Show what track should be selected vs what is selected
-        // console.log("Track selection debug:", {
-        //   requestedIndex: audioTrackIndex,
-        //   availableTracks: audioTracks.map(t => ({ index: t.index, language: t.language, streamIndex: t.streamIndex })),
-        //   selectedTrack: { index: selectedTrack.index, language: selectedTrack.language, streamIndex: selectedTrack.streamIndex },
-        //   shouldBeSelected: audioTracks[audioTrackIndex] ? { index: audioTracks[audioTrackIndex].index, language: audioTracks[audioTrackIndex].language, streamIndex: audioTracks[audioTrackIndex].streamIndex } : 'OUT_OF_RANGE'
-        // });
-        // console.log("Selected audio track:", {
-        //   requestedIndex: audioTrackIndex,
-        //   actualIndex: selectedTrack.index,
-        //   streamIndex: selectedTrack.streamIndex,
-        //   codec: selectedTrack.codec,
-        //   language: selectedTrack.language,
-        //   displayName: selectedTrack.displayName,
-        //   isBrowserCompatible: selectedTrack.isBrowserCompatible
-        // });
-        
+
+
         // Validate track index
         if (selectedTrack.streamIndex < 0 || selectedTrack.streamIndex >= metadata.streams.length) {
           console.warn("Invalid track index, using fallback");
           throw new Error("Invalid audio track index");
         }
-        
+
         // Check if selected audio track is already browser-compatible
         if (selectedTrack.isBrowserCompatible) {
           // Use copy for already compatible audio
-          audioSettings = { 
-            useCopy: true, 
+          audioSettings = {
+            useCopy: true,
             trackIndex: selectedTrack.index,  // Use array index, not stream index
             trackInfo: selectedTrack
           };
-          // console.log("Using browser-compatible audio (copy):", {
-          //   trackIndex: selectedTrack.index,
-          //   streamIndex: selectedTrack.streamIndex,
-          //   language: selectedTrack.language,
-          //   codec: selectedTrack.codec
-          // });
         } else {
           // Get optimal settings for conversion
           const conversionSettings = getOptimalAudioSettingsForTrack(selectedTrack);
@@ -1357,22 +1035,14 @@ If subtitles don't appear, try refreshing the page.
             trackIndex: selectedTrack.index,  // Use array index, not stream index
             trackInfo: selectedTrack
           };
-          // console.log("Using audio conversion:", {
-          //   trackIndex: selectedTrack.index,
-          //   streamIndex: selectedTrack.streamIndex,
-          //   language: selectedTrack.language,
-          //   codec: selectedTrack.codec,
-          //   conversionSettings: conversionSettings,
-          //   finalAudioSettings: audioSettings
-          // });
         }
       } catch (err) {
         console.warn("Could not get video metadata, using default audio settings:", err.message);
-        audioSettings = { 
-          useCopy: false, 
-          codec: "aac", 
-          bitrate: "192k", 
-          sampleRate: 48000, 
+        audioSettings = {
+          useCopy: false,
+          codec: "aac",
+          bitrate: "192k",
+          sampleRate: 48000,
           channels: 2,
           trackIndex: undefined // No specific track index
         };
@@ -1380,28 +1050,15 @@ If subtitles don't appear, try refreshing the page.
     } else {
       console.log("Audio track selection is DISABLED - using simple fallback");
       // Use simple fallback without metadata extraction
-      audioSettings = { 
-        useCopy: false, 
-        codec: "aac", 
-        bitrate: "192k", 
-        sampleRate: 48000, 
+      audioSettings = {
+        useCopy: false,
+        codec: "aac",
+        bitrate: "192k",
+        sampleRate: 48000,
         channels: 2
       };
     }
 
-    // Debug logging (can be enabled for troubleshooting)
-    // console.log("Audio settings for video:", {
-    //   useCopy: audioSettings.useCopy,
-    //   trackIndex: audioSettings.trackIndex,
-    //   codec: audioSettings.codec,
-    //   bitrate: audioSettings.bitrate,
-    //   audioTrackIndex: audioTrackIndex,
-    //   useAudioTrackSelection: useAudioTrackSelection
-    // });
-
-    // console.log("Creating FFmpeg command for:", filePath);
-    // console.log("Video start time:", videoStartFrom);
-    
     const command = ffmpeg(filePath)
       .setStartTime(videoStartFrom)
       .format("mp4")
@@ -1416,22 +1073,14 @@ If subtitles don't appear, try refreshing the page.
 
     // Apply audio settings for selected track
     if (useAudioTrackSelection && audioSettings.trackIndex !== undefined && audioSettings.trackIndex >= 0) {
-      // console.log("Using audio track mapping with track index:", audioSettings.trackIndex);
-      // console.log("Audio settings details:", {
-      //   useCopy: audioSettings.useCopy,
-      //   trackIndex: audioSettings.trackIndex,
-      //   codec: audioSettings.codec,
-      //   bitrate: audioSettings.bitrate,
-      //   trackInfo: audioSettings.trackInfo
-      // });
-      
+
       // Use specific audio track mapping
       if (audioSettings.useCopy) {
         // Copy specific audio track without re-encoding
         command.audioCodec("copy");
         // Map video stream and selected audio stream
         command.outputOptions([`-map 0:v:0`, `-map 0:a:${audioSettings.trackIndex}`]);
-        // console.log("FFmpeg command: copy audio track", audioSettings.trackIndex, "with mapping -map 0:v:0 -map 0:a:" + audioSettings.trackIndex);
+        console.log("FFmpeg command: copy audio track", audioSettings.trackIndex, "with mapping -map 0:v:0 -map 0:a:" + audioSettings.trackIndex);
       } else {
         // Convert specific audio track
         command.audioCodec(audioSettings.codec);
@@ -1439,10 +1088,10 @@ If subtitles don't appear, try refreshing the page.
         command.outputOptions([`-map 0:v:0`, `-map 0:a:${audioSettings.trackIndex}`]);
         const audioOptions = getAudioOutputOptions(audioSettings);
         command.outputOptions(audioOptions);
-        // console.log("FFmpeg command: convert audio track", audioSettings.trackIndex, "to", audioSettings.codec, "with mapping -map 0:v:0 -map 0:a:" + audioSettings.trackIndex);
+        console.log("FFmpeg command: convert audio track", audioSettings.trackIndex, "to", audioSettings.codec, "with mapping -map 0:v:0 -map 0:a:" + audioSettings.trackIndex);
       }
     } else {
-      // console.log("Using fallback audio handling (no track mapping)");
+      console.log("Using fallback audio handling (no track mapping)");
       // Fallback: use default audio handling (no mapping, let FFmpeg choose first audio track)
       if (audioSettings.useCopy) {
         console.log("FFmpeg command: copy audio (no re-encoding)");
@@ -1463,13 +1112,13 @@ If subtitles don't appear, try refreshing the page.
         // Get metadata for subtitle analysis (reuse existing metadata if available)
         const metadata = await this.getDetailedVideoMetadata(filePath);
         const subtitleTracks = getAllSubtitleTracks(metadata);
-        
+
         console.log("Available subtitle tracks:", subtitleTracks.length);
-        
+
         if (subtitleTracks.length > 0 && subtitleTrackIndex < subtitleTracks.length) {
           const selectedSubtitleTrack = subtitleTracks[subtitleTrackIndex];
           subtitleSettings = getOptimalSubtitleSettings(selectedSubtitleTrack);
-          
+
           console.log("Selected subtitle track:", {
             index: selectedSubtitleTrack.index,
             language: selectedSubtitleTrack.language,
@@ -1477,7 +1126,7 @@ If subtitles don't appear, try refreshing the page.
             compatible: selectedSubtitleTrack.isBrowserCompatible,
             settings: subtitleSettings
           });
-          
+
           // Note: Skip subtitle mapping for MP4 streaming
           // MP4 containers with piped output don't handle embedded subtitles well
           // Subtitles will be served separately as WebVTT tracks for the HTML5 video player

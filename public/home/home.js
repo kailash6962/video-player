@@ -26,11 +26,11 @@ async function loadCurrentUser() {
 function updateUserDisplay(user) {
     const userAvatar = document.getElementById('userAvatar');
     const userName = document.getElementById('userName');
-    
+
     if (userAvatar && userName) {
         userAvatar.textContent = user.avatar_emoji || '👤';
         userName.textContent = user.display_name || 'Guest';
-        
+
         // Apply dynamic colors if available
         if (user.avatar_bg_color && user.avatar_text_color) {
             userAvatar.style.background = user.avatar_bg_color;
@@ -107,17 +107,17 @@ function renderFolderCard(folder) {
     // Progress bar
     const progressContainer = document.createElement('div');
     progressContainer.className = 'card-progress';
-    
+
     const progressBar = document.createElement('div');
     progressBar.className = 'card-progress-bar';
-    
+
     // Calculate watched percentage
     let watchedPercent = 0;
     if (folder.videoCount && folder.lastOpenedNumber) {
         watchedPercent = Math.max(0, ((folder.lastOpenedNumber - 1) / folder.videoCount) * 100);
     }
     progressBar.style.width = watchedPercent + '%';
-    
+
     progressContainer.appendChild(progressBar);
 
     // Assemble card
@@ -130,7 +130,7 @@ function renderFolderCard(folder) {
     card.addEventListener('click', () => {
         window.location.href = `/play?series=${folder.name}`;
     });
-    
+
     // Keyboard support
     card.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' || e.key === ' ') {
@@ -155,7 +155,7 @@ fetch('/api/videos/home', {
         // Videos loaded
         const gallery = document.getElementById('videoGallery');
         const movieCount = document.getElementById('movieCount');
-        
+
         videos.forEach((video, index) => {
             const card = renderVideoCard(video);
             // Make focusable for TV browsers
@@ -163,7 +163,7 @@ fetch('/api/videos/home', {
             card.setAttribute('data-index', index);
             gallery.appendChild(card);
         });
-        
+
         // Update count
         movieCount.textContent = `${videos.length} Movie${videos.length !== 1 ? 's' : ''}`;
     })
@@ -185,7 +185,7 @@ fetch('/api/get-all-folders', {
         // Folders loaded
         const foldersElem = document.getElementById('folderGallery');
         const seriesCount = document.getElementById('seriesCount');
-        
+
         folders.forEach((folder, index) => {
             const card = renderFolderCard(folder);
             // Make focusable for TV browsers
@@ -193,7 +193,7 @@ fetch('/api/get-all-folders', {
             card.setAttribute('data-index', index);
             foldersElem.appendChild(card);
         });
-        
+
         // Update count
         seriesCount.textContent = `${folders.length} Series`;
 
@@ -203,26 +203,26 @@ fetch('/api/get-all-folders', {
     });
 
 // Keyboard navigation for TV browsers
-document.addEventListener('keydown', function(e) {
+document.addEventListener('keydown', function (e) {
     const focusedElement = document.activeElement;
-    
+
     if (!focusedElement || !focusedElement.classList.contains('netflix-card')) {
         return;
     }
-    
+
     const currentIndex = parseInt(focusedElement.getAttribute('data-index'));
     const container = focusedElement.parentElement;
     const allCards = container.querySelectorAll('.netflix-card');
-    
+
     // Calculate grid dimensions
     const containerWidth = container.offsetWidth;
     const cardWidth = 280; // minimum card width
     const gap = 20;
     const cardsPerRow = Math.floor(containerWidth / (cardWidth + gap));
-    
+
     let targetIndex = currentIndex;
-    
-    switch(e.key) {
+
+    switch (e.key) {
         case 'ArrowLeft':
             e.preventDefault();
             targetIndex = Math.max(0, currentIndex - 1);
@@ -247,7 +247,7 @@ document.addEventListener('keydown', function(e) {
         default:
             return;
     }
-    
+
     if (targetIndex !== currentIndex && allCards[targetIndex]) {
         allCards[targetIndex].focus();
         // Smooth scroll to keep focused element in view
@@ -262,7 +262,7 @@ document.addEventListener('keydown', function(e) {
 // Slideshow functionality
 function createHeroSlideshow() {
     // Creating hero slideshow
-    
+
     // Fetch recent videos and folders
     Promise.all([
         fetch('/api/videos/home', {
@@ -285,36 +285,36 @@ function createHeroSlideshow() {
         })
     ]).then(([videos, folders]) => {
         // Raw videos and folders data processed
-        
+
         // Combine and sort by actual file modification date (most recent downloads first)
         const allContent = [
-            ...videos.map(v => ({ 
-                ...v, 
-                type: 'movie', 
+            ...videos.map(v => ({
+                ...v,
+                type: 'movie',
                 actualDownloadDate: new Date(v.modifiedDate || v.createdDate || Date.now()),
                 displayDate: new Date(v.modifiedDate || v.createdDate || Date.now())
             })),
-            ...folders.map(f => ({ 
-                ...f, 
-                type: 'series', 
+            ...folders.map(f => ({
+                ...f,
+                type: 'series',
                 actualDownloadDate: new Date(f.mostRecentFileDate || f.modifiedDate || f.createdDate || Date.now()),
                 displayDate: new Date(f.mostRecentFileDate || f.modifiedDate || f.createdDate || Date.now())
             }))
         ].sort((a, b) => b.actualDownloadDate - a.actualDownloadDate);
-        
+
         // Processed content with download dates
-        
+
         // Take top 5 most recent
         slideshowData = allContent.slice(0, 5);
         // Slideshow data processed
-        
+
         if (slideshowData.length > 0) {
             buildSlideshowHTML();
             initSlideshow();
         }
     }).catch(err => {
         // Error loading slideshow data, attempting fallback
-        
+
         // Fallback: Try to use existing cards that might already be loaded
         setTimeout(() => {
             const existingCards = document.querySelectorAll('.netflix-card');
@@ -333,13 +333,13 @@ function createHeroSlideshow() {
 function buildSlideshowHTML() {
     const container = document.querySelector('.slideshow-container');
     const indicators = document.getElementById('slide-indicators');
-    
+
     if (!container || !indicators) return;
-    
+
     // Clear existing content
     container.innerHTML = '';
     indicators.innerHTML = '';
-    
+
     slideshowData.forEach((item, index) => {
         // Create slide
         const slide = document.createElement('div');
@@ -381,7 +381,7 @@ function buildSlideshowHTML() {
             </div>
         `;
         container.appendChild(slide);
-        
+
         // Create indicator dot
         const dot = document.createElement('div');
         dot.className = `slide-dot ${index === 0 ? 'active' : ''}`;
@@ -394,13 +394,13 @@ function initSlideshow() {
     // Setup navigation
     const prevBtn = document.getElementById('slide-prev');
     const nextBtn = document.getElementById('slide-next');
-    
+
     if (prevBtn) prevBtn.onclick = () => changeSlide(-1);
     if (nextBtn) nextBtn.onclick = () => changeSlide(1);
-    
+
     // Start auto-slideshow
     startSlideshow();
-    
+
     // Pause on hover
     const slideshow = document.getElementById('hero-slideshow');
     if (slideshow) {
@@ -412,16 +412,16 @@ function initSlideshow() {
 function changeSlide(direction) {
     const slides = document.querySelectorAll('.slide');
     const dots = document.querySelectorAll('.slide-dot');
-    
+
     if (slides.length === 0) return;
-    
+
     // Remove active class from current slide and dot
     slides[currentSlide].classList.remove('active');
     dots[currentSlide].classList.remove('active');
-    
+
     // Calculate new slide index
     currentSlide = (currentSlide + direction + slides.length) % slides.length;
-    
+
     // Add active class to new slide and dot
     slides[currentSlide].classList.add('active');
     dots[currentSlide].classList.add('active');
@@ -430,16 +430,16 @@ function changeSlide(direction) {
 function goToSlide(index) {
     const slides = document.querySelectorAll('.slide');
     const dots = document.querySelectorAll('.slide-dot');
-    
+
     if (slides.length === 0 || index < 0 || index >= slides.length) return;
-    
+
     // Remove active class from current slide and dot
     slides[currentSlide].classList.remove('active');
     dots[currentSlide].classList.remove('active');
-    
+
     // Set new slide index
     currentSlide = index;
-    
+
     // Add active class to new slide and dot
     slides[currentSlide].classList.add('active');
     dots[currentSlide].classList.add('active');
@@ -490,7 +490,7 @@ function extractLanguages(filename) {
     if (filename.includes('Mal')) languages.push('Malayalam');
     if (filename.includes('Kan')) languages.push('Kannada');
     if (filename.includes('Eng')) languages.push('English');
-    
+
     return languages.length > 0 ? languages : ['Tamil'];
 }
 
@@ -498,7 +498,7 @@ function formatDate(date) {
     const now = new Date();
     const diffTime = Math.abs(now - date);
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
+
     if (diffDays === 1) return 'Added today';
     if (diffDays <= 7) return `Added ${diffDays} days ago`;
     if (diffDays <= 30) return `Added ${Math.ceil(diffDays / 7)} weeks ago`;
@@ -511,7 +511,7 @@ function formatDownloadDate(date) {
     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
     const diffHours = Math.floor(diffTime / (1000 * 60 * 60));
     const diffMinutes = Math.floor(diffTime / (1000 * 60));
-    
+
     if (diffMinutes < 1) return 'just now';
     if (diffMinutes < 60) return `${diffMinutes} minute${diffMinutes !== 1 ? 's' : ''} ago`;
     if (diffHours < 24) return `${diffHours} hour${diffHours !== 1 ? 's' : ''} ago`;
@@ -520,24 +520,24 @@ function formatDownloadDate(date) {
     if (diffDays < 7) return `${diffDays} days ago`;
     if (diffDays < 30) return `${Math.ceil(diffDays / 7)} week${Math.ceil(diffDays / 7) !== 1 ? 's' : ''} ago`;
     if (diffDays < 365) return `${Math.ceil(diffDays / 30)} month${Math.ceil(diffDays / 30) !== 1 ? 's' : ''} ago`;
-    
+
     // For very old files, show the actual date
-    return date.toLocaleDateString('en-US', { 
-        year: 'numeric', 
-        month: 'short', 
-        day: 'numeric' 
+    return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
     });
 }
 
 function createFallbackSlideshow(cards) {
     // Creating fallback slideshow from existing cards
-    
+
     // Convert existing cards to slideshow data
     slideshowData = Array.from(cards).slice(0, 5).map((card, index) => {
         const title = card.querySelector('.card-title')?.textContent || 'Unknown';
         const isSeriesCard = card.classList.contains('series-card');
         const cardId = card.id || `fallback-${index}`;
-        
+
         return {
             id: cardId,
             title: title,
@@ -547,9 +547,9 @@ function createFallbackSlideshow(cards) {
             displayDate: new Date(Date.now() - (index * 24 * 60 * 60 * 1000))
         };
     });
-    
+
     // Fallback slideshow data processed
-    
+
     if (slideshowData.length > 0) {
         buildSlideshowHTML();
         initSlideshow();
@@ -567,9 +567,9 @@ async function loadContinueWatching() {
                 'Pragma': 'no-cache'
             }
         });
-        
+
         // Continue watching response status
-        
+
         if (response.ok) {
             const continueWatching = await response.json();
             // Continue watching data processed
@@ -590,20 +590,20 @@ async function loadContinueWatching() {
 function renderContinueWatching(videos) {
     const section = document.getElementById('continue-watching-section');
     const grid = document.getElementById('continue-watching-grid');
-    
+
     if (!section || !grid) return;
-    
+
     if (videos.length === 0) {
         section.style.display = 'none';
         return;
     }
-    
+
     // Show the section
     section.style.display = 'block';
-    
+
     // Clear existing content
     grid.innerHTML = '';
-    
+
     // Create video cards
     videos.forEach(video => {
         const card = createContinueWatchingCard(video);
@@ -621,7 +621,7 @@ function createContinueWatchingCard(video) {
     // Create thumbnail
     const thumbnail = document.createElement('img');
     thumbnail.className = 'card-thumbnail';
-    
+
     if (video.is_series) {
         // For series, use folder thumbnail
         thumbnail.src = `/api/thumbnail/folder/${video.series}/${video.series}`;
@@ -689,11 +689,11 @@ function createContinueWatchingCard(video) {
     // Progress bar
     const progressContainer = document.createElement('div');
     progressContainer.className = 'card-progress';
-    
+
     const progressBar = document.createElement('div');
     progressBar.className = 'card-progress-bar';
     progressBar.style.width = `${video.completion_percentage}%`;
-    
+
     progressContainer.appendChild(progressBar);
 
     // Assemble card
@@ -712,7 +712,7 @@ function createContinueWatchingCard(video) {
             window.location.href = `/play?series=${encodeURIComponent(video.series)}&id=${encodeURIComponent(video.video_id)}`;
         }
     });
-    
+
     // Keyboard support
     card.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' || e.key === ' ') {
@@ -725,19 +725,19 @@ function createContinueWatchingCard(video) {
 }
 
 // Auto-focus first card for TV browsers
-window.addEventListener('load', function() {
+window.addEventListener('load', function () {
     // Load current user info first
     loadCurrentUser();
-    
+
     // Load continue watching content
     loadContinueWatching();
-    
+
     // Initialize slideshow
     createHeroSlideshow();
-    
+
     // Check if we're likely on a TV browser (no fine pointer)
     const isTVBrowser = window.matchMedia('(pointer: coarse)').matches;
-    
+
     if (isTVBrowser) {
         setTimeout(() => {
             const firstCard = document.querySelector('.netflix-card');

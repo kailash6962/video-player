@@ -23,12 +23,12 @@ app.use('/api/admin', adminRouter);
 // Middleware to check user session
 const checkUserSession = (req, res, next) => {
   const userId = req.cookies.user_id;
-  
+
   if (!userId) {
     // Redirect to user selection if no session
     return res.redirect('/');
   }
-  
+
   next();
 };
 

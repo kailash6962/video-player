@@ -46,7 +46,7 @@ function getSubtitleTitle(stream, index) {
   if (title && title !== 'SubtitleHandler') {
     return title;
   }
-  
+
   const language = getSubtitleLanguage(stream);
   const codec = getSubtitleCodecName(stream.codec_name);
   return `${language} (${codec})`;
@@ -69,7 +69,7 @@ function getAllSubtitleTracks(metadata) {
     const codecName = stream.codec_name || 'unknown';
     const isBrowserCompatible = isSubtitleBrowserCompatible(codecName);
     const title = getSubtitleTitle(stream, arrayIndex);
-    
+
     const track = {
       index: arrayIndex, // 0-based index in subtitle array
       streamIndex: stream.index, // Original stream index from FFmpeg
@@ -102,16 +102,16 @@ function getAllSubtitleTracks(metadata) {
     if (a.isBrowserCompatible !== b.isBrowserCompatible) {
       return b.isBrowserCompatible ? 1 : -1;
     }
-    
+
     // Default subtitles first
     if (a.isDefault !== b.isDefault) {
       return b.isDefault ? 1 : -1;
     }
-    
+
     // Then by language preference (English, then alphabetical)
     if (a.language === 'English' && b.language !== 'English') return -1;
     if (b.language === 'English' && a.language !== 'English') return 1;
-    
+
     return a.language.localeCompare(b.language);
   });
 
@@ -169,7 +169,7 @@ function getSubtitleOutputOptions(subtitleSettings) {
 
   // For MP4 streaming, we need to be more careful with subtitle handling
   // MP4 containers have limited subtitle support, especially with piped output
-  
+
   if (subtitleSettings.convert || subtitleSettings.codec !== 'subrip') {
     // Convert to WebVTT for better browser/MP4 compatibility
     options.push(`-c:s webvtt`);
@@ -186,7 +186,7 @@ function getSubtitleOutputOptions(subtitleSettings) {
  */
 function getSubtitleContentType(codec) {
   const codecLower = codec?.toLowerCase() || '';
-  
+
   switch (codecLower) {
     case 'webvtt':
     case 'vtt':

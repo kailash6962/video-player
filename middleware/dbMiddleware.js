@@ -36,12 +36,12 @@ function dbMiddleware(req, res, next) {
         // DB schema creation failed, handled silently
         return res.status(500).json({ error: 'DB schema error' });
       }
-      
+
       // Create indexes for better performance
-      db.run('CREATE INDEX IF NOT EXISTS idx_video_metadata_user_id ON video_metadata(user_id)', () => {});
-      db.run('CREATE INDEX IF NOT EXISTS idx_video_metadata_last_opened ON video_metadata(user_id, last_opened DESC)', () => {});
-      db.run('CREATE INDEX IF NOT EXISTS idx_video_metadata_active ON video_metadata(user_id, active)', () => {});
-      
+      db.run('CREATE INDEX IF NOT EXISTS idx_video_metadata_user_id ON video_metadata(user_id)', () => { });
+      db.run('CREATE INDEX IF NOT EXISTS idx_video_metadata_last_opened ON video_metadata(user_id, last_opened DESC)', () => { });
+      db.run('CREATE INDEX IF NOT EXISTS idx_video_metadata_active ON video_metadata(user_id, active)', () => { });
+
       req.db = db;
       req.dbPath = dbPath;
       next();

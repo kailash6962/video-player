@@ -44,21 +44,21 @@ function renderUsersTable(users) {
 
 function createUserRow(user) {
     const row = document.createElement('tr');
-    
+
     const createdDate = user.created_at ? new Date(user.created_at).toLocaleDateString() : 'Unknown';
     const lastLoginDate = user.last_login ? new Date(user.last_login).toLocaleDateString() : 'Never';
-    
-    const avatarStyle = user.avatar_bg_color && user.avatar_text_color 
-        ? `style="background: ${user.avatar_bg_color}; color: ${user.avatar_text_color};"` 
+
+    const avatarStyle = user.avatar_bg_color && user.avatar_text_color
+        ? `style="background: ${user.avatar_bg_color}; color: ${user.avatar_text_color};"`
         : '';
-    
+
     const statusClass = user.is_active ? 'status-active' : 'status-suspended';
     const statusText = user.is_active ? 'Active' : 'Suspended';
-    
-    const actionButton = user.is_active 
+
+    const actionButton = user.is_active
         ? `<button class="action-btn suspend-btn" onclick="showSuspendModal(${user.id}, '${user.display_name}')">Suspend</button>`
         : `<button class="action-btn activate-btn" onclick="showActivateModal(${user.id}, '${user.display_name}')">Activate</button>`;
-    
+
     row.innerHTML = `
         <td>
             <div class="user-avatar-cell">
@@ -74,7 +74,7 @@ function createUserRow(user) {
         <td><span class="status-badge ${statusClass}">${statusText}</span></td>
         <td>${actionButton}</td>
     `;
-    
+
     return row;
 }
 
@@ -118,7 +118,7 @@ function clearErrorMessage() {
 function handlePinInput(position) {
     const input = document.getElementById(`pin${position}`);
     const value = input.value;
-    
+
     if (value && position < 4) {
         document.getElementById(`pin${position + 1}`).focus();
     }
@@ -142,7 +142,7 @@ async function submitAdminPin() {
         }
         pin += digit;
     }
-    
+
     try {
         if (currentAction === 'suspend') {
             await suspendUser(currentUserId, pin);
@@ -163,9 +163,9 @@ async function suspendUser(userId, pin) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ userId, pin })
         });
-        
+
         const result = await response.json();
-        
+
         if (response.ok && result.success) {
             showSuccess('User suspended successfully');
             closePinModal();
@@ -185,9 +185,9 @@ async function activateUser(userId, pin) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ userId, pin })
         });
-        
+
         const result = await response.json();
-        
+
         if (response.ok && result.success) {
             showSuccess('User activated successfully');
             closePinModal();
@@ -204,7 +204,7 @@ function showError(message) {
     const errorDiv = document.getElementById('errorMessage');
     errorDiv.textContent = message;
     errorDiv.className = 'error-message';
-    
+
     // Clear error after 3 seconds
     setTimeout(() => {
         errorDiv.textContent = '';
@@ -215,7 +215,7 @@ function showSuccess(message) {
     const errorDiv = document.getElementById('errorMessage');
     errorDiv.textContent = message;
     errorDiv.className = 'success-message';
-    
+
     // Clear message after 3 seconds
     setTimeout(() => {
         errorDiv.textContent = '';
@@ -240,7 +240,7 @@ async function loadSettings() {
 async function toggleRegistration() {
     const isEnabled = document.getElementById('registrationToggle').checked;
     const action = isEnabled ? 'enable' : 'disable';
-    
+
     // Show PIN modal for confirmation
     currentAction = 'toggleRegistration';
     document.getElementById('pinSubtitle').textContent = `Enter admin PIN to ${action} user registration`;
@@ -249,16 +249,16 @@ async function toggleRegistration() {
 
 async function updateRegistrationSetting(pin) {
     const isEnabled = document.getElementById('registrationToggle').checked;
-    
+
     try {
         const response = await fetch('/api/admin/toggle-registration', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ allowRegistration: isEnabled, pin })
         });
-        
+
         const result = await response.json();
-        
+
         if (response.ok && result.success) {
             const status = isEnabled ? 'enabled' : 'disabled';
             showSuccess(`User registration ${status} successfully`);

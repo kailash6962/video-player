@@ -21,10 +21,10 @@ function verifyAdminPin(pin) {
 router.get('/users', async (req, res) => {
     try {
         const users = await UserService.getAllUsers();
-        
+
         // Include suspended users by modifying the query temporarily
         const allUsers = await UserService.getAllUsersIncludingSuspended();
-        
+
         res.json(allUsers);
     } catch (error) {
         // Error getting users for admin handled silently
@@ -36,19 +36,19 @@ router.get('/users', async (req, res) => {
 router.post('/suspend-user', async (req, res) => {
     try {
         const { userId, pin } = req.body;
-        
+
         if (!userId || !pin) {
             return res.status(400).json({ error: 'User ID and PIN are required' });
         }
-        
+
         // Verify admin PIN
         if (!verifyAdminPin(pin)) {
             return res.status(401).json({ error: 'Invalid admin PIN' });
         }
-        
+
         // Suspend the user
         const success = await UserService.suspendUser(userId);
-        
+
         if (success) {
             res.json({ success: true, message: 'User suspended successfully' });
         } else {
@@ -64,19 +64,19 @@ router.post('/suspend-user', async (req, res) => {
 router.post('/activate-user', async (req, res) => {
     try {
         const { userId, pin } = req.body;
-        
+
         if (!userId || !pin) {
             return res.status(400).json({ error: 'User ID and PIN are required' });
         }
-        
+
         // Verify admin PIN
         if (!verifyAdminPin(pin)) {
             return res.status(401).json({ error: 'Invalid admin PIN' });
         }
-        
+
         // Activate the user
         const success = await UserService.activateUser(userId);
-        
+
         if (success) {
             res.json({ success: true, message: 'User activated successfully' });
         } else {
@@ -103,19 +103,19 @@ router.get('/settings', async (req, res) => {
 router.post('/toggle-registration', async (req, res) => {
     try {
         const { allowRegistration, pin } = req.body;
-        
+
         if (typeof allowRegistration !== 'boolean' || !pin) {
             return res.status(400).json({ error: 'Registration setting and PIN are required' });
         }
-        
+
         // Verify admin PIN
         if (!verifyAdminPin(pin)) {
             return res.status(401).json({ error: 'Invalid admin PIN' });
         }
-        
+
         // Update the setting
         const success = await SettingsService.setRegistrationAllowed(allowRegistration);
-        
+
         if (success) {
             const status = allowRegistration ? 'enabled' : 'disabled';
             res.json({ success: true, message: `User registration ${status} successfully` });
