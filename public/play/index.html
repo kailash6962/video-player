@@ -56,11 +56,8 @@
             <div class="player-container-wrapper">
                 <div id="playerContainer">
                     <div id="player-title">No Title</div>
-                    <div id="videoLoader"
-                        style="display:none;position:absolute;left:0;right:0;top:0;bottom:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.3);">
-                        <div class="loader"
-                            style="border:8px solid #f3f3f3;border-top:8px solid #3498db;border-radius:50%;width:48px;height:48px;animation:spin 1s linear infinite;">
-                        </div>
+                    <div id="videoLoader">
+                        <div class="loader"></div>
                     </div>
                     <div id="playPauseAnim" class="play-pause-anim" style="display:none;">
                         <!-- SVG will be injected here -->
@@ -71,77 +68,147 @@
                     </video>
 
                     <div class="controls">
-                        <button class="player-controls" id="playPrev">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="white"
-                                viewBox="0 0 24 24">
-                                <path d="M18 6l-8.5 6L18 18V6zm-11 0h-2v12h2V6z" />
-                            </svg>
-                        </button>
-                        <!-- Seek Backward 10s Button -->
-                        <button class="player-controls" id="seekBackward" title="Seek Backward 10s">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="white"
-                                viewBox="0 0 24 24">
-                                <path
-                                    d="M11 18V6l-8.5 6L11 18zm2-12v2c3.31 0 6 2.69 6 6s-2.69 6-6 6v2c4.42 0 8-3.58 8-8s-3.58-8-8-8z" />
-                            </svg>
-                        </button>
-                        <button class="player-controls" id="playPause" type="button">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="white"
-                                viewBox="0 0 24 24">
-                                <path d="M8 5v14l11-7z" />
-                            </svg>
-                        </button>
-                        <!-- Seek Forward 10s Button -->
-                        <button class="player-controls" id="seekForward" title="Seek Forward 10s">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="white"
-                                viewBox="0 0 24 24">
-                                <path
-                                    d="M13 6v12l8.5-6L13 6zm-2 12v-2c-3.31 0-6-2.69-6-6s2.69-6 6-6V4c-4.42 0-8 3.58-8 8s3.58 8 8 8z" />
-                            </svg>
-                        </button>
-                        <button class="player-controls" id="playNext">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="white"
-                                viewBox="0 0 24 24">
-                                <path d="M6 18l8.5-6L6 6v12zm9-12h2v12h-2V6z" />
-                            </svg>
-                        </button>
-                        <span class="time" id="current">0:00</span>
-                        <input type="range" id="seek" value="0" min="0" max="100">
-                        <span class="time" id="duration">0:00</span>
-                        <button id="subtitleTrackButton" class="subtitle-track-button" aria-label="Subtitle Track"
-                            title="Subtitle Track">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="white"
-                                viewBox="0 0 24 24">
-                                <path
-                                    d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zM4 12h4v2H4v-2zm6 6H4v-2h6v2zm0-4H4v-2h6v2zm10 4h-8v-2h8v2zm0-4h-8v-2h8v2zm0-4H10V8h10v4z" />
-                            </svg>
-                            <span class="subtitle-track-label">SUB</span>
-                        </button>
-                        <div id="subtitleTrackMenu" class="subtitle-track-menu" style="display: none;">
-                            <!-- Subtitle track options will be populated here -->
+                        <!-- Desktop layout: Single row with long seek bar -->
+                        <div class="controls-desktop">
+                            <button class="player-controls" id="playPrev">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="white"
+                                    viewBox="0 0 24 24">
+                                    <path d="M18 6l-8.5 6L18 18V6zm-11 0h-2v12h2V6z" />
+                                </svg>
+                            </button>
+                            <!-- Seek Backward 10s Button -->
+                            <button class="player-controls" id="seekBackward" title="Seek Backward 10s">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="white"
+                                    viewBox="0 0 24 24">
+                                    <path
+                                        d="M11 18V6l-8.5 6L11 18zm2-12v2c3.31 0 6 2.69 6 6s-2.69 6-6 6v2c4.42 0 8-3.58 8-8s-3.58-8-8-8z" />
+                                </svg>
+                            </button>
+                            <button class="player-controls" id="playPause" type="button">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="white"
+                                    viewBox="0 0 24 24">
+                                    <path d="M8 5v14l11-7z" />
+                                </svg>
+                            </button>
+                            <!-- Seek Forward 10s Button -->
+                            <button class="player-controls" id="seekForward" title="Seek Forward 10s">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="white"
+                                    viewBox="0 0 24 24">
+                                    <path
+                                        d="M13 6v12l8.5-6L13 6zm-2 12v-2c-3.31 0-6-2.69-6-6s2.69-6 6-6V4c-4.42 0-8 3.58-8 8s3.58 8 8 8z" />
+                                </svg>
+                            </button>
+                            <button class="player-controls" id="playNext">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="white"
+                                    viewBox="0 0 24 24">
+                                    <path d="M6 18l8.5-6L6 6v12zm9-12h2v12h-2V6z" />
+                                </svg>
+                            </button>
+                            <span class="time" id="current">0:00</span>
+                            <input type="range" id="seek" value="0" min="0" max="100">
+                            <span class="time" id="duration">0:00</span>
+                            <button id="subtitleTrackButton" class="subtitle-track-button" aria-label="Subtitle Track"
+                                title="Subtitle Track">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="white"
+                                    viewBox="0 0 24 24">
+                                    <path
+                                        d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zM4 12h4v2H4v-2zm6 6H4v-2h6v2zm0-4H4v-2h6v2zm10 4h-8v-2h8v2zm0-4h-8v-2h8v2zm0-4H10V8h10v4z" />
+                                </svg>
+                                <span class="subtitle-track-label">SUB</span>
+                            </button>
+                            <div id="subtitleTrackMenu" class="subtitle-track-menu" style="display: none;">
+                                <!-- Subtitle track options will be populated here -->
+                            </div>
+                            <button id="audioTrackButton" class="audio-track-button" aria-label="Audio Track"
+                                title="Audio Track">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="white"
+                                    viewBox="0 0 24 24">
+                                    <path
+                                        d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z" />
+                                </svg>
+                                <span class="audio-track-label">AUD</span>
+                            </button>
+                            <div id="audioTrackMenu" class="audio-track-menu" style="display: none;">
+                                <!-- Audio track options will be populated here -->
+                            </div>
+                            <button id="muteButton">🔊</button>
+                            <input type="range" id="volume" min="0" max="1" step="0.05" value="1">
+                            <button id="fullscreenButton" class="cc-fullscreenButton player-controls"
+                                aria-label="Full Screen">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="white"
+                                    viewBox="0 0 24 24">
+                                    <path
+                                        d="M7 14H5v5h5v-2H7v-3zm0-4h2V7h3V5H7v5zm10 4h-2v3h-3v2h5v-5zm-2-4V7h-3V5h5v5h-2z" />
+                                </svg>
+                            </button>
                         </div>
-                        <button id="audioTrackButton" class="audio-track-button" aria-label="Audio Track"
-                            title="Audio Track">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="white"
-                                viewBox="0 0 24 24">
-                                <path
-                                    d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z" />
-                            </svg>
-                            <span class="audio-track-label">AUD</span>
-                        </button>
-                        <div id="audioTrackMenu" class="audio-track-menu" style="display: none;">
-                            <!-- Audio track options will be populated here -->
+                        
+                        <!-- Mobile/Tablet layout: YouTube-style center controls -->
+                        <div class="controls-mobile" id="mobilecontrolCenter">
+                            <!-- Row 1: Right side utility buttons -->
+                            <div class="mobile-row-1">
+                                <div class="mobile-utility-buttons">
+                                    <button id="subtitleTrackButton-mobile" class="subtitle-track-button mobile-utility-btn" aria-label="Subtitle Track" title="Subtitle Track">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="white" viewBox="0 0 24 24">
+                                            <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zM4 12h4v2H4v-2zm6 6H4v-2h6v2zm0-4H4v-2h6v2zm10 4h-8v-2h8v2zm0-4h-8v-2h8v2zm0-4H10V8h10v4z" />
+                                        </svg>
+                                    </button>
+                                    <button id="audioTrackButton-mobile" class="audio-track-button mobile-utility-btn" aria-label="Audio Track" title="Audio Track">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="white" viewBox="0 0 24 24">
+                                            <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z" />
+                                        </svg>
+                                    </button>
+                                    <button id="fullscreenButton-mobile" class="cc-fullscreenButton mobile-utility-btn" aria-label="Full Screen">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="white" viewBox="0 0 24 24">
+                                            <path d="M7 14H5v5h5v-2H7v-3zm0-4h2V7h3V5H7v5zm10 4h-2v3h-3v2h5v-5zm-2-4V7h-3V5h5v5h-2z" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Row 2: Seek bar with time and speaker -->
+                            <div class="mobile-row-2">
+                                <span class="time" id="current-mobile">0:00</span>
+                                <input type="range" id="seek-mobile" value="0" min="0" max="100">
+                                <span class="time" id="duration-mobile">0:00</span>
+                                <button id="muteButton-mobile" class="mobile-speaker-btn">🔊</button>
+                                <!-- Volume slider that shows on speaker click -->
+                                <input type="range" id="volume-mobile" min="0" max="1" step="0.05" value="1" style="display: none; width: 60px;">
+                            </div>
+                            
+                            <!-- Center: Play controls in horizontal layout -->
+                            <div class="mobile-center-controls">
+                                <button class="mobile-center-btn" id="playPrev-mobile" title="Previous">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="white" viewBox="0 0 24 24">
+                                        <path d="M18 6l-8.5 6L18 18V6zm-11 0h-2v12h2V6z" />
+                                    </svg>
+                                </button>
+                                <button class="mobile-center-btn" id="seekBackward-mobile" title="Seek Backward 10s">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="white" viewBox="0 0 24 24">
+                                        <path d="M11 18V6l-8.5 6L11 18zm2-12v2c3.31 0 6 2.69 6 6s-2.69 6-6 6v2c4.42 0 8-3.58 8-8s-3.58-8-8-8z" />
+                                    </svg>
+                                </button>
+                                <button class="mobile-center-btn" id="seekForward-mobile" title="Seek Forward 10s">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="white" viewBox="0 0 24 24">
+                                        <path d="M13 6v12l8.5-6L13 6zm-2 12v-2c-3.31 0-6-2.69-6-6s2.69-6 6-6V4c-4.42 0-8 3.58-8 8s3.58 8 8 8z" />
+                                    </svg>
+                                </button>
+                                <button class="mobile-center-btn" id="playNext-mobile" title="Next">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="white" viewBox="0 0 24 24">
+                                        <path d="M6 18l8.5-6L6 6v12zm9-12h2v12h-2V6z" />
+                                    </svg>
+                                </button>
+                            </div>
+                            
                         </div>
-                        <button id="muteButton">🔊</button>
-                        <input type="range" id="volume" min="0" max="1" step="0.05" value="1">
-                        <button id="fullscreenButton" class="cc-fullscreenButton player-controls"
-                            aria-label="Full Screen">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="white"
-                                viewBox="0 0 24 24">
-                                <path
-                                    d="M7 14H5v5h5v-2H7v-3zm0-4h2V7h3V5H7v5zm10 4h-2v3h-3v2h5v-5zm-2-4V7h-3V5h5v5h-2z" />
-                            </svg>
-                        </button>
+                    </div>
+                    
+                    <!-- Mobile dropdown menus - positioned below player -->
+                    <div id="subtitleTrackMenu-mobile" class="subtitle-track-menu mobile-menu" style="display: none;">
+                        <!-- Subtitle track options will be populated here -->
+                    </div>
+                    <div id="audioTrackMenu-mobile" class="audio-track-menu mobile-menu" style="display: none;">
+                        <!-- Audio track options will be populated here -->
                     </div>
                 </div>
                 <!-- Netflix Hero Banner Style Video Info -->

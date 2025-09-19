@@ -90,6 +90,395 @@ body {
     opacity: 1;
 }
 
+/* Mobile/Tablet video player controls - show mobile layout, hide desktop */
+@media (max-width: 768px) {
+    .controls {
+        opacity: 1 !important;
+        padding: 8px 12px;
+        gap: 6px;
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    /* Show mobile layout, hide desktop */
+    .controls-desktop {
+        display: none !important;
+    }
+    
+    .controls-mobile {
+        display: flex !important;
+        flex-direction: column;
+        gap: 0;
+        position: relative;
+    }
+    
+    /* Row 1: Right side utility buttons - positioned on video tag */
+    .mobile-row-1 {
+        position: absolute;
+        top: 5px;
+        right: 20px;
+        z-index: 20;
+        opacity: 1 !important;
+        visibility: visible !important;
+        pointer-events: auto !important;
+    }
+    
+    .mobile-utility-buttons {
+        display: flex !important;
+        gap: 8px;
+        opacity: 1 !important;
+        visibility: visible !important;
+    }
+    
+    .mobile-utility-btn {
+        width: 28px !important;
+        height: 28px !important;
+        min-width: 28px !important;
+        min-height: 28px !important;
+        border-radius: 4px !important;
+        background: rgba(0, 0, 0, 0.4) !important;
+        border: 1px solid rgba(255, 255, 255, 0.2) !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        transition: all 0.2s ease !important;
+        backdrop-filter: blur(5px) !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3) !important;
+    }
+    
+    .mobile-utility-btn:hover {
+        background: rgba(0, 0, 0, 0.6) !important;
+        border-color: rgba(255, 255, 255, 0.4) !important;
+        transform: scale(1.05) !important;
+    }
+    
+    .mobile-utility-btn:active {
+        transform: scale(0.95) !important;
+        background: rgba(0, 0, 0, 0.7) !important;
+    }
+    
+    /* Ensure subtitle and audio buttons are visible and positioned correctly */
+    #subtitleTrackButton-mobile,
+    #audioTrackButton-mobile,
+    #fullscreenButton-mobile,
+    #muteButton-mobile {
+        opacity: 1 !important;
+        visibility: visible !important;
+        display: flex !important;
+        position: relative !important;
+        pointer-events: auto !important;
+        min-width: 28px !important;
+        min-height: 28px !important;
+        width: 28px !important;
+        height: 28px !important;
+    }
+    
+    /* Additional positioning for video player container */
+    #playerContainer {
+        position: relative !important;
+    }
+    
+    /* Ensure mobile controls container is positioned correctly */
+    .controls-mobile {
+        position: relative !important;
+        width: 100% !important;
+        height: 100% !important;
+    }
+    
+    /* Video loader styles */
+    #videoLoader {
+        display: none;
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(0, 0, 0, 0.3);
+    }
+    
+    /* Loader spinner styles */
+    .loader {
+        border: 8px solid #f3f3f3;
+        border-top: 8px solid #3498db;
+        border-radius: 50%;
+        width: 48px;
+        height: 48px;
+        animation: spin 1s linear infinite;
+    }
+    
+    /* Smaller loader for mobile */
+    @media (max-width: 768px) {
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            width: 32px;
+            height: 32px;
+        }
+    }
+    
+    /* Spin animation for loader */
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    /* Row 2: Seek bar with time and speaker - always visible */
+    .mobile-row-2 {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        display: flex !important;
+        align-items: center;
+        gap: 8px;
+        max-width: 100%;
+        padding: 12px 16px;
+        background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+        backdrop-filter: blur(10px);
+        z-index: 10;
+    }
+    
+    .mobile-speaker-btn {
+        width: 28px !important;
+        height: 28px !important;
+        min-width: 28px !important;
+        min-height: 28px !important;
+        border-radius: 4px !important;
+        background: rgba(0, 0, 0, 0.4) !important;
+        border: 1px solid rgba(255, 255, 255, 0.2) !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        transition: all 0.2s ease !important;
+        backdrop-filter: blur(5px) !important;
+        font-size: 14px !important;
+    }
+    
+    .mobile-speaker-btn:active {
+        transform: scale(0.95) !important;
+        background: rgba(0, 0, 0, 0.8) !important;
+    }
+    
+    /* Center: Play controls in middle of player area */
+    .mobile-center-controls {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        pointer-events: none;
+        z-index: 10;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s ease, visibility 0.3s ease;
+        width: 100%;
+        height: 100%;
+    }
+    
+    .mobile-center-controls.show {
+        opacity: 1;
+        visibility: visible;
+    }
+    
+    /* Center play/pause button */
+    .mobile-play-pause-btn {
+        width: 60px !important;
+        height: 60px !important;
+        border-radius: 50% !important;
+        background: rgba(0, 0, 0, 0.8) !important;
+        border: none !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        transition: all 0.2s ease !important;
+        pointer-events: auto !important;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5) !important;
+    }
+    
+    .mobile-play-pause-btn:active {
+        transform: scale(0.9) !important;
+        background: rgba(0, 0, 0, 0.9) !important;
+    }
+    
+    /* Side control buttons */
+    .mobile-center-btn {
+        width: 44px !important;
+        height: 44px !important;
+        border-radius: 50% !important;
+        background: rgba(0, 0, 0, 0.7) !important;
+        border: none !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        transition: all 0.2s ease !important;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3) !important;
+        pointer-events: auto !important;
+    }
+    
+    .mobile-center-btn:active {
+        transform: scale(0.9) !important;
+        background: rgba(0, 0, 0, 0.8) !important;
+    }
+    
+    .controls button {
+        width: 24px !important;
+        height: 24px !important;
+        font-size: 10px !important;
+        flex-shrink: 0;
+    }
+    
+    .controls input[type="range"] {
+        height: 4px !important;
+        flex: 1 !important;
+        margin: 0 4px !important;
+    }
+    
+    .controls .time {
+        font-size: 11px !important;
+        min-width: 35px !important;
+        text-align: center !important;
+    }
+    
+    /* Make controls more touch-friendly */
+    .controls button:active {
+        background: rgba(255, 255, 255, 0.2);
+        transform: scale(0.95);
+    }
+}
+
+/* Very small mobile devices */
+@media (max-width: 480px) {
+    .controls {
+        padding: 6px 8px;
+        gap: 4px;
+    }
+    
+    .controls-row-1 {
+        gap: 2px;
+        margin-bottom: 4px;
+    }
+    
+    .controls-row-2 {
+        gap: 6px;
+    }
+    
+    .controls button {
+        width: 24px;
+        height: 24px;
+        font-size: 10px;
+    }
+    
+    .controls .time {
+        font-size: 9px;
+        min-width: 30px;
+    }
+    
+    /* Make subtitle and audio buttons smaller but keep them visible */
+    .controls .subtitle-track-button,
+    .controls .audio-track-button {
+        width: 22px;
+        height: 22px;
+        font-size: 9px;
+    }
+    
+    .controls .subtitle-track-label,
+    .controls .audio-track-label {
+        display: none;
+    }
+    
+    /* Ensure fullscreen button is always visible */
+    .controls .cc-fullscreenButton {
+        display: flex !important;
+    }
+    
+    /* Smaller volume slider */
+    .controls-row-2 input[type="range"]#volume {
+        width: 50px !important;
+    }
+}
+
+/* Desktop controls layout (default) - show desktop layout, hide mobile */
+@media (min-width: 769px) {
+    .controls {
+        flex-direction: row;
+        align-items: center;
+        padding: 10px 16px;
+        gap: 12px;
+    }
+    
+    /* Show desktop layout, hide mobile */
+    .controls-desktop {
+        display: flex !important;
+        align-items: center;
+        gap: 12px;
+        width: 100%;
+    }
+    
+    .controls-mobile {
+        display: none !important;
+    }
+    
+    .controls button {
+        width: 36px;
+        height: 36px;
+        font-size: 16px;
+    }
+    
+    .controls .time {
+        font-size: 14px;
+    }
+    
+    .controls input[type="range"] {
+        height: 6px;
+    }
+    
+    /* Show labels on desktop */
+    .controls .subtitle-track-label,
+    .controls .audio-track-label {
+        display: inline;
+    }
+}
+
+/* Mobile controls class for enhanced touch interaction */
+.mobile-controls {
+    opacity: 1 !important;
+    touch-action: manipulation;
+    position: absolute;
+    height: 95%;
+}
+
+/* Ensure all control buttons are visible by default */
+.controls button {
+    display: flex !important;
+}
+
+/* Specific visibility for control buttons */
+.controls .cc-fullscreenButton,
+.controls .subtitle-track-button,
+.controls .audio-track-button {
+    display: flex !important;
+    visibility: visible !important;
+}
+
+.mobile-controls button {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: rgba(255, 255, 255, 0.2);
+}
+
+.mobile-controls button:active {
+    background: rgba(255, 255, 255, 0.3) !important;
+    transform: scale(0.9) !important;
+    transition: all 0.1s ease !important;
+}
+
 .controls button {
     background: transparent;
     border: none;
@@ -370,6 +759,16 @@ body {
     overflow-y: auto;
 }
 
+/* Mobile positioning for audio track menu */
+@media (max-width: 768px) {
+    .audio-track-menu {
+        bottom: 80px; /* Position above the two-row mobile controls */
+        right: 8px;
+        min-width: 180px;
+        max-width: 250px;
+    }
+}
+
 .audio-track-menu-item {
     padding: 12px 16px;
     color: white;
@@ -464,6 +863,44 @@ body {
     backdrop-filter: blur(10px);
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
     color: white;
+}
+
+/* Mobile positioning for subtitle track menu */
+@media (max-width: 768px) {
+    .subtitle-track-menu {
+        bottom: 80px; /* Position above the two-row mobile controls */
+        right: 8px;
+        min-width: 180px;
+        max-width: 250px;
+    }
+    
+    /* Mobile-specific menu positioning - fixed positioning */
+    .mobile-menu {
+        position: fixed !important;
+        bottom: 61%;
+        left: auto !important;
+        right: auto !important;
+        margin: 16px 8px 0 8px !important;
+        min-width: 90% !important;
+        max-width: none !important;
+        width: auto !important;
+        z-index: 1001 !important;
+        transform: none !important;
+        border-radius: 8px !important;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5) !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+    
+    /* Hide mobile menus by default */
+    .mobile-menu[style*="display: none"] {
+        display: none !important;
+    }
+    
+    /* Show mobile menus when displayed */
+    .mobile-menu[style*="display: block"] {
+        display: block !important;
+    }
 }
 
 .subtitle-track-menu-item {
@@ -2315,7 +2752,7 @@ body {
     }
 
     .player-container-wrapper {
-        padding: 0 20px;
+        padding: 0 0;
         gap: 24px;
     }
 
@@ -2453,7 +2890,7 @@ body {
     }
 
     .player-container-wrapper {
-        padding: 0 15px;
+        padding: 0 0;
         gap: 20px;
     }
 
