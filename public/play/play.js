@@ -1,5 +1,401 @@
 // public/app.js
 
+// Mobile detection and control management
+function isMobileDevice() {
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+    window.innerWidth <= 768;
+}
+
+function initializeMobileControls() {
+  if (isMobileDevice()) {
+    const controls = document.querySelector('.controls');
+    if (controls) {
+      // Ensure controls are visible on mobile
+      controls.style.opacity = '1';
+
+      // Add mobile-specific classes
+      controls.classList.add('mobile-controls');
+
+      // Make controls more touch-friendly
+      const buttons = controls.querySelectorAll('button');
+      buttons.forEach(button => {
+        button.style.minWidth = '44px';
+        button.style.minHeight = '44px';
+        // Ensure all buttons are visible
+        button.style.display = 'flex';
+        button.style.visibility = 'visible';
+      });
+
+      // Specifically ensure fullscreen, subtitle, and audio buttons are visible
+      const fullscreenBtn = document.getElementById('fullscreenButton');
+      const subtitleBtn = document.getElementById('subtitleTrackButton');
+      const audioBtn = document.getElementById('audioTrackButton');
+
+      if (fullscreenBtn) {
+        fullscreenBtn.style.display = 'flex';
+        fullscreenBtn.style.visibility = 'visible';
+      }
+      if (subtitleBtn) {
+        subtitleBtn.style.display = 'flex';
+        subtitleBtn.style.visibility = 'visible';
+      }
+      if (audioBtn) {
+        audioBtn.style.display = 'flex';
+        audioBtn.style.visibility = 'visible';
+      }
+    }
+  }
+}
+
+// Function to ensure all controls are visible (called after video loads)
+function ensureControlsVisible() {
+  const controls = document.querySelector('.controls');
+  if (controls) {
+    // Ensure all control buttons are visible
+    const buttons = controls.querySelectorAll('button');
+    buttons.forEach(button => {
+      button.style.display = 'flex';
+      button.style.visibility = 'visible';
+    });
+
+    // Specifically check and show fullscreen, subtitle, and audio buttons (both desktop and mobile)
+    const fullscreenBtn = document.getElementById('fullscreenButton');
+    const subtitleBtn = document.getElementById('subtitleTrackButton');
+    const audioBtn = document.getElementById('audioTrackButton');
+    const fullscreenBtnMobile = document.getElementById('fullscreenButton-mobile');
+    const subtitleBtnMobile = document.getElementById('subtitleTrackButton-mobile');
+    const audioBtnMobile = document.getElementById('audioTrackButton-mobile');
+
+    [fullscreenBtn, fullscreenBtnMobile].forEach(btn => {
+      if (btn) {
+        btn.style.display = 'flex';
+        btn.style.visibility = 'visible';
+      }
+    });
+    [subtitleBtn, subtitleBtnMobile].forEach(btn => {
+      if (btn) {
+        btn.style.display = 'flex';
+        btn.style.visibility = 'visible';
+      }
+    });
+    [audioBtn, audioBtnMobile].forEach(btn => {
+      if (btn) {
+        btn.style.display = 'flex';
+        btn.style.visibility = 'visible';
+      }
+    });
+  }
+}
+
+// Function to sync mobile controls with desktop controls
+function syncMobileControls() {
+  // Sync play/pause buttons
+  const playPauseDesktop = document.getElementById('playPause');
+  const playPauseMobile = document.getElementById('playPause-mobile');
+
+  if (playPauseDesktop && playPauseMobile) {
+    playPauseMobile.addEventListener('click', () => playPauseDesktop.click());
+  }
+
+  // Sync other buttons (except subtitle and audio which need special handling)
+  const buttonPairs = [
+    ['playPrev', 'playPrev-mobile'],
+    ['seekBackward', 'seekBackward-mobile'],
+    ['seekForward', 'seekForward-mobile'],
+    ['playNext', 'playNext-mobile'],
+    ['muteButton', 'muteButton-mobile'],
+    ['fullscreenButton', 'fullscreenButton-mobile']
+  ];
+
+  buttonPairs.forEach(([desktopId, mobileId]) => {
+    const desktopBtn = document.getElementById(desktopId);
+    const mobileBtn = document.getElementById(mobileId);
+
+    if (desktopBtn && mobileBtn) {
+      mobileBtn.addEventListener('click', () => desktopBtn.click());
+    }
+  });
+
+  // Special handling for subtitle and audio buttons to show dropdowns
+  const subtitleDesktop = document.getElementById('subtitleTrackButton');
+  const subtitleMobile = document.getElementById('subtitleTrackButton-mobile');
+  const audioDesktop = document.getElementById('audioTrackButton');
+  const audioMobile = document.getElementById('audioTrackButton-mobile');
+  const subtitleMenu = document.getElementById('subtitleTrackMenu');
+  const audioMenu = document.getElementById('audioTrackMenu');
+  const subtitleMenuMobile = document.getElementById('subtitleTrackMenu-mobile');
+  const audioMenuMobile = document.getElementById('audioTrackMenu-mobile');
+
+  // Function to sync mobile menu content with desktop menu
+  function syncMobileMenuContent() {
+    if (subtitleMenu && subtitleMenuMobile) {
+      subtitleMenuMobile.innerHTML = subtitleMenu.innerHTML;
+    }
+    if (audioMenu && audioMenuMobile) {
+      audioMenuMobile.innerHTML = audioMenu.innerHTML;
+    }
+  }
+
+  // Initial sync
+  syncMobileMenuContent();
+
+  // Sync when desktop menus are updated
+  const observer = new MutationObserver(syncMobileMenuContent);
+  if (subtitleMenu) observer.observe(subtitleMenu, { childList: true, subtree: true });
+  if (audioMenu) observer.observe(audioMenu, { childList: true, subtree: true });
+
+  if (subtitleDesktop && subtitleMobile && subtitleMenuMobile) {
+    console.log('Setting up mobile subtitle button listener');
+    subtitleMobile.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      console.log('Mobile subtitle button clicked, current display:', subtitleMenuMobile.style.display);
+      console.log('Mobile subtitle menu element:', subtitleMenuMobile);
+      // Toggle mobile subtitle menu directly
+      if (subtitleMenuMobile.style.display === 'none' || !subtitleMenuMobile.style.display) {
+        subtitleMenuMobile.style.display = 'block';
+        subtitleMenuMobile.style.visibility = 'visible';
+        subtitleMenuMobile.style.opacity = '1';
+        console.log('Showing mobile subtitle menu');
+        console.log('Menu computed style:', window.getComputedStyle(subtitleMenuMobile).display);
+        // Hide other menus if open
+        if (audioMenuMobile) audioMenuMobile.style.display = 'none';
+        if (subtitleMenu) subtitleMenu.style.display = 'none';
+        if (audioMenu) audioMenu.style.display = 'none';
+      } else {
+        subtitleMenuMobile.style.display = 'none';
+        console.log('Hiding mobile subtitle menu');
+      }
+    });
+  } else {
+    console.log('Mobile subtitle elements not found:', {
+      subtitleDesktop: !!subtitleDesktop,
+      subtitleMobile: !!subtitleMobile,
+      subtitleMenuMobile: !!subtitleMenuMobile
+    });
+  }
+
+  if (audioDesktop && audioMobile && audioMenuMobile) {
+    console.log('Setting up mobile audio button listener');
+    audioMobile.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      console.log('Mobile audio button clicked, current display:', audioMenuMobile.style.display);
+      console.log('Mobile audio menu element:', audioMenuMobile);
+      // Toggle mobile audio menu directly
+      if (audioMenuMobile.style.display === 'none' || !audioMenuMobile.style.display) {
+        audioMenuMobile.style.display = 'block';
+        audioMenuMobile.style.visibility = 'visible';
+        audioMenuMobile.style.opacity = '1';
+        console.log('Showing mobile audio menu');
+        console.log('Menu computed style:', window.getComputedStyle(audioMenuMobile).display);
+        // Hide other menus if open
+        if (subtitleMenuMobile) subtitleMenuMobile.style.display = 'none';
+        if (subtitleMenu) subtitleMenu.style.display = 'none';
+        if (audioMenu) audioMenu.style.display = 'none';
+      } else {
+        audioMenuMobile.style.display = 'none';
+        console.log('Hiding mobile audio menu');
+      }
+    });
+  } else {
+    console.log('Mobile audio elements not found:', {
+      audioDesktop: !!audioDesktop,
+      audioMobile: !!audioMobile,
+      audioMenuMobile: !!audioMenuMobile
+    });
+  }
+
+  // Sync seek bars
+  const seekDesktop = document.getElementById('seek');
+  const seekMobile = document.getElementById('seek-mobile');
+
+  if (seekDesktop && seekMobile) {
+    seekMobile.addEventListener('input', (e) => {
+      seekDesktop.value = e.target.value;
+      seekDesktop.dispatchEvent(new Event('input'));
+    });
+
+    seekDesktop.addEventListener('input', (e) => {
+      seekMobile.value = e.target.value;
+    });
+  }
+
+  // Sync volume sliders
+  const volumeDesktop = document.getElementById('volume');
+  const volumeMobile = document.getElementById('volume-mobile');
+
+  if (volumeDesktop && volumeMobile) {
+    volumeMobile.addEventListener('input', (e) => {
+      volumeDesktop.value = e.target.value;
+      volumeDesktop.dispatchEvent(new Event('input'));
+    });
+
+    volumeDesktop.addEventListener('input', (e) => {
+      volumeMobile.value = e.target.value;
+    });
+  }
+
+  // Sync time displays
+  const currentDesktop = document.getElementById('current');
+  const currentMobile = document.getElementById('current-mobile');
+  const durationDesktop = document.getElementById('duration');
+  const durationMobile = document.getElementById('duration-mobile');
+
+  // Create a function to sync time displays
+  function syncTimeDisplays() {
+    if (currentDesktop && currentMobile) {
+      currentMobile.textContent = currentDesktop.textContent;
+    }
+    if (durationDesktop && durationMobile) {
+      durationMobile.textContent = durationDesktop.textContent;
+    }
+  }
+
+  // Sync time displays periodically
+  setInterval(syncTimeDisplays, 100);
+
+  // Add event listeners for mobile menu items
+  function addMobileMenuEventListeners() {
+    // Mobile subtitle menu item clicks
+    if (subtitleMenuMobile) {
+      subtitleMenuMobile.addEventListener('click', (e) => {
+        const menuItem = e.target.closest('.subtitle-track-menu-item');
+        if (menuItem) {
+          const trackIndex = parseInt(menuItem.dataset.trackIndex);
+          console.log('Mobile subtitle track selected:', trackIndex);
+          // Trigger the same function as desktop
+          selectSubtitleTrack(trackIndex);
+          // Close mobile menu
+          subtitleMenuMobile.style.display = 'none';
+        }
+      });
+    }
+
+    // Mobile audio menu item clicks
+    if (audioMenuMobile) {
+      audioMenuMobile.addEventListener('click', (e) => {
+        const menuItem = e.target.closest('.audio-track-menu-item');
+        if (menuItem) {
+          const trackIndex = parseInt(menuItem.dataset.trackIndex);
+          console.log('Mobile audio track selected:', trackIndex);
+          // Trigger the same function as desktop
+          switchAudioTrack(trackIndex);
+          // Close mobile menu
+          audioMenuMobile.style.display = 'none';
+        }
+      });
+    }
+  }
+
+  // Add event listeners after a short delay to ensure menus are populated
+  setTimeout(addMobileMenuEventListeners, 1000);
+
+  // Add mobile speaker button functionality with volume slider
+  const muteButtonMobile = document.getElementById('muteButton-mobile');
+
+  if (muteButtonMobile && volumeMobile) {
+    muteButtonMobile.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+
+      // Toggle volume slider visibility
+      if (volumeMobile.style.display === 'none' || !volumeMobile.style.display) {
+        volumeMobile.style.display = 'block';
+        volumeMobile.style.width = '80px';
+      } else {
+        volumeMobile.style.display = 'none';
+      }
+    });
+
+    // Sync volume slider with video volume
+    volumeMobile.addEventListener('input', (e) => {
+      const video = document.getElementById('videoPlayer');
+      if (video) {
+        video.volume = parseFloat(e.target.value);
+        // Update mute button icon based on volume
+        if (video.volume === 0) {
+          muteButtonMobile.textContent = '🔇';
+        } else if (video.volume < 0.5) {
+          muteButtonMobile.textContent = '🔉';
+        } else {
+          muteButtonMobile.textContent = '🔊';
+        }
+      }
+    });
+  }
+
+  // YouTube-style mobile controls - only center player icons
+  const mobileCenterControls = document.querySelector('.mobile-center-controls');
+  const playerContainer = document.getElementById('playerContainer');
+  const videoPlayer = document.getElementById('videoPlayer');
+  let controlsTimeout;
+  let controlsVisible = false;
+
+  function showMobileControls() {
+    if (mobileCenterControls) {
+      mobileCenterControls.classList.add('show');
+      controlsVisible = true;
+
+      // Auto-hide after 3 seconds
+      clearTimeout(controlsTimeout);
+      controlsTimeout = setTimeout(() => {
+        hideMobileControls();
+      }, 3000);
+    }
+  }
+
+  function hideMobileControls() {
+    if (mobileCenterControls) {
+      mobileCenterControls.classList.remove('show');
+      controlsVisible = false;
+    }
+  }
+
+  function toggleMobileControls() {
+    if (controlsVisible) {
+      hideMobileControls();
+    } else {
+      showMobileControls();
+    }
+  }
+
+  // YouTube-style tap to show/hide center controls only
+  if (playerContainer && mobileCenterControls) {
+    // Show controls on video tap
+    playerContainer.addEventListener('click', (e) => {
+      // Don't toggle controls if clicking on buttons
+      if (e.target.closest('button') || e.target.closest('input')) {
+        return;
+      }
+      toggleMobileControls();
+    });
+
+    // Show controls on video touch
+    playerContainer.addEventListener('touchstart', (e) => {
+      // Don't toggle controls if touching buttons
+      if (e.target.closest('button') || e.target.closest('input')) {
+        return;
+      }
+      toggleMobileControls();
+    });
+
+    // Show controls when video starts playing
+    if (videoPlayer) {
+      videoPlayer.addEventListener('play', () => {
+        showMobileControls();
+      });
+
+      videoPlayer.addEventListener('pause', () => {
+        showMobileControls();
+      });
+    }
+
+    // Initial state - hidden
+    mobileCenterControls.classList.remove('show');
+  }
+}
+
 // Load current user info
 async function loadCurrentUser() {
   try {
@@ -35,18 +431,25 @@ function updateUserDisplay(user) {
 
 // Initialize user on page load
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', loadCurrentUser);
+  document.addEventListener('DOMContentLoaded', () => {
+    loadCurrentUser();
+    initializeMobileControls();
+    syncMobileControls();
+  });
 } else {
   loadCurrentUser();
+  initializeMobileControls();
+  syncMobileControls();
 }
 
 const videoListEl = document.getElementById('videoList');
 const playerContainer = document.getElementById('playerContainer');
 const videoPlayer = document.getElementById('videoPlayer');
-
+const mobilecontrolCenter = document.getElementById('mobilecontrolCenter');
 const video = document.getElementById('videoPlayer');
 const loader = document.getElementById('videoLoader');
 const playPauseBtn = document.getElementById('playPause');
+const playPauseBtnMobile = document.getElementById('playPause-mobile');
 const playPrevBtn = document.getElementById('playPrev');
 const playNextBtn = document.getElementById('playNext');
 const seekBar = document.getElementById('seek');
@@ -62,6 +465,11 @@ const subtitleTrackMenu = document.getElementById('subtitleTrackMenu');
 function updatePlayPauseIcon() {
   if (!playPauseBtn) return;
   playPauseBtn.innerHTML = video.paused
+    ? `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="white" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>`
+    : `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="white" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>`;
+
+  if (!playPauseBtnMobile) return;
+  playPauseBtnMobile.innerHTML = video.paused
     ? `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="white" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>`
     : `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="white" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>`;
 }
@@ -125,6 +533,7 @@ if (video && loader) {
   });
   video.addEventListener('canplay', () => {
     loader.style.display = 'none';
+    ensureControlsVisible();
   });
   video.addEventListener('seeking', () => {
     loader.style.display = 'flex';
@@ -145,6 +554,48 @@ if (video) {
     }
     togglePlayPause();
     // showPlayPauseAnim handled in togglePlayPause
+  });
+
+
+  mobilecontrolCenter.addEventListener('click', function (e) {
+    // Prevent play/pause toggle if a control was clicked
+    // (controls are inside playerContainer, so check if the click target is inside .controls)
+    const controls = document.querySelector('button');
+    if (controls && controls.contains(e.target)) {
+      return;
+    }
+    togglePlayPause();
+    // showPlayPauseAnim handled in togglePlayPause
+  });
+
+  // Mobile touch events for better control interaction
+  let touchStartTime = 0;
+  let touchStartY = 0;
+  let touchStartX = 0;
+
+  video.addEventListener('touchstart', function (e) {
+    touchStartTime = Date.now();
+    touchStartY = e.touches[0].clientY;
+    touchStartX = e.touches[0].clientX;
+  });
+
+  video.addEventListener('touchend', function (e) {
+    const touchEndTime = Date.now();
+    const touchDuration = touchEndTime - touchStartTime;
+    const touchEndY = e.changedTouches[0].clientY;
+    const touchEndX = e.changedTouches[0].clientX;
+    const deltaY = Math.abs(touchEndY - touchStartY);
+    const deltaX = Math.abs(touchEndX - touchStartX);
+
+    // Only trigger play/pause if it's a quick tap (not a swipe or long press)
+    if (touchDuration < 300 && deltaY < 50 && deltaX < 50) {
+      // Check if touch was on controls
+      const controls = document.querySelector('.controls');
+      if (controls && controls.contains(e.target)) {
+        return;
+      }
+      togglePlayPause();
+    }
   });
   video.addEventListener('play', updatePlayPauseIcon);
   video.addEventListener('pause', updatePlayPauseIcon);
@@ -191,6 +642,7 @@ var manualDuration = 0; // seconds
 
 const playPause = document.getElementById('playPause');
 const seek = document.getElementById('seek');
+const mobileseek = document.getElementById('seek-mobile');
 const volume = document.getElementById('volume');
 const currentTimeEl = document.getElementById('current');
 const durationEl = document.getElementById('duration');
@@ -527,6 +979,8 @@ video.addEventListener('loadedmetadata', () => {
   durationEl.textContent = formatTime(manualDuration);
   console.log("📢[:198]: manualDuration: ", manualDuration);
   seek.max = manualDuration;
+  mobileseek.max = manualDuration;
+  ensureControlsVisible();
 });
 
 playPause.addEventListener('click', () => {
@@ -546,6 +1000,7 @@ playPause.addEventListener('click', () => {
 
 video.addEventListener('timeupdate', (e) => {
   seek.value = parseInt(startTime) + parseInt(video.currentTime);
+  mobileseek.value = parseInt(startTime) + parseInt(video.currentTime);
   currentTimeEl.textContent = formatTime(seek.value);
 });
 
@@ -556,10 +1011,10 @@ seek.addEventListener('input', (e) => {
   url.searchParams.set('start', seek.value);
   clearTimeout(seekTimeout);
   seekTimeout = setTimeout(() => { // update or add start param
-  video.src = url.toString();
-  video.load();                            // reload video with new source
-  video.play();
-}, 300);
+    video.src = url.toString();
+    video.load();                            // reload video with new source
+    video.play();
+  }, 300);
   startTime = seek.value;
 
   let currTime = formatTime(seek.value);
@@ -1927,14 +2382,38 @@ if (audioTrackMenu) {
 
 // Close menu when clicking outside
 document.addEventListener('click', (e) => {
+  const audioTrackButtonMobile = document.getElementById('audioTrackButton-mobile');
+  const subtitleTrackButtonMobile = document.getElementById('subtitleTrackButton-mobile');
+  const audioTrackMenuMobile = document.getElementById('audioTrackMenu-mobile');
+  const subtitleTrackMenuMobile = document.getElementById('subtitleTrackMenu-mobile');
+
+  // Close desktop menus
   if (audioTrackMenu && audioTrackButton) {
-    if (!audioTrackButton.contains(e.target) && !audioTrackMenu.contains(e.target)) {
+    if (!audioTrackButton.contains(e.target) &&
+      !audioTrackButtonMobile?.contains(e.target) &&
+      !audioTrackMenu.contains(e.target)) {
       audioTrackMenu.style.display = 'none';
     }
   }
   if (subtitleTrackMenu && subtitleTrackButton) {
-    if (!subtitleTrackButton.contains(e.target) && !subtitleTrackMenu.contains(e.target)) {
+    if (!subtitleTrackButton.contains(e.target) &&
+      !subtitleTrackButtonMobile?.contains(e.target) &&
+      !subtitleTrackMenu.contains(e.target)) {
       subtitleTrackMenu.style.display = 'none';
+    }
+  }
+
+  // Close mobile menus
+  if (audioTrackMenuMobile && audioTrackButtonMobile) {
+    if (!audioTrackButtonMobile.contains(e.target) &&
+      !audioTrackMenuMobile.contains(e.target)) {
+      audioTrackMenuMobile.style.display = 'none';
+    }
+  }
+  if (subtitleTrackMenuMobile && subtitleTrackButtonMobile) {
+    if (!subtitleTrackButtonMobile.contains(e.target) &&
+      !subtitleTrackMenuMobile.contains(e.target)) {
+      subtitleTrackMenuMobile.style.display = 'none';
     }
   }
 });
