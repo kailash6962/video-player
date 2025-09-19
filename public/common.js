@@ -313,7 +313,7 @@ function initTheme() {
     }
 }
 
-function setTheme(theme) {
+function setTheme(theme, showToast = false) {
     console.log('Setting theme to:', theme);
     
     // Determine the actual theme to apply
@@ -360,8 +360,10 @@ function setTheme(theme) {
         themeToggle.title = `Current: ${themeNames[theme]} - Click to cycle themes`;
     }
     
-    // Show toast notification
-    showThemeToast(theme, actualTheme);
+    // Show toast notification only when explicitly requested
+    if (showToast) {
+        showThemeToast(theme, actualTheme);
+    }
 }
 
 function cycleTheme() {
@@ -384,15 +386,15 @@ function cycleTheme() {
     }
     
     console.log('Cycling theme from', currentStoredTheme, 'to', newTheme);
-    setTheme(newTheme);
+    setTheme(newTheme, true); // Show toast when user actively changes theme
 }
 
 function handleSystemThemeChange(e) {
     const currentStoredTheme = localStorage.getItem('theme');
     if (currentStoredTheme === 'system') {
         console.log('System theme changed, updating display');
-        // Re-apply the system theme to get the new system preference
-        setTheme('system');
+        // Re-apply the system theme to get the new system preference (no toast)
+        setTheme('system', false);
     }
 }
 
