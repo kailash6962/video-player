@@ -15,12 +15,13 @@
     <style>
         .user-selection-container {
             min-height: 100vh;
-            background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 50%, #0f0f0f 100%);
+            background: linear-gradient(135deg, var(--background-color) 0%, var(--surface-color) 50%, var(--background-color) 100%);
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             padding: 20px;
+            transition: background 0.3s ease;
         }
 
         .logo-section {
@@ -50,13 +51,13 @@
         }
 
         .tagline {
-            color: #888;
+            color: var(--text-secondary);
             font-size: 1.2rem;
             margin-top: 5px;
         }
 
         .selection-title {
-            color: white;
+            color: var(--text-color);
             font-size: 2rem;
             margin-bottom: 40px;
             text-align: center;
@@ -71,30 +72,30 @@
         }
 
         .user-card {
-            background: rgba(42, 42, 42, 0.8);
+            background: var(--surface-color);
             border-radius: 15px;
             padding: 30px 20px;
             text-align: center;
             cursor: pointer;
             transition: all 0.3s ease;
-            border: 3px solid transparent;
+            border: 3px solid var(--border-color);
             backdrop-filter: blur(10px);
             position: relative;
         }
 
         .user-card:hover {
             transform: translateY(-10px);
-            background: rgba(60, 60, 60, 0.9);
-            border-color: #ff0000;
+            background: var(--hover-color);
+            border-color: var(--primary-color);
             box-shadow: 0 15px 30px rgba(255, 0, 0, 0.3);
         }
 
         .user-card:focus {
-            outline: 3px solid #ffffff;
+            outline: 3px solid var(--text-color);
             outline-offset: 2px;
             transform: scale(1.05);
-            background: rgba(60, 60, 60, 0.9);
-            border-color: #ff0000;
+            background: var(--hover-color);
+            border-color: var(--primary-color);
         }
 
         .user-avatar {
@@ -115,29 +116,29 @@
         }
 
         .user-name {
-            color: white;
+            color: var(--text-color);
             font-size: 1.3rem;
             font-weight: 600;
             margin-bottom: 8px;
         }
 
         .user-subtitle {
-            color: #888;
+            color: var(--text-secondary);
             font-size: 0.9rem;
         }
 
         .guest-card {
-            background: rgba(30, 30, 30, 0.8);
-            border: 2px dashed #666;
+            background: var(--surface-color);
+            border: 2px dashed var(--border-color);
         }
 
         .guest-card:hover {
-            border-color: #999;
-            background: rgba(40, 40, 40, 0.9);
+            border-color: var(--text-secondary);
+            background: var(--hover-color);
         }
 
         .guest-avatar {
-            background: linear-gradient(135deg, #666, #444);
+            background: linear-gradient(135deg, var(--text-secondary), var(--border-color));
             width: 80px;
             height: 80px;
             border-radius: 50%;
@@ -145,7 +146,7 @@
             align-items: center;
             justify-content: center;
             font-size: 2rem;
-            color: white;
+            color: var(--text-color);
             font-weight: bold;
             text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
@@ -153,8 +154,8 @@
         }
 
         .add-user-card {
-            background: rgba(20, 20, 20, 0.6);
-            border: 2px dashed #444;
+            background: var(--surface-color);
+            border: 2px dashed var(--border-color);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -162,26 +163,26 @@
         }
 
         .add-user-card:hover {
-            border-color: #ff0000;
-            background: rgba(30, 30, 30, 0.8);
+            border-color: var(--primary-color);
+            background: var(--hover-color);
         }
 
         .add-icon {
             width: 80px;
             height: 80px;
             border-radius: 50%;
-            border: 3px dashed #666;
+            border: 3px dashed var(--text-secondary);
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 2.5rem;
-            color: #666;
+            color: var(--text-secondary);
             margin-bottom: 15px;
         }
 
         .add-user-card:hover .add-icon {
-            border-color: #ff0000;
-            color: #ff0000;
+            border-color: var(--primary-color);
+            color: var(--primary-color);
         }
 
         /* PIN Modal */
@@ -203,22 +204,22 @@
         }
 
         .pin-content {
-            background: rgba(30, 30, 30, 0.95);
+            background: var(--surface-color);
             padding: 40px;
             border-radius: 15px;
             text-align: center;
             backdrop-filter: blur(20px);
-            border: 1px solid #444;
+            border: 1px solid var(--border-color);
         }
 
         .pin-title {
-            color: white;
+            color: var(--text-color);
             font-size: 1.5rem;
             margin-bottom: 10px;
         }
 
         .pin-subtitle {
-            color: #888;
+            color: var(--text-secondary);
             margin-bottom: 30px;
         }
 
@@ -232,17 +233,17 @@
         .pin-digit {
             width: 60px;
             height: 60px;
-            border: 2px solid #444;
+            border: 2px solid var(--border-color);
             border-radius: 10px;
-            background: rgba(50, 50, 50, 0.8);
-            color: white;
+            background: var(--background-color);
+            color: var(--text-color);
             font-size: 2rem;
             text-align: center;
             font-weight: bold;
         }
 
         .pin-digit:focus {
-            border-color: #ff0000;
+            border-color: var(--primary-color);
             outline: none;
         }
 
@@ -272,12 +273,12 @@
 
         .pin-btn.secondary {
             background: transparent;
-            color: white;
-            border: 1px solid #666;
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
         }
 
         .pin-btn.secondary:hover {
-            border-color: #999;
+            border-color: var(--text-secondary);
         }
 
         .pin-btn.skip {
@@ -308,7 +309,7 @@
 
         .form-group label {
             display: block;
-            color: white;
+            color: var(--text-color);
             font-size: 0.9rem;
             font-weight: 500;
             margin-bottom: 8px;
@@ -317,21 +318,21 @@
         .form-group input[type="text"] {
             width: 100%;
             padding: 12px 16px;
-            border: 2px solid #444;
+            border: 2px solid var(--border-color);
             border-radius: 8px;
-            background: rgba(50, 50, 50, 0.8);
-            color: white;
+            background: var(--background-color);
+            color: var(--text-color);
             font-size: 1rem;
             transition: border-color 0.3s ease;
         }
 
         .form-group input[type="text"]:focus {
             outline: none;
-            border-color: #ff0000;
+            border-color: var(--primary-color);
         }
 
         .form-hint {
-            color: #888;
+            color: var(--text-secondary);
             font-size: 0.8rem;
             margin-top: 5px;
         }
@@ -524,6 +525,11 @@
                 <h1>VidStream</h1>
             </div>
             <div class="tagline">Personal Cinema</div>
+            <button class="theme-toggle-btn" id="themeToggle" title="Toggle Theme" style="margin-top: 20px;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" id="themeIcon">
+                    <path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-2.98 0-5.4-2.42-5.4-5.4 0-1.81.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"/>
+                </svg>
+            </button>
         </div>
 
         <!-- Selection Title -->
@@ -1027,6 +1033,7 @@
             }
         });
     </script>
+    <script src="/common.js"></script>
 </body>
 
 </html>
