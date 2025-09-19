@@ -325,6 +325,169 @@
             margin-top: 5px;
         }
 
+        /* Mobile Responsive Styles */
+        @media (max-width: 768px) {
+            .user-selection-container {
+                padding: 15px;
+                min-height: 100vh;
+            }
+
+            .logo-section {
+                margin-bottom: 30px;
+            }
+
+            .main-logo {
+                gap: 10px;
+                margin-bottom: 8px;
+            }
+
+            .main-logo svg {
+                width: 40px;
+                height: 40px;
+            }
+
+            .main-logo h1 {
+                font-size: 2rem;
+            }
+
+            .tagline {
+                font-size: 1rem;
+            }
+
+            .selection-title {
+                font-size: 1.5rem;
+                margin-bottom: 30px;
+            }
+
+            .users-grid {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                gap: 20px;
+                max-width: 100%;
+            }
+
+            .user-card {
+                padding: 20px 15px;
+                min-height: 140px;
+            }
+
+            .user-avatar, .guest-avatar {
+                width: 60px;
+                height: 60px;
+                font-size: 1.5rem;
+            }
+
+            .user-name {
+                font-size: 1.1rem;
+            }
+
+            .user-subtitle {
+                font-size: 0.8rem;
+            }
+
+            .add-icon {
+                width: 60px;
+                height: 60px;
+                font-size: 2rem;
+            }
+
+            /* PIN Modal Mobile */
+            .pin-content {
+                padding: 30px 20px;
+                margin: 20px;
+                max-width: 90%;
+            }
+
+            .pin-title {
+                font-size: 1.3rem;
+            }
+
+            .pin-subtitle {
+                font-size: 0.9rem;
+            }
+
+            .pin-input {
+                gap: 10px;
+                margin-bottom: 25px;
+            }
+
+            .pin-digit {
+                width: 50px;
+                height: 50px;
+                font-size: 1.5rem;
+            }
+
+            .pin-buttons {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .pin-btn {
+                width: 100%;
+                padding: 15px;
+                font-size: 1.1rem;
+            }
+
+            /* Add User Form Mobile */
+            .form-group input[type="text"] {
+                padding: 15px;
+                font-size: 1.1rem;
+            }
+
+            .form-hint {
+                font-size: 0.75rem;
+            }
+        }
+
+        /* Small Mobile Devices */
+        @media (max-width: 480px) {
+            .user-selection-container {
+                padding: 10px;
+            }
+
+            .main-logo h1 {
+                font-size: 1.8rem;
+            }
+
+            .selection-title {
+                font-size: 1.3rem;
+            }
+
+            .users-grid {
+                grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+                gap: 15px;
+            }
+
+            .user-card {
+                padding: 15px 10px;
+                min-height: 120px;
+            }
+
+            .user-avatar, .guest-avatar, .add-icon {
+                width: 50px;
+                height: 50px;
+                font-size: 1.3rem;
+            }
+
+            .user-name {
+                font-size: 1rem;
+            }
+
+            .user-subtitle {
+                font-size: 0.75rem;
+            }
+
+            .pin-content {
+                padding: 25px 15px;
+                margin: 15px;
+            }
+
+            .pin-digit {
+                width: 45px;
+                height: 45px;
+                font-size: 1.3rem;
+            }
+        }
+
         /* TV Remote Support */
         @media (min-width: 1200px) {
             .user-card {
