@@ -359,6 +359,9 @@ function setTheme(theme) {
         };
         themeToggle.title = `Current: ${themeNames[theme]} - Click to cycle themes`;
     }
+    
+    // Show toast notification
+    showThemeToast(theme, actualTheme);
 }
 
 function cycleTheme() {
@@ -391,6 +394,52 @@ function handleSystemThemeChange(e) {
         // Re-apply the system theme to get the new system preference
         setTheme('system');
     }
+}
+
+function showThemeToast(selectedTheme, actualTheme) {
+    const themeToggle = document.getElementById('themeToggle');
+    if (!themeToggle) return;
+    
+    // Remove existing toast if any
+    const existingToast = themeToggle.querySelector('.theme-toast');
+    if (existingToast) {
+        existingToast.remove();
+    }
+    
+    // Create toast element
+    const toast = document.createElement('div');
+    toast.className = 'theme-toast';
+    
+    // Set toast text based on theme
+    let toastText;
+    if (selectedTheme === 'system') {
+        const systemTheme = actualTheme === 'dark' ? 'Dark' : 'Light';
+        toastText = `System Default (${systemTheme})`;
+    } else {
+        const themeNames = {
+            'light': 'Light Theme',
+            'dark': 'Dark Theme'
+        };
+        toastText = themeNames[selectedTheme];
+    }
+    
+    toast.textContent = toastText;
+    themeToggle.appendChild(toast);
+    
+    // Show toast
+    setTimeout(() => {
+        toast.classList.add('show');
+    }, 10);
+    
+    // Hide toast after 2 seconds
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => {
+            if (toast.parentNode) {
+                toast.remove();
+            }
+        }, 300);
+    }, 2000);
 }
 
 // Initialize theme when DOM is loaded
