@@ -22,7 +22,7 @@
     --shadow-color: rgba(0, 0, 0, 0.1);
 }
 
-/* Dark Theme (default) */
+/* Dark Theme */
 [data-theme="dark"] {
     --background-color: #0f0f0f;
     --surface-color: #1a1a1a;
@@ -32,6 +32,7 @@
     --hover-color: #333333;
     --shadow-color: rgba(0, 0, 0, 0.3);
 }
+
 
 /* YouTube-inspired styling */
 body {
