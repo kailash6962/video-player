@@ -101,7 +101,7 @@ function createContinueWatchingCard(video) {
 
     const cardTitle = document.createElement('h3');
     cardTitle.className = 'card-title';
-    cardTitle.textContent = video.video_id;
+    cardTitle.textContent = cleanVideoTitle(video.video_id);
 
     const cardMeta = document.createElement('div');
     cardMeta.className = 'card-meta';
