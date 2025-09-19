@@ -115,7 +115,7 @@ body {
     /* Row 1: Right side utility buttons - positioned on video tag */
     .mobile-row-1 {
         position: absolute;
-        top: 20px;
+        top: 5px;
         right: 20px;
         z-index: 20;
         opacity: 1 !important;
@@ -131,41 +131,48 @@ body {
     }
     
     .mobile-utility-btn {
-        width: 40px !important;
-        height: 40px !important;
-        border-radius: 8px !important;
-        background: rgba(0, 0, 0, 0.8) !important;
-        border: 2px solid rgba(255, 255, 255, 0.3) !important;
+        width: 28px !important;
+        height: 28px !important;
+        min-width: 28px !important;
+        min-height: 28px !important;
+        border-radius: 4px !important;
+        background: rgba(0, 0, 0, 0.4) !important;
+        border: 1px solid rgba(255, 255, 255, 0.2) !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
         transition: all 0.2s ease !important;
-        backdrop-filter: blur(10px) !important;
+        backdrop-filter: blur(5px) !important;
         opacity: 1 !important;
         visibility: visible !important;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5) !important;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3) !important;
     }
     
     .mobile-utility-btn:hover {
-        background: rgba(0, 0, 0, 0.9) !important;
-        border-color: rgba(255, 255, 255, 0.5) !important;
+        background: rgba(0, 0, 0, 0.6) !important;
+        border-color: rgba(255, 255, 255, 0.4) !important;
         transform: scale(1.05) !important;
     }
     
     .mobile-utility-btn:active {
         transform: scale(0.95) !important;
-        background: rgba(0, 0, 0, 0.9) !important;
+        background: rgba(0, 0, 0, 0.7) !important;
     }
     
     /* Ensure subtitle and audio buttons are visible and positioned correctly */
     #subtitleTrackButton-mobile,
     #audioTrackButton-mobile,
-    #fullscreenButton-mobile {
+    #fullscreenButton-mobile,
+    #muteButton-mobile {
         opacity: 1 !important;
         visibility: visible !important;
         display: flex !important;
         position: relative !important;
         pointer-events: auto !important;
+        min-width: 28px !important;
+        min-height: 28px !important;
+        width: 28px !important;
+        height: 28px !important;
     }
     
     /* Additional positioning for video player container */
@@ -178,6 +185,46 @@ body {
         position: relative !important;
         width: 100% !important;
         height: 100% !important;
+    }
+    
+    /* Video loader styles */
+    #videoLoader {
+        display: none;
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(0, 0, 0, 0.3);
+    }
+    
+    /* Loader spinner styles */
+    .loader {
+        border: 8px solid #f3f3f3;
+        border-top: 8px solid #3498db;
+        border-radius: 50%;
+        width: 48px;
+        height: 48px;
+        animation: spin 1s linear infinite;
+    }
+    
+    /* Smaller loader for mobile */
+    @media (max-width: 768px) {
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            width: 32px;
+            height: 32px;
+        }
+    }
+    
+    /* Spin animation for loader */
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
     }
     
     /* Row 2: Seek bar with time and speaker - always visible */
@@ -197,17 +244,19 @@ body {
     }
     
     .mobile-speaker-btn {
-        width: 36px !important;
-        height: 36px !important;
-        border-radius: 6px !important;
-        background: rgba(0, 0, 0, 0.7) !important;
+        width: 28px !important;
+        height: 28px !important;
+        min-width: 28px !important;
+        min-height: 28px !important;
+        border-radius: 4px !important;
+        background: rgba(0, 0, 0, 0.4) !important;
         border: 1px solid rgba(255, 255, 255, 0.2) !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
         transition: all 0.2s ease !important;
-        backdrop-filter: blur(10px) !important;
-        font-size: 16px !important;
+        backdrop-filter: blur(5px) !important;
+        font-size: 14px !important;
     }
     
     .mobile-speaker-btn:active {
@@ -222,7 +271,7 @@ body {
         left: 50%;
         transform: translate(-50%, -50%);
         display: flex;
-        justify-content: center;
+        justify-content: space-between;
         align-items: center;
         gap: 16px;
         pointer-events: none;

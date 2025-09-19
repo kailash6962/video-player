@@ -984,7 +984,7 @@ video.addEventListener('loadedmetadata', () => {
 });
 
 playPause.addEventListener('click', () => {
-  if (video.paused) {
+  if (!video.paused) {
     video.play();
     playPause.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="white" viewBox="0 0 24 24">
                 <path d="M6 19h4V5H6zm8-14v14h4V5h-4z"/>
