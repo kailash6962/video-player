@@ -432,8 +432,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 | Document | Description | Audience |
 |----------|-------------|----------|
-| **[Installation Guide](documents/installation-guide.md)** | Complete setup guide for all platforms | Developers, System Admins |
-| **[User Manual](documents/user-manual.md)** | Comprehensive user guide with features walkthrough | End Users, Content Managers |
+| **[Installation Guide](documents/InstallationGuide/installation-guide.md)** | Complete setup guide for all platforms | Developers, System Admins |
+| **[User Manual](documents/user-manual/user-manual.md)** | Comprehensive user guide with features walkthrough | End Users, Content Managers |
 | **[System Requirements](documents/system-requirements/system-requirements.md)** | Hardware, software, and performance specifications | System Architects, IT Teams |
 | **[Database Schema](documents/database-schema/database-schema.dbml)** | Visual database diagram (use with dbdiagram.io) | Developers, Database Admins |
 | **[API Documentation](documents/postman/)** | Complete Postman collection and API reference | Developers, API Consumers |
@@ -442,15 +442,15 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ### Quick Access Links
 
 #### 🚀 **Getting Started**
-- **[🔧 Installation Guide](documents/installation-guide.md)** - Step-by-step setup for Ubuntu, Windows, macOS
+- **[🔧 Installation Guide](documents/InstallationGuide/installation-guide.md)** - Step-by-step setup for Ubuntu, Windows, macOS
 - **[📋 System Requirements](documents/system-requirements/system-requirements.md)** - Hardware and software requirements
-- **[🐳 Docker Setup](documents/installation-guide.md#-docker-installation)** - Containerized deployment
+- **[🐳 Docker Setup](documents/InstallationGuide/installation-guide.md#-docker-installation)** - Containerized deployment
 
 #### 👥 **For End Users**
-- **[📖 User Manual](documents/user-manual.md)** - Complete feature guide
-- **[🎬 Video Playback](documents/user-manual.md#-video-playback)** - Player controls and features
-- **[🎨 Theme System](documents/user-manual.md#-theme-system)** - Light/Dark/System themes
-- **[📱 Mobile Experience](documents/user-manual.md#-mobile-experience)** - Touch controls and mobile optimization
+- **[📖 User Manual](documents/user-manual/user-manual.md)** - Complete feature guide
+- **[🎬 Video Playback](documents/user-manual/user-manual.md#-video-playback)** - Player controls and features
+- **[🎨 Theme System](documents/user-manual/user-manual.md#-theme-system)** - Light/Dark/System themes
+- **[📱 Mobile Experience](documents/user-manual/user-manual.md#-mobile-experience)** - Touch controls and mobile optimization
 
 #### 🔧 **For Developers**
 - **[🏗️ Architecture Guide](ARCHITECTURE.md)** - Technical design and patterns
@@ -459,10 +459,10 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **[📊 Performance Guide](documents/system-requirements/system-requirements.md#-performance-benchmarks)** - Optimization and scaling
 
 #### ⚙️ **For System Administrators**
-- **[🚀 Production Deployment](documents/installation-guide.md#-production-deployment)** - PM2, Nginx, systemd setup
+- **[🚀 Production Deployment](documents/InstallationGuide/installation-guide.md#-production-deployment)** - PM2, Nginx, systemd setup
 - **[🔒 Security Guide](documents/system-requirements/system-requirements.md#-security-requirements)** - Security best practices
 - **[📈 Scaling Guide](documents/system-requirements/system-requirements.md#-scaling-considerations)** - Load balancing and clustering
-- **[🔍 Troubleshooting](documents/installation-guide.md#-troubleshooting)** - Common issues and solutions
+- **[🔍 Troubleshooting](documents/InstallationGuide/installation-guide.md#-troubleshooting)** - Common issues and solutions
 
 ### 📊 Visual Resources
 
