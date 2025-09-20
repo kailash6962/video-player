@@ -32,11 +32,40 @@ A professional-grade video streaming platform with Netflix-like UI, advanced sub
 
 ### 🔐 Multi-User Features
 - **👤 User Profiles** - Custom avatars with initials and unique colors
-- **🔒 PIN Authentication** - Secure 4-digit PIN login system
+- **🔒 Flexible PIN Authentication** - Secure 4-digit PIN login system with optional PIN skip
 - **📈 Individual Progress** - Separate watch progress for each user
 - **🎨 Personalized UI** - User-specific avatar colors and themes
 - **⚙️ Admin Controls** - User suspension, activation, and registration management
 - **📊 Continue Watching** - Personalized "Continue Watching" section
+- **🌙 Theme System** - Light/Dark/System Default themes with per-user preferences
+
+### 🆕 Recently Added Features
+
+#### **🎨 Advanced Theme System**
+- **Three Theme Options**: Light, Dark, and System Default
+- **System Detection**: Automatically follows OS theme preference
+- **Per-User Themes**: Each user can have their own theme preference stored in database
+- **Device Persistence**: Theme preferences persist across browser sessions
+- **Smart Switching**: Seamless theme transitions with smooth animations
+- **Toast Notifications**: Visual feedback when changing themes
+- **Cross-Page Consistency**: Theme applies to all pages (login, home, movies, series, player)
+
+#### **🔐 Enhanced Authentication**
+- **Optional PIN Setup**: Users can skip PIN during registration for quick access
+- **Smart Login Flow**: Automatically detects if user has PIN and skips PIN prompt if not needed
+- **Flexible Security**: Choose between PIN protection or quick access per user
+
+#### **✨ UI/UX Improvements**
+- **Sanitized Movie Names**: Clean, readable titles with automatic removal of technical details
+- **Logo Navigation**: Clicking logo redirects to home page from any section
+- **Improved Continue Watching**: Consistent title sanitization across all sections
+- **Mobile-Friendly**: All new features work seamlessly on mobile devices
+
+#### **🛠️ Technical Enhancements**
+- **Database Schema Updates**: Added theme preferences to user table
+- **API Endpoints**: New routes for theme management
+- **Error Handling**: Improved error messages and validation
+- **Code Organization**: Better separation of concerns for theme management
 
 ## 🏗️ Architecture
 
@@ -166,6 +195,10 @@ POST /api/users/login               # User login
 GET  /api/users/current             # Get current user
 GET  /api/users/continue-watching   # Get continue watching content
 GET  /api/users/registration-status # Check if registration is allowed
+GET  /api/users/:userId/theme       # Get user theme preference
+PUT  /api/users/:userId/theme       # Update user theme preference
+GET  /api/users/device/:deviceId/theme  # Get device theme preference
+PUT  /api/users/device/:deviceId/theme  # Update device theme preference
 ```
 
 ### Admin Panel
@@ -239,6 +272,16 @@ GET  /api/watch-progress/:video_id    # Get progress
 - **Glassmorphism Design** - Modern blur effects
 - **Smooth Animations** - 60fps transitions
 - **User Profiles** - Personalized header with user info
+
+### Theme System
+- **Light Theme** - Clean white background with dark text for daytime viewing
+- **Dark Theme** - Netflix-style dark background with light text for nighttime viewing
+- **System Default** - Automatically follows your operating system's theme preference
+- **Intelligent Switching** - Seamless transitions between themes with CSS variables
+- **User Persistence** - Each user's theme preference is saved to database
+- **Device Persistence** - Guest users and login page remember device theme preferences
+- **Real-time Updates** - Automatically updates when system theme changes
+- **Toast Feedback** - Visual confirmation when switching themes
 
 ## 📱 Browser Support
 
@@ -322,8 +365,15 @@ curl -I http://localhost:5555/api/video/home/sample.mp4
 # Test subtitle chunking
 curl http://localhost:5555/api/subtitle-chunk/home/sample.mkv/0/0/600
 
-# Test user creation
+# Test user creation with PIN
 curl -X POST http://localhost:5555/api/users/ -H "Content-Type: application/json" -d '{"username":"test","pin":"1234","displayName":"Test User"}'
+
+# Test user creation without PIN (skip PIN option)
+curl -X POST http://localhost:5555/api/users/ -H "Content-Type: application/json" -d '{"username":"testuser","pin":null,"displayName":"Test User No PIN"}'
+
+# Test theme management
+curl http://localhost:5555/api/users/1/theme                    # Get user theme
+curl -X PUT http://localhost:5555/api/users/1/theme -H "Content-Type: application/json" -d '{"theme":"dark"}'  # Set user theme
 ```
 
 ## 🐛 Troubleshooting
@@ -342,8 +392,15 @@ curl -X POST http://localhost:5555/api/users/ -H "Content-Type: application/json
 
 **User Login Issues**
 - Check database permissions
-- Verify PIN format (4 digits)
+- Verify PIN format (4 digits or skip PIN option)
 - Check session cookie settings
+- Verify user has PIN set (or uses PIN-free login)
+
+**Theme Issues**
+- Check if theme toggle button is visible
+- Verify localStorage is enabled in browser
+- Check console for theme initialization errors
+- Ensure CSS variables are properly loaded
 
 **Performance Issues**
 - Adjust chunk sizes in frontend
