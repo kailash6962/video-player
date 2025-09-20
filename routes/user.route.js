@@ -30,12 +30,20 @@ router.post('/', async (req, res) => {
 
         const { username, pin, display_name } = req.body;
 
-        if (!username || !pin || !display_name) {
-            return res.status(400).json({ error: 'Username, PIN, and display name are required' });
+        // Debug logging
+        console.log('User registration request:', { username, pin, display_name, pinType: typeof pin });
+
+        if (!username || !display_name) {
+            return res.status(400).json({ error: 'Username and display name are required' });
         }
 
-        if (pin.length !== 4 || !/^\d{4}$/.test(pin)) {
-            return res.status(400).json({ error: 'PIN must be exactly 4 digits' });
+        // PIN is optional, but if provided, it must be 4 digits
+        // Only validate PIN if it's a non-empty string
+        if (pin && typeof pin === 'string' && pin.trim() !== '') {
+            if (pin.length !== 4 || !/^\d{4}$/.test(pin)) {
+                console.log('PIN validation failed:', { pin, pinType: typeof pin, pinLength: pin.length });
+                return res.status(400).json({ error: 'PIN must be exactly 4 digits' });
+            }
         }
 
         if (username.trim().length === 0 || display_name.trim().length === 0) {
@@ -72,8 +80,8 @@ router.post('/login', async (req, res) => {
     try {
         const { user_id, pin } = req.body;
 
-        if (!user_id || !pin) {
-            return res.status(400).json({ error: 'User ID and PIN are required' });
+        if (!user_id) {
+            return res.status(400).json({ error: 'User ID is required' });
         }
 
         const user = await UserService.loginUser(user_id, pin);
@@ -90,7 +98,15 @@ router.post('/login', async (req, res) => {
         });
     } catch (error) {
         // Error logging in user handled silently
-        res.status(401).json({ error: 'Invalid PIN' });
+        if (error.message === 'User not found') {
+            res.status(404).json({ error: 'User not found' });
+        } else if (error.message === 'Invalid PIN') {
+            res.status(401).json({ error: 'Invalid PIN' });
+        } else if (error.message === 'PIN required for this user') {
+            res.status(401).json({ error: 'PIN required for this user' });
+        } else {
+            res.status(500).json({ error: 'Login failed' });
+        }
     }
 });
 

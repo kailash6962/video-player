@@ -18,7 +18,7 @@ class UserService {
                     CREATE TABLE IF NOT EXISTS users (
                         id INTEGER PRIMARY KEY AUTOINCREMENT,
                         username TEXT UNIQUE NOT NULL,
-                        pin_hash TEXT NOT NULL,
+                        pin_hash TEXT,
                         display_name TEXT NOT NULL,
                         avatar_emoji TEXT DEFAULT '👤',
                         avatar_bg_color TEXT DEFAULT '#ff0000',
@@ -193,7 +193,7 @@ class UserService {
     async createUser(username, pin, displayName) {
         return new Promise((resolve, reject) => {
             const db = new sqlite3.Database('./databases/home.db');
-            const pinHash = this.hashPin(pin);
+            const pinHash = pin ? this.hashPin(pin) : null;
 
             // Generate avatar from name initials
             const avatarEmoji = this.generateAvatar(displayName);
@@ -215,12 +215,12 @@ class UserService {
     async loginUser(userId, pin) {
         return new Promise((resolve, reject) => {
             const db = new sqlite3.Database('./databases/home.db');
-            const pinHash = this.hashPin(pin);
 
+            // First, get the user to check if they have a PIN
             db.get(`
                 SELECT * FROM users 
-                WHERE id = ? AND pin_hash = ? AND is_active = 1
-            `, [userId, pinHash], (err, user) => {
+                WHERE id = ? AND is_active = 1
+            `, [userId], (err, user) => {
                 if (err) {
                     db.close();
                     reject(err);
@@ -228,6 +228,36 @@ class UserService {
                 }
 
                 if (!user) {
+                    db.close();
+                    reject(new Error('User not found'));
+                    return;
+                }
+
+                // If user has no PIN (pin_hash is null), allow login without PIN verification
+                if (!user.pin_hash) {
+                    // Update last login
+                    db.run(`
+                        UPDATE users 
+                        SET last_login = datetime('now') 
+                        WHERE id = ?
+                    `, [userId], (err) => {
+                        db.close();
+                        if (err) reject(err);
+                        else resolve(user);
+                    });
+                    return;
+                }
+
+                // If user has a PIN, verify it
+                // Handle empty PIN case
+                if (!pin || pin.trim() === '') {
+                    db.close();
+                    reject(new Error('PIN required for this user'));
+                    return;
+                }
+
+                const pinHash = this.hashPin(pin);
+                if (user.pin_hash !== pinHash) {
                     db.close();
                     reject(new Error('Invalid PIN'));
                     return;

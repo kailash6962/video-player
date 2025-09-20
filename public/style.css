@@ -1,11 +1,48 @@
+/* Theme Variables */
+:root {
+    --primary-color: #ff0000;
+    --secondary-color: #cc0000;
+    --background-color: #0f0f0f;
+    --surface-color: #1a1a1a;
+    --text-color: #f1f1f1;
+    --text-secondary: #cccccc;
+    --border-color: #303030;
+    --hover-color: #333333;
+    --shadow-color: rgba(0, 0, 0, 0.3);
+}
+
+/* Light Theme */
+[data-theme="light"] {
+    --background-color: #ffffff;
+    --surface-color: #f5f5f5;
+    --text-color: #000000;
+    --text-secondary: #666666;
+    --border-color: #e0e0e0;
+    --hover-color: #f0f0f0;
+    --shadow-color: rgba(0, 0, 0, 0.1);
+}
+
+/* Dark Theme */
+[data-theme="dark"] {
+    --background-color: #0f0f0f;
+    --surface-color: #1a1a1a;
+    --text-color: #f1f1f1;
+    --text-secondary: #cccccc;
+    --border-color: #303030;
+    --hover-color: #333333;
+    --shadow-color: rgba(0, 0, 0, 0.3);
+}
+
+
 /* YouTube-inspired styling */
 body {
     font-family: 'Roboto', Arial, sans-serif;
-    background-color: #0f0f0f;
-    color: #f1f1f1;
+    background-color: var(--background-color);
+    color: var(--text-color);
     margin: 0;
     padding: 0;
     line-height: 1.4;
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* Header styling */
@@ -13,11 +50,12 @@ body {
     display: flex;
     align-items: center;
     padding: 16px 24px;
-    background-color: #0f0f0f;
-    border-bottom: 1px solid #303030;
+    background-color: var(--background-color);
+    border-bottom: 1px solid var(--border-color);
     position: sticky;
     top: 0;
     z-index: 10;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 .logo {
@@ -482,7 +520,7 @@ body {
 .controls button {
     background: transparent;
     border: none;
-    color: white;
+    color: #ffffff;
     font-size: 16px;
     cursor: pointer;
     width: 36px;
@@ -498,7 +536,7 @@ body {
 }
 
 .time {
-    color: #fff;
+    color: #ffffff;
     font-size: 14px;
     min-width: 45px;
 }
@@ -564,14 +602,14 @@ body {
     font-size: 20px;
     font-weight: 500;
     margin: 0 0 12px 0;
-    color: #fff;
+    color: var(--text-color);
     text-align: left;
 }
 
 .video-meta {
     display: flex;
     align-items: center;
-    color: #aaa;
+    color: var(--text-secondary);
     font-size: 14px;
     text-align: left;
 }
@@ -639,14 +677,14 @@ body {
 .details {
     padding: 10px 0;
     font-size: 13px;
-    color: #aaa;
+    color: var(--text-secondary);
     background: transparent;
     text-align: left;
 }
 
 .video-name {
     font-weight: 500;
-    color: #fff;
+    color: var(--text-color);
     font-size: 14px;
     margin-bottom: 4px;
     max-width: 100%;
@@ -710,7 +748,7 @@ body {
 /* Audio track button */
 .audio-track-button {
     background-color: rgba(0, 0, 0, 0.7);
-    color: white;
+    color: #ffffff;
     border: 1px solid rgba(255, 255, 255, 0.3);
     border-radius: 4px;
     padding: 8px;
@@ -771,7 +809,7 @@ body {
 
 .audio-track-menu-item {
     padding: 12px 16px;
-    color: white;
+    color: #ffffff;
     cursor: pointer;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     transition: background-color 0.2s ease;
@@ -817,7 +855,7 @@ body {
 /* Subtitle track button */
 .subtitle-track-button {
     background-color: rgba(0, 0, 0, 0.7);
-    color: white;
+    color: #ffffff;
     border: 1px solid rgba(255, 255, 255, 0.3);
     border-radius: 4px;
     padding: 8px;
@@ -905,7 +943,7 @@ body {
 
 .subtitle-track-menu-item {
     padding: 12px 16px;
-    color: white;
+    color: #ffffff;
     cursor: pointer;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     transition: background-color 0.2s ease;
@@ -987,7 +1025,7 @@ body {
     top: 10px;
     left: 50%;
     transform: translateX(-50%);
-    color: white;
+    color: var(--text-color);
     font-size: 18px;
     font-weight: bold;
     z-index: 2;
@@ -999,7 +1037,7 @@ body {
     bottom: 10px;
     right: 10px;
     background-color: rgba(0, 0, 0, 0.7);
-    color: white;
+    color: #ffffff;
     padding: 2px 5px;
     border-radius: 4px;
     font-size: 12px;
@@ -1014,7 +1052,7 @@ body {
     width: 100%;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.6);
-    color: white;
+    color: #ffffff;
     font-size: 16px;
     font-weight: 500;
     display: flex;
@@ -1069,9 +1107,17 @@ body {
     backdrop-filter: blur(10px);
 }
 
+[data-theme="light"] .netflix-header {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.6) 50%, rgba(255, 255, 255, 0) 100%);
+}
+
 .netflix-header.scrolled {
     background: rgba(0, 0, 0, 0.9);
     backdrop-filter: blur(15px);
+}
+
+[data-theme="light"] .netflix-header.scrolled {
+    background: rgba(255, 255, 255, 0.95);
 }
 
 .header-content {
@@ -1088,6 +1134,79 @@ body {
     display: flex;
     align-items: center;
     gap: 15px;
+}
+
+/* Theme Toggle Button */
+.theme-toggle-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--surface-color);
+    color: var(--text-color);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 0;
+    position: relative;
+}
+
+.theme-toggle-btn:hover {
+    background: var(--hover-color);
+    border-color: var(--primary-color);
+    transform: translateY(-1px);
+}
+
+.theme-toggle-btn:active {
+    transform: translateY(0);
+}
+
+.theme-toggle-btn svg {
+    transition: transform 0.3s ease;
+}
+
+.theme-toggle-btn:hover svg {
+    transform: rotate(180deg);
+}
+
+/* Theme toast notification */
+.theme-toast {
+    position: absolute;
+    top: 50px;
+    right: 0;
+    background: var(--surface-color);
+    color: var(--text-color);
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+    box-shadow: 0 4px 12px var(--shadow-color);
+    border: 1px solid var(--border-color);
+    z-index: 1000;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+    pointer-events: none;
+}
+
+.theme-toast.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.theme-toast::before {
+    content: '';
+    position: absolute;
+    top: -6px;
+    right: 12px;
+    width: 0;
+    height: 0;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-bottom: 6px solid var(--surface-color);
 }
 
 .current-user {
@@ -1121,7 +1240,7 @@ body {
 }
 
 .user-name {
-    color: white;
+    color: var(--text-color);
     font-size: 0.9rem;
     font-weight: 500;
 }
@@ -1131,10 +1250,10 @@ body {
     align-items: center;
     gap: 8px;
     padding: 8px 12px;
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: var(--surface-color);
+    border: 1px solid var(--border-color);
     border-radius: 8px;
-    color: #ccc;
+    color: var(--text-secondary);
     font-size: 0.85rem;
     font-weight: 500;
     cursor: pointer;
@@ -1144,9 +1263,9 @@ body {
 }
 
 .logout-btn:hover {
-    background: rgba(255, 0, 0, 0.15);
-    border-color: rgba(255, 0, 0, 0.3);
-    color: #ff0000;
+    background: var(--hover-color);
+    border-color: var(--primary-color);
+    color: var(--primary-color);
     transform: translateY(-1px);
 }
 
@@ -1172,7 +1291,7 @@ body {
     display: flex;
     align-items: center;
     gap: 16px;
-    color: #ffffff;
+    color: var(--text-color);
     text-decoration: none;
     transition: all 0.3s ease;
 }
@@ -1214,7 +1333,7 @@ body {
     font-size: 28px;
     font-weight: 700;
     letter-spacing: -1px;
-    color: #ffffff;
+    color: var(--text-color);
     line-height: 1;
 }
 
@@ -1222,7 +1341,7 @@ body {
     font-family: 'Arial', sans-serif;
     font-size: 12px;
     font-weight: 400;
-    color: #b3b3b3;
+    color: var(--text-secondary);
     letter-spacing: 0.5px;
     text-transform: uppercase;
 }
@@ -1234,7 +1353,7 @@ body {
 }
 
 .nav-link {
-    color: #b3b3b3;
+    color: var(--text-secondary);
     text-decoration: none;
     font-size: 16px;
     font-weight: 500;
@@ -1245,12 +1364,12 @@ body {
 }
 
 .nav-link:hover {
-    color: #ffffff;
+    color: var(--text-color);
     background: rgba(255, 255, 255, 0.1);
 }
 
 .nav-link.active {
-    color: #ffffff;
+    color: var(--text-color);
     background: rgba(229, 9, 20, 0.2);
     border: 1px solid rgba(229, 9, 20, 0.3);
 }
@@ -1285,8 +1404,9 @@ body {
 /* Main Content */
 .netflix-main {
     margin-top: 0;
-    background: #141414;
+    background: var(--background-color);
     min-height: 100vh;
+    transition: background-color 0.3s ease;
 }
 
 /* Hero Slideshow Section */
@@ -1295,7 +1415,8 @@ body {
     height: 70vh;
     min-height: 500px;
     overflow: hidden;
-    background: #000;
+    background: var(--background-color);
+    transition: background-color 0.3s ease;
 }
 
 .slideshow-container {
@@ -1350,7 +1471,7 @@ body {
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 40px;
-    color: white;
+    color: var(--text-color);
 }
 
 .slide-badge {
@@ -1383,7 +1504,7 @@ body {
 .slide-title {
     font-size: 3.5rem;
     font-weight: 700;
-    color: #ffffff;
+    color: var(--text-color);
     margin-bottom: 16px;
     text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.8);
     line-height: 1.1;
@@ -1392,7 +1513,7 @@ body {
 
 .slide-description {
     font-size: 1.4rem;
-    color: #e5e5e5;
+    color: var(--text-secondary);
     margin-bottom: 20px;
     max-width: 70%;
     line-height: 1.4;
@@ -1577,7 +1698,7 @@ body {
 .section-title {
     font-size: 1.8rem;
     font-weight: 600;
-    color: #ffffff;
+    color: var(--text-color);
     margin: 0;
     white-space: nowrap;
 }
@@ -1609,9 +1730,10 @@ body {
 
 /* Netflix-style Cards */
 .netflix-card {
-    background: #1a1a1a;
+    background: var(--surface-color);
     border-radius: 8px;
     overflow: hidden;
+    transition: background-color 0.3s ease;
     cursor: pointer;
     transition: all 0.3s ease;
     position: relative;
@@ -1668,9 +1790,10 @@ body {
 
 .card-content {
     padding: 12px;
-    background: #1a1a1a;
+    background: var(--surface-color);
     flex-grow: 1;
     display: flex;
+    transition: background-color 0.3s ease;
     flex-direction: column;
     justify-content: space-between;
     position: relative;
@@ -1680,7 +1803,7 @@ body {
 .card-title {
     font-size: 0.9rem;
     font-weight: 600;
-    color: #ffffff;
+    color: var(--text-color);
     margin: 0 0 6px 0;
     line-height: 1.3;
     display: -webkit-box;
@@ -1738,7 +1861,7 @@ body {
 
 .episode-count {
     background: rgba(0, 0, 0, 0.8);
-    color: white;
+    color: var(--text-color);
     padding: 4px 6px;
     border-radius: 4px;
     font-size: 0.7rem;
@@ -2114,7 +2237,8 @@ body {
 /* Player Section */
 .player-section-netflix {
     padding: 100px 0 40px 0;
-    background: #0f0f0f;
+    background: var(--background-color);
+    transition: background-color 0.3s ease;
 }
 
 .player-container-wrapper {
@@ -2181,11 +2305,11 @@ body {
 
 .movie-info-card {
     /* background: rgba(0, 0, 0, 0.85); */
-    backdrop-filter: blur(15px);
+    /* backdrop-filter: blur(15px); */
     border-radius: 12px;
     /* padding: 32px; */
     /* border: 1px solid rgba(255, 255, 255, 0.15); */
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+    /* box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6); */
     max-width: 500px;
     width: 100%;
     color: white;
@@ -2443,9 +2567,10 @@ body {
 
 .modal-content {
     position: relative;
-    background: #141414;
+    background: var(--surface-color);
     border-radius: 8px;
     max-width: 90vw;
+    transition: background-color 0.3s ease;
     max-height: 90vh;
     width: 800px;
     overflow: hidden;
@@ -3099,7 +3224,7 @@ body {
 .hamburger-line {
     width: 24px;
     height: 3px;
-    background-color: #fff;
+    background-color: var(--text-color);
     margin: 2px 0;
     transition: all 0.3s ease;
     border-radius: 2px;
@@ -3147,7 +3272,7 @@ body {
     left: 0;
     width: 280px;
     height: 100%;
-    background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%);
+    background: linear-gradient(135deg, var(--background-color) 0%, var(--surface-color) 100%);
     transform: translateX(-100%);
     transition: transform 0.3s ease;
     display: flex;
@@ -3179,7 +3304,7 @@ body {
 .mobile-menu-close {
     background: transparent;
     border: none;
-    color: #fff;
+    color: var(--text-color);
     cursor: pointer;
     padding: 5px;
     border-radius: 4px;
@@ -3200,7 +3325,7 @@ body {
     align-items: center;
     gap: 15px;
     padding: 15px 20px;
-    color: #fff;
+    color: var(--text-color);
     text-decoration: none;
     transition: all 0.2s ease;
     border-left: 3px solid transparent;
@@ -3253,7 +3378,7 @@ body {
 }
 
 .mobile-user-name {
-    color: #fff;
+    color: var(--text-color);
     font-weight: 500;
 }
 
@@ -3266,7 +3391,7 @@ body {
     background: transparent;
     border: 1px solid #666;
     border-radius: 8px;
-    color: #fff;
+    color: var(--text-color);
     cursor: pointer;
     transition: all 0.2s ease;
     font-size: 0.9rem;

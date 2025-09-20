@@ -1,0 +1,2008 @@
+{
+	"info": {
+		"_postman_id": "video-player-api-collection",
+		"name": "Video Player API Collection",
+		"description": "Comprehensive API collection for Netflix-style Video Player with multi-user support, theme system, and advanced features",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "video-player-api"
+	},
+	"item": [
+		{
+			"name": "User Management",
+			"description": "User authentication, registration, and profile management",
+			"item": [
+				{
+					"name": "Get All Users",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/users/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"users",
+								""
+							]
+						},
+						"description": "Get list of all users for selection page"
+					},
+					"response": [
+						{
+							"name": "Success Response",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/users/",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"users",
+										""
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [],
+							"cookie": [],
+							"body": "[\n    {\n        \"id\": 1,\n        \"username\": \"john_doe\",\n        \"display_name\": \"John Doe\",\n        \"avatar_emoji\": \"JD\",\n        \"avatar_bg_color\": \"#4F46E5\",\n        \"avatar_text_color\": \"#FFFFFF\",\n        \"created_at\": \"2025-01-20T10:00:00.000Z\",\n        \"is_active\": 1\n    }\n]"
+						}
+					]
+				},
+				{
+					"name": "Create User with PIN",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"john_doe\",\n    \"pin\": \"1234\",\n    \"display_name\": \"John Doe\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/users/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"users",
+								""
+							]
+						},
+						"description": "Create a new user with PIN authentication"
+					},
+					"response": [
+						{
+							"name": "Success Response",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"username\": \"john_doe\",\n    \"pin\": \"1234\",\n    \"display_name\": \"John Doe\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/users/",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"users",
+										""
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"userId\": 1,\n    \"user\": {\n        \"id\": 1,\n        \"username\": \"john_doe\",\n        \"display_name\": \"John Doe\",\n        \"avatar_emoji\": \"JD\",\n        \"avatar_bg_color\": \"#4F46E5\",\n        \"avatar_text_color\": \"#FFFFFF\"\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "Create User without PIN (Skip PIN)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"jane_guest\",\n    \"pin\": null,\n    \"display_name\": \"Jane Guest\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/users/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"users",
+								""
+							]
+						},
+						"description": "Create a new user without PIN (skip PIN option)"
+					},
+					"response": [
+						{
+							"name": "Success Response",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"username\": \"jane_guest\",\n    \"pin\": null,\n    \"display_name\": \"Jane Guest\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/users/",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"users",
+										""
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"userId\": 2,\n    \"user\": {\n        \"id\": 2,\n        \"username\": \"jane_guest\",\n        \"display_name\": \"Jane Guest\",\n        \"avatar_emoji\": \"JG\",\n        \"avatar_bg_color\": \"#10B981\",\n        \"avatar_text_color\": \"#FFFFFF\"\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "User Login with PIN",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"user_id\": 1,\n    \"pin\": \"1234\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/users/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"login"
+							]
+						},
+						"description": "Login user with PIN authentication"
+					},
+					"response": [
+						{
+							"name": "Success Response",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"user_id\": 1,\n    \"pin\": \"1234\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/users/login",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"users",
+										"login"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"user\": {\n        \"id\": 1,\n        \"username\": \"john_doe\",\n        \"display_name\": \"John Doe\",\n        \"avatar_emoji\": \"JD\",\n        \"avatar_bg_color\": \"#4F46E5\",\n        \"avatar_text_color\": \"#FFFFFF\"\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "User Login without PIN",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"user_id\": 2,\n    \"pin\": null\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/users/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"login"
+							]
+						},
+						"description": "Login user without PIN (for users who skipped PIN during registration)"
+					},
+					"response": [
+						{
+							"name": "Success Response",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"user_id\": 2,\n    \"pin\": null\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/users/login",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"users",
+										"login"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"user\": {\n        \"id\": 2,\n        \"username\": \"jane_guest\",\n        \"display_name\": \"Jane Guest\",\n        \"avatar_emoji\": \"JG\",\n        \"avatar_bg_color\": \"#10B981\",\n        \"avatar_text_color\": \"#FFFFFF\"\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "Get Current User",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/users/current",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"current"
+							]
+						},
+						"description": "Get current logged-in user information"
+					},
+					"response": [
+						{
+							"name": "Success Response",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/users/current",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"users",
+										"current"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [],
+							"cookie": [],
+							"body": "{\n    \"user\": {\n        \"id\": 1,\n        \"username\": \"john_doe\",\n        \"display_name\": \"John Doe\",\n        \"avatar_emoji\": \"JD\",\n        \"avatar_bg_color\": \"#4F46E5\",\n        \"avatar_text_color\": \"#FFFFFF\"\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "User Logout",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/users/logout",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"logout"
+							]
+						},
+						"description": "Logout user and clear session"
+					},
+					"response": [
+						{
+							"name": "Success Response",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/users/logout",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"users",
+										"logout"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [],
+							"cookie": [],
+							"body": "{\n    \"success\": true\n}"
+						}
+					]
+				},
+				{
+					"name": "Check Registration Status",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/users/registration-status",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"registration-status"
+							]
+						},
+						"description": "Check if user registration is allowed"
+					},
+					"response": [
+						{
+							"name": "Registration Allowed",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/users/registration-status",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"users",
+										"registration-status"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [],
+							"cookie": [],
+							"body": "{\n    \"allowRegistration\": true\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "User Progress & Stats",
+			"description": "Watch progress, continue watching, and user statistics",
+			"item": [
+				{
+					"name": "Get Continue Watching",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/users/continue-watching?limit=10",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"continue-watching"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "10"
+								}
+							]
+						},
+						"description": "Get user's continue watching content"
+					},
+					"response": [
+						{
+							"name": "Success Response",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/users/continue-watching?limit=10",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"users",
+										"continue-watching"
+									],
+									"query": [
+										{
+											"key": "limit",
+											"value": "10"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [],
+							"cookie": [],
+							"body": "[\n    {\n        \"video_id\": \"movie_sample.mp4\",\n        \"series\": \"Movies\",\n        \"current_time\": 1200,\n        \"duration\": 7200,\n        \"progress_percentage\": 16.67,\n        \"last_watched\": \"2025-01-20T15:30:00.000Z\"\n    }\n]"
+						}
+					]
+				},
+				{
+					"name": "Get User Stats",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/users/stats",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"stats"
+							]
+						},
+						"description": "Get user statistics"
+					},
+					"response": [
+						{
+							"name": "Success Response",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/users/stats",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"users",
+										"stats"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [],
+							"cookie": [],
+							"body": "{\n    \"total_videos\": 25,\n    \"watched_videos\": 12,\n    \"avg_watch_time\": 3600,\n    \"max_watch_time\": 7200,\n    \"last_activity\": \"2025-01-20T15:30:00.000Z\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Update Watch Progress",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"video_id\": \"movie_sample.mp4\",\n    \"current_time\": 1500,\n    \"size\": 7200\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/users/progress",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"progress"
+							]
+						},
+						"description": "Update user's watch progress for a video"
+					},
+					"response": [
+						{
+							"name": "Success Response",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"video_id\": \"movie_sample.mp4\",\n    \"current_time\": 1500,\n    \"size\": 7200\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/users/progress",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"users",
+										"progress"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [],
+							"cookie": [],
+							"body": "{\n    \"success\": true\n}"
+						}
+					]
+				},
+				{
+					"name": "Set Active Video",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"video_id\": \"movie_sample.mp4\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/users/active",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"active"
+							]
+						},
+						"description": "Set currently active video for user"
+					},
+					"response": [
+						{
+							"name": "Success Response",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"video_id\": \"movie_sample.mp4\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/users/active",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"users",
+										"active"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [],
+							"cookie": [],
+							"body": "{\n    \"success\": true\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Video Streaming",
+			"description": "Video streaming, metadata, and folder management",
+			"item": [
+				{
+					"name": "Get Videos List",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/videos/:series",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"videos",
+								":series"
+							],
+							"variable": [
+								{
+									"key": "series",
+									"value": "home",
+									"description": "Series/folder name"
+								}
+							]
+						},
+						"description": "Get list of videos in a series/folder"
+					},
+					"response": [
+						{
+							"name": "Success Response",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/videos/home",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"videos",
+										"home"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [],
+							"cookie": [],
+							"body": "[\n    {\n        \"id\": \"movie_sample.mp4\",\n        \"title\": \"Sample Movie\",\n        \"duration\": 7200,\n        \"file_size\": 2147483648,\n        \"format\": \"mp4\",\n        \"resolution\": \"1920x1080\"\n    }\n]"
+						}
+					]
+				},
+				{
+					"name": "Stream Video",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Range",
+								"value": "bytes=0-1023",
+								"description": "Range header for partial content"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/video/:series/:id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"video",
+								":series",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "series",
+									"value": "home",
+									"description": "Series/folder name"
+								},
+								{
+									"key": "id",
+									"value": "movie_sample.mp4",
+									"description": "Video file ID"
+								}
+							]
+						},
+						"description": "Stream video with range request support"
+					},
+					"response": [
+						{
+							"name": "Partial Content",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Range",
+										"value": "bytes=0-1023"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/video/home/movie_sample.mp4",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"video",
+										"home",
+										"movie_sample.mp4"
+									]
+								}
+							},
+							"status": "Partial Content",
+							"code": 206,
+							"_postman_previewlanguage": "raw",
+							"header": [
+								{
+									"key": "Content-Range",
+									"value": "bytes 0-1023/2147483648"
+								},
+								{
+									"key": "Content-Length",
+									"value": "1024"
+								},
+								{
+									"key": "Content-Type",
+									"value": "video/mp4"
+								}
+							],
+							"cookie": [],
+							"body": "[Binary video data]"
+						}
+					]
+				},
+				{
+					"name": "Get All Folders",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/get-all-folders",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"get-all-folders"
+							]
+						},
+						"description": "Get all available video folders"
+					},
+					"response": [
+						{
+							"name": "Success Response",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/get-all-folders",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"get-all-folders"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [],
+							"cookie": [],
+							"body": "[\n    {\n        \"name\": \"Movies\",\n        \"path\": \"/videos/movies\",\n        \"video_count\": 25\n    },\n    {\n        \"name\": \"TV Series\",\n        \"path\": \"/videos/series\",\n        \"video_count\": 150\n    }\n]"
+						}
+					]
+				},
+				{
+					"name": "Get Video Metadata",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/video-metadata/:id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"video-metadata",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "movie_sample.mp4",
+									"description": "Video file ID"
+								}
+							]
+						},
+						"description": "Get video metadata information"
+					},
+					"response": [
+						{
+							"name": "Success Response",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/video-metadata/movie_sample.mp4",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"video-metadata",
+										"movie_sample.mp4"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [],
+							"cookie": [],
+							"body": "{\n    \"id\": \"movie_sample.mp4\",\n    \"title\": \"Sample Movie\",\n    \"duration\": 7200,\n    \"file_size\": 2147483648,\n    \"format\": \"mp4\",\n    \"resolution\": \"1920x1080\",\n    \"bitrate\": 5000000,\n    \"audio_tracks\": 2,\n    \"subtitle_tracks\": 3\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Audio & Subtitles",
+			"description": "Audio tracks, subtitles, and media streaming",
+			"item": [
+				{
+					"name": "Get Audio Quality Info",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/audio-quality/:series/:id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"audio-quality",
+								":series",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "series",
+									"value": "home",
+									"description": "Series/folder name"
+								},
+								{
+									"key": "id",
+									"value": "movie_sample.mp4",
+									"description": "Video file ID"
+								}
+							]
+						},
+						"description": "Get audio quality information for a video"
+					},
+					"response": [
+						{
+							"name": "Success Response",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/audio-quality/home/movie_sample.mp4",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"audio-quality",
+										"home",
+										"movie_sample.mp4"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [],
+							"cookie": [],
+							"body": "{\n    \"bitrate\": 320000,\n    \"sample_rate\": 48000,\n    \"channels\": 6,\n    \"codec\": \"aac\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Get Audio Tracks",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/audio-tracks/:series/:id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"audio-tracks",
+								":series",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "series",
+									"value": "home",
+									"description": "Series/folder name"
+								},
+								{
+									"key": "id",
+									"value": "movie_sample.mp4",
+									"description": "Video file ID"
+								}
+							]
+						},
+						"description": "Get available audio tracks for a video"
+					},
+					"response": [
+						{
+							"name": "Success Response",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/audio-tracks/home/movie_sample.mp4",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"audio-tracks",
+										"home",
+										"movie_sample.mp4"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [],
+							"cookie": [],
+							"body": "[\n    {\n        \"index\": 0,\n        \"language\": \"English\",\n        \"codec\": \"aac\",\n        \"channels\": 6,\n        \"sample_rate\": 48000\n    },\n    {\n        \"index\": 1,\n        \"language\": \"Spanish\",\n        \"codec\": \"aac\",\n        \"channels\": 2,\n        \"sample_rate\": 48000\n    }\n]"
+						}
+					]
+				},
+				{
+					"name": "Get Subtitle Tracks",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/subtitle-tracks/:series/:id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"subtitle-tracks",
+								":series",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "series",
+									"value": "home",
+									"description": "Series/folder name"
+								},
+								{
+									"key": "id",
+									"value": "movie_sample.mp4",
+									"description": "Video file ID"
+								}
+							]
+						},
+						"description": "Get available subtitle tracks for a video"
+					},
+					"response": [
+						{
+							"name": "Success Response",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/subtitle-tracks/home/movie_sample.mp4",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"subtitle-tracks",
+										"home",
+										"movie_sample.mp4"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [],
+							"cookie": [],
+							"body": "[\n    {\n        \"index\": 0,\n        \"language\": \"English\",\n        \"format\": \"srt\",\n        \"forced\": false\n    },\n    {\n        \"index\": 1,\n        \"language\": \"Spanish\",\n        \"format\": \"srt\",\n        \"forced\": false\n    }\n]"
+						}
+					]
+				},
+				{
+					"name": "Stream Full Subtitle",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/subtitle/:series/:id/:trackIndex",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"subtitle",
+								":series",
+								":id",
+								":trackIndex"
+							],
+							"variable": [
+								{
+									"key": "series",
+									"value": "home",
+									"description": "Series/folder name"
+								},
+								{
+									"key": "id",
+									"value": "movie_sample.mp4",
+									"description": "Video file ID"
+								},
+								{
+									"key": "trackIndex",
+									"value": "0",
+									"description": "Subtitle track index"
+								}
+							]
+						},
+						"description": "Stream full subtitle file"
+					},
+					"response": [
+						{
+							"name": "Success Response",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/subtitle/home/movie_sample.mp4/0",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"subtitle",
+										"home",
+										"movie_sample.mp4",
+										"0"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "text/vtt"
+								}
+							],
+							"cookie": [],
+							"body": "WEBVTT\n\n00:00:01.000 --> 00:00:05.000\nWelcome to the sample movie\n\n00:00:06.000 --> 00:00:10.000\nThis is a subtitle example"
+						}
+					]
+				},
+				{
+					"name": "Stream Subtitle Chunk",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/subtitle-chunk/:series/:id/:trackIndex/:startTime/:duration",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"subtitle-chunk",
+								":series",
+								":id",
+								":trackIndex",
+								":startTime",
+								":duration"
+							],
+							"variable": [
+								{
+									"key": "series",
+									"value": "home",
+									"description": "Series/folder name"
+								},
+								{
+									"key": "id",
+									"value": "movie_sample.mp4",
+									"description": "Video file ID"
+								},
+								{
+									"key": "trackIndex",
+									"value": "0",
+									"description": "Subtitle track index"
+								},
+								{
+									"key": "startTime",
+									"value": "0",
+									"description": "Start time in seconds"
+								},
+								{
+									"key": "duration",
+									"value": "600",
+									"description": "Duration in seconds (10 minutes)"
+								}
+							]
+						},
+						"description": "Stream subtitle chunk (10-minute segments)"
+					},
+					"response": [
+						{
+							"name": "Success Response",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/subtitle-chunk/home/movie_sample.mp4/0/0/600",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"subtitle-chunk",
+										"home",
+										"movie_sample.mp4",
+										"0",
+										"0",
+										"600"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "text/vtt"
+								}
+							],
+							"cookie": [],
+							"body": "WEBVTT\n\n00:00:01.000 --> 00:00:05.000\nWelcome to the sample movie\n\n00:00:06.000 --> 00:00:10.000\nThis is a subtitle example"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Watch Progress",
+			"description": "Watch progress tracking and management",
+			"item": [
+				{
+					"name": "Save Watch Progress",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"video_id\": \"movie_sample.mp4\",\n    \"current_time\": 1800,\n    \"duration\": 7200,\n    \"user_id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/watch-progress",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"watch-progress"
+							]
+						},
+						"description": "Save watch progress for a video"
+					},
+					"response": [
+						{
+							"name": "Success Response",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"video_id\": \"movie_sample.mp4\",\n    \"current_time\": 1800,\n    \"duration\": 7200,\n    \"user_id\": 1\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/watch-progress",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"watch-progress"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [],
+							"cookie": [],
+							"body": "{\n    \"success\": true\n}"
+						}
+					]
+				},
+				{
+					"name": "Get Watch Progress",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/watch-progress/:video_id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"watch-progress",
+								":video_id"
+							],
+							"variable": [
+								{
+									"key": "video_id",
+									"value": "movie_sample.mp4",
+									"description": "Video file ID"
+								}
+							]
+						},
+						"description": "Get watch progress for a specific video"
+					},
+					"response": [
+						{
+							"name": "Success Response",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/watch-progress/movie_sample.mp4",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"watch-progress",
+										"movie_sample.mp4"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [],
+							"cookie": [],
+							"body": "{\n    \"video_id\": \"movie_sample.mp4\",\n    \"current_time\": 1800,\n    \"duration\": 7200,\n    \"progress_percentage\": 25.0,\n    \"last_watched\": \"2025-01-20T15:30:00.000Z\"\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Thumbnails",
+			"description": "Thumbnail generation and serving",
+			"item": [
+				{
+					"name": "Get Thumbnail",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/thumbnail/:type/:db/:id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"thumbnail",
+								":type",
+								":db",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "type",
+									"value": "standard",
+									"description": "Thumbnail type (standard, high, slideshow, ultra)"
+								},
+								{
+									"key": "db",
+									"value": "home",
+									"description": "Database/folder name"
+								},
+								{
+									"key": "id",
+									"value": "movie_sample.mp4",
+									"description": "Video file ID"
+								}
+							]
+						},
+						"description": "Get thumbnail for a video"
+					},
+					"response": [
+						{
+							"name": "Success Response",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/thumbnail/standard/home/movie_sample.mp4",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"thumbnail",
+										"standard",
+										"home",
+										"movie_sample.mp4"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "raw",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "image/jpeg"
+								}
+							],
+							"cookie": [],
+							"body": "[Binary image data]"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Admin Panel",
+			"description": "Administrative functions and user management",
+			"item": [
+				{
+					"name": "Get All Users (Admin)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/admin/users",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"users"
+							]
+						},
+						"description": "Get all users including suspended ones (Admin only)"
+					},
+					"response": [
+						{
+							"name": "Success Response",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/admin/users",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"admin",
+										"users"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [],
+							"cookie": [],
+							"body": "[\n    {\n        \"id\": 1,\n        \"username\": \"john_doe\",\n        \"display_name\": \"John Doe\",\n        \"avatar_emoji\": \"JD\",\n        \"avatar_bg_color\": \"#4F46E5\",\n        \"avatar_text_color\": \"#FFFFFF\",\n        \"created_at\": \"2025-01-20T10:00:00.000Z\",\n        \"is_active\": 1\n    },\n    {\n        \"id\": 2,\n        \"username\": \"suspended_user\",\n        \"display_name\": \"Suspended User\",\n        \"avatar_emoji\": \"SU\",\n        \"avatar_bg_color\": \"#EF4444\",\n        \"avatar_text_color\": \"#FFFFFF\",\n        \"created_at\": \"2025-01-19T10:00:00.000Z\",\n        \"is_active\": 0\n    }\n]"
+						}
+					]
+				},
+				{
+					"name": "Suspend User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"userId\": 2,\n    \"pin\": \"0000\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/admin/suspend-user",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"suspend-user"
+							]
+						},
+						"description": "Suspend a user (Admin PIN required)"
+					},
+					"response": [
+						{
+							"name": "Success Response",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"userId\": 2,\n    \"pin\": \"0000\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/admin/suspend-user",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"admin",
+										"suspend-user"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"message\": \"User suspended successfully\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Activate User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"userId\": 2,\n    \"pin\": \"0000\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/admin/activate-user",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"activate-user"
+							]
+						},
+						"description": "Activate a suspended user (Admin PIN required)"
+					},
+					"response": [
+						{
+							"name": "Success Response",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"userId\": 2,\n    \"pin\": \"0000\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/admin/activate-user",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"admin",
+										"activate-user"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"message\": \"User activated successfully\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Get System Settings",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/admin/settings",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"settings"
+							]
+						},
+						"description": "Get system settings"
+					},
+					"response": [
+						{
+							"name": "Success Response",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/admin/settings",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"admin",
+										"settings"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [],
+							"cookie": [],
+							"body": "{\n    \"allow_registration\": true,\n    \"max_users\": 100,\n    \"video_quality\": \"1080p\",\n    \"subtitle_chunk_size\": 600\n}"
+						}
+					]
+				},
+				{
+					"name": "Toggle User Registration",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"allowRegistration\": false,\n    \"pin\": \"0000\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/admin/toggle-registration",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"toggle-registration"
+							]
+						},
+						"description": "Enable or disable user registration (Admin PIN required)"
+					},
+					"response": [
+						{
+							"name": "Success Response",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"allowRegistration\": false,\n    \"pin\": \"0000\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/admin/toggle-registration",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"admin",
+										"toggle-registration"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"message\": \"User registration disabled successfully\"\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Theme Management (Future)",
+			"description": "Theme preferences management (to be implemented)",
+			"item": [
+				{
+					"name": "Get User Theme",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/users/:userId/theme",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"users",
+								":userId",
+								"theme"
+							],
+							"variable": [
+								{
+									"key": "userId",
+									"value": "1",
+									"description": "User ID"
+								}
+							]
+						},
+						"description": "Get user's theme preference (Future implementation)"
+					},
+					"response": [
+						{
+							"name": "Success Response (Future)",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/users/1/theme",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"users",
+										"1",
+										"theme"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [],
+							"cookie": [],
+							"body": "{\n    \"theme\": \"dark\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Update User Theme",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"theme\": \"light\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/users/:userId/theme",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"users",
+								":userId",
+								"theme"
+							],
+							"variable": [
+								{
+									"key": "userId",
+									"value": "1",
+									"description": "User ID"
+								}
+							]
+						},
+						"description": "Update user's theme preference (Future implementation)"
+					},
+					"response": [
+						{
+							"name": "Success Response (Future)",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"theme\": \"light\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/users/1/theme",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"users",
+										"1",
+										"theme"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"theme\": \"light\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Get Device Theme",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/users/device/:deviceId/theme",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"device",
+								":deviceId",
+								"theme"
+							],
+							"variable": [
+								{
+									"key": "deviceId",
+									"value": "device_123456789",
+									"description": "Device ID"
+								}
+							]
+						},
+						"description": "Get device theme preference (Future implementation)"
+					},
+					"response": [
+						{
+							"name": "Success Response (Future)",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/users/device/device_123456789/theme",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"users",
+										"device",
+										"device_123456789",
+										"theme"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [],
+							"cookie": [],
+							"body": "{\n    \"theme\": \"system\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Update Device Theme",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"theme\": \"dark\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/users/device/:deviceId/theme",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"device",
+								":deviceId",
+								"theme"
+							],
+							"variable": [
+								{
+									"key": "deviceId",
+									"value": "device_123456789",
+									"description": "Device ID"
+								}
+							]
+						},
+						"description": "Update device theme preference (Future implementation)"
+					},
+					"response": [
+						{
+							"name": "Success Response (Future)",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"theme\": \"dark\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/users/device/device_123456789/theme",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"users",
+										"device",
+										"device_123456789",
+										"theme"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"theme\": \"dark\"\n}"
+						}
+					]
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:5555",
+			"description": "Base URL for the Video Player API"
+		}
+	]
+}

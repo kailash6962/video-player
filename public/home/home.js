@@ -78,7 +78,7 @@ function renderFolderCard(folder) {
 
     const cardTitle = document.createElement('h3');
     cardTitle.className = 'card-title';
-    cardTitle.textContent = folder.name;
+    cardTitle.textContent = cleanVideoTitle(folder.name);
 
     const cardMeta = document.createElement('div');
     cardMeta.className = 'card-meta';
@@ -648,9 +648,9 @@ function createContinueWatchingCard(video) {
     const cardTitle = document.createElement('h3');
     cardTitle.className = 'card-title';
     if (video.is_series) {
-        cardTitle.textContent = video.series;
+        cardTitle.textContent = cleanVideoTitle(video.series);
     } else {
-        cardTitle.textContent = video.video_id;
+        cardTitle.textContent = cleanVideoTitle(video.video_id);
     }
 
     const cardMeta = document.createElement('div');
