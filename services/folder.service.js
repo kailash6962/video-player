@@ -18,6 +18,7 @@ class FolderService {
         const dbPath = path.join(__dirname, '..', 'databases', `${safeName}.sqlite3`);
         let lastOpened = null;
         let lastOpenedNumber = null;
+        let watchedEpisodes = 0;
         if (fs.existsSync(dbPath)) {
           // Get user-specific progress information
           const userId = req?.cookies?.user_id || 'guest';
@@ -35,17 +36,19 @@ class FolderService {
 
               let query, params;
               if (hasUserId) {
-                // Use user-specific query
+                // Use user-specific query with progress calculation
                 query = `SELECT 
                     (SELECT last_opened FROM video_metadata WHERE user_id = ? AND last_opened IS NOT NULL ORDER BY datetime(last_opened) DESC LIMIT 1) as last_opened,
-                    (SELECT COUNT(*) FROM video_metadata WHERE user_id = ? AND last_opened IS NOT NULL) as lastOpenedNumber
+                    (SELECT COUNT(*) FROM video_metadata WHERE user_id = ? AND last_opened IS NOT NULL) as lastOpenedNumber,
+                    (SELECT COUNT(*) FROM video_metadata WHERE user_id = ? AND current_time IS NOT NULL AND current_time != '' AND current_time > 0) as watchedEpisodes
                 `;
-                params = [userId, userId];
+                params = [userId, userId, userId];
               } else {
                 // Fallback to original query for old databases
                 query = `SELECT 
                     (SELECT last_opened FROM video_metadata WHERE last_opened IS NOT NULL ORDER BY datetime(last_opened) DESC LIMIT 1) as last_opened,
-                    (SELECT COUNT(*) FROM video_metadata WHERE last_opened IS NOT NULL) as lastOpenedNumber
+                    (SELECT COUNT(*) FROM video_metadata WHERE last_opened IS NOT NULL) as lastOpenedNumber,
+                    (SELECT COUNT(*) FROM video_metadata WHERE current_time IS NOT NULL AND current_time != '' AND current_time > 0) as watchedEpisodes
                 `;
                 params = [];
               }
@@ -59,6 +62,7 @@ class FolderService {
           });
           lastOpened = result.last_opened || null;
           lastOpenedNumber = result.lastOpenedNumber || null;
+          watchedEpisodes = result.watchedEpisodes || 0;
         }
         const folderPath = path.join(VIDEOS_DIR, folder);
         const files = fs.readdirSync(folderPath);
@@ -80,11 +84,17 @@ class FolderService {
         // Get folder modification date
         const folderStats = fs.statSync(folderPath);
 
+        // Calculate overall progress percentage
+        const overallProgress = videoFiles.length > 0 ? 
+          Math.round((watchedEpisodes / videoFiles.length) * 100) : 0;
+
         return {
           name: folder,
           videoCount: videoFiles.length,
           lastOpened,
           lastOpenedNumber,
+          watchedEpisodes,
+          overallProgress,
           modifiedDate: folderStats.mtime, // Folder modification date
           mostRecentFileDate, // Most recent file in the folder
           createdDate: folderStats.birthtime // Folder creation date

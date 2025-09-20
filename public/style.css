@@ -602,7 +602,7 @@ body {
     font-size: 20px;
     font-weight: 500;
     margin: 0 0 12px 0;
-    color: var(--text-color);
+    color: #ffffff;
     text-align: left;
 }
 
@@ -1025,7 +1025,7 @@ body {
     top: 10px;
     left: 50%;
     transform: translateX(-50%);
-    color: var(--text-color);
+    color: #ffffff;
     font-size: 18px;
     font-weight: bold;
     z-index: 2;
@@ -1504,7 +1504,7 @@ body {
 .slide-title {
     font-size: 3.5rem;
     font-weight: 700;
-    color: var(--text-color);
+    color: #ffffff;
     margin-bottom: 16px;
     text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.8);
     line-height: 1.1;
@@ -2425,6 +2425,7 @@ body {
     word-wrap: break-word;
     overflow-wrap: break-word;
     hyphens: auto;
+    color: #ffffff;
     font-size: 1.2rem;
     font-weight: 600;
     line-height: 1.1;
