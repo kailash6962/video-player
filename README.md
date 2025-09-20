@@ -426,9 +426,85 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 4. Push to the branch: `git push origin feature/amazing-feature`
 5. Open a Pull Request
 
+## 📚 Documentation
+
+### Complete Documentation Suite
+
+| Document | Description | Audience |
+|----------|-------------|----------|
+| **[Installation Guide](documents/installation-guide.md)** | Complete setup guide for all platforms | Developers, System Admins |
+| **[User Manual](documents/user-manual.md)** | Comprehensive user guide with features walkthrough | End Users, Content Managers |
+| **[System Requirements](documents/system-requirements/system-requirements.md)** | Hardware, software, and performance specifications | System Architects, IT Teams |
+| **[Database Schema](documents/database-schema/database-schema.dbml)** | Visual database diagram (use with dbdiagram.io) | Developers, Database Admins |
+| **[API Documentation](documents/postman/)** | Complete Postman collection and API reference | Developers, API Consumers |
+| **[Architecture Guide](ARCHITECTURE.md)** | Technical architecture and design decisions | Senior Developers, Architects |
+
+### Quick Access Links
+
+#### 🚀 **Getting Started**
+- **[🔧 Installation Guide](documents/installation-guide.md)** - Step-by-step setup for Ubuntu, Windows, macOS
+- **[📋 System Requirements](documents/system-requirements/system-requirements.md)** - Hardware and software requirements
+- **[🐳 Docker Setup](documents/installation-guide.md#-docker-installation)** - Containerized deployment
+
+#### 👥 **For End Users**
+- **[📖 User Manual](documents/user-manual.md)** - Complete feature guide
+- **[🎬 Video Playback](documents/user-manual.md#-video-playback)** - Player controls and features
+- **[🎨 Theme System](documents/user-manual.md#-theme-system)** - Light/Dark/System themes
+- **[📱 Mobile Experience](documents/user-manual.md#-mobile-experience)** - Touch controls and mobile optimization
+
+#### 🔧 **For Developers**
+- **[🏗️ Architecture Guide](ARCHITECTURE.md)** - Technical design and patterns
+- **[🗃️ Database Schema](documents/database-schema/database-schema.dbml)** - Complete database structure
+- **[🔌 API Reference](documents/postman/README.md)** - REST API documentation
+- **[📊 Performance Guide](documents/system-requirements/system-requirements.md#-performance-benchmarks)** - Optimization and scaling
+
+#### ⚙️ **For System Administrators**
+- **[🚀 Production Deployment](documents/installation-guide.md#-production-deployment)** - PM2, Nginx, systemd setup
+- **[🔒 Security Guide](documents/system-requirements/system-requirements.md#-security-requirements)** - Security best practices
+- **[📈 Scaling Guide](documents/system-requirements/system-requirements.md#-scaling-considerations)** - Load balancing and clustering
+- **[🔍 Troubleshooting](documents/installation-guide.md#-troubleshooting)** - Common issues and solutions
+
+### 📊 Visual Resources
+
+#### Database Diagram
+Use the **[database-schema.dbml](documents/database-schema/database-schema.dbml)** file with [dbdiagram.io](https://dbdiagram.io/d):
+1. Copy the DBML file content
+2. Paste into dbdiagram.io
+3. Get instant visual database diagram
+
+#### API Testing
+Import the **[Postman Collection](documents/postman/Video-Player-API.postman_collection.json)** for:
+- Complete API endpoint testing
+- Request/response examples
+- Authentication workflows
+- Development and testing automation
+
+### 📖 Documentation Features
+
+#### ✅ **Comprehensive Coverage**
+- **Installation**: All platforms and deployment methods
+- **Usage**: Complete feature documentation with examples
+- **API**: Full REST API reference with Postman collection
+- **Database**: Visual schema with relationships
+- **Performance**: Benchmarks and optimization guides
+
+#### ✅ **User-Friendly**
+- **Step-by-step guides** with code examples
+- **Visual diagrams** and screenshots
+- **Troubleshooting sections** with solutions
+- **Cross-references** between documents
+
+#### ✅ **Professional Quality**
+- **Markdown formatted** for easy reading
+- **Version controlled** and maintainable
+- **Searchable content** with detailed TOCs
+- **Export ready** to PDF or other formats
+
 ## 📞 Support
 
-- **Documentation**: See [ARCHITECTURE.md](ARCHITECTURE.md) for detailed technical docs
+- **Primary Documentation**: Complete guides in `documents/` folder
+- **Technical Architecture**: See [ARCHITECTURE.md](ARCHITECTURE.md) for detailed technical docs
+- **API Reference**: Use [Postman Collection](documents/postman/) for API testing
 - **Issues**: Open an issue on GitHub
 - **Discussions**: Use GitHub Discussions for questions
 
