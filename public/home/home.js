@@ -665,10 +665,10 @@ function createContinueWatchingCard(video) {
             <span class="card-last-viewed">${video.completion_percentage}% complete</span>
         `;
     } else {
-        // For movies, show "Movie" instead of series name
-        const seriesDisplay = video.series === 'home' ? 'Movie' : video.series;
+        // For movies, show sanitized movie name
+        const movieName = cleanVideoTitle(video.video_id);
         progressRow.innerHTML = `
-            <span class="card-duration">${seriesDisplay}</span>
+            <span class="card-duration">${movieName}</span>
             <span>•</span>
             <span class="card-last-viewed">${video.completion_percentage}% watched</span>
         `;

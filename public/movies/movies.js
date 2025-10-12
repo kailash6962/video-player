@@ -34,12 +34,8 @@ async function loadContinueWatching() {
         if (response.ok) {
             const continueWatching = await response.json();
             console.log('Continue watching data:', continueWatching);
-            // Filter only movies (assuming movies are single files, not series)
-            const movies = continueWatching.filter(video =>
-                !video.series.includes('Season') &&
-                !video.series.includes('Episode') &&
-                !video.series.includes('S0')
-            );
+            // Filter only movies (is_series = false)
+            const movies = continueWatching.filter(video => !video.is_series);
             renderContinueWatching(movies);
         } else if (response.status === 304) {
             console.log('Continue watching: 304 Not Modified - using cached data');
@@ -106,11 +102,12 @@ function createContinueWatchingCard(video) {
     const cardMeta = document.createElement('div');
     cardMeta.className = 'card-meta';
 
-    // Series and progress row
+    // Movie name and progress row
     const progressRow = document.createElement('div');
     progressRow.className = 'card-meta-row';
+    const movieName = cleanVideoTitle(video.video_id);
     progressRow.innerHTML = `
-        <span class="card-duration">${video.series}</span>
+        <span class="card-duration">${movieName}</span>
         <span>•</span>
         <span class="card-last-viewed">${video.completion_percentage}% watched</span>
     `;
