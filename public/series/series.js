@@ -34,12 +34,8 @@ async function loadContinueWatching() {
         if (response.ok) {
             const continueWatching = await response.json();
             console.log('Continue watching data:', continueWatching);
-            // Filter only series (assuming series contain Season, Episode, or S0)
-            const series = continueWatching.filter(video =>
-                video.series.includes('Season') ||
-                video.series.includes('Episode') ||
-                video.series.includes('S0')
-            );
+            // Filter only series (is_series = true)
+            const series = continueWatching.filter(video => video.is_series);
             renderContinueWatching(series);
         } else if (response.status === 304) {
             console.log('Continue watching: 304 Not Modified - using cached data');
@@ -132,10 +128,10 @@ function createContinueWatchingCard(video) {
             <span class="card-last-viewed">${video.completion_percentage}% complete</span>
         `;
     } else {
-        // For movies, show "Movie" instead of series name
-        const seriesDisplay = video.series === 'home' ? 'Movie' : video.series;
+        // For movies, show sanitized movie name
+        const movieName = cleanVideoTitle(video.video_id);
         progressRow.innerHTML = `
-            <span class="card-duration">${seriesDisplay}</span>
+            <span class="card-duration">${movieName}</span>
             <span>•</span>
             <span class="card-last-viewed">${video.completion_percentage}% watched</span>
         `;
@@ -297,10 +293,11 @@ function renderFolderCard(folder) {
     thumbnail.src = `/api/thumbnail/folder/${encodeURIComponent(folder.name)}/${encodeURIComponent(folder.name)}`;
     thumbnail.alt = folder.name;
 
-    // Episode count badge
+    // Episode count badge - show watched/total format
     const episodeCount = document.createElement('div');
     episodeCount.className = 'episode-count';
-    episodeCount.textContent = `${folder.videoCount} EP`;
+    const watchedEpisodesCount = folder.watchedEpisodes || 0;
+    episodeCount.textContent = `${watchedEpisodesCount}/${folder.videoCount}`;
 
     // Card content (always visible)
     const cardContent = document.createElement('div');
@@ -313,14 +310,15 @@ function renderFolderCard(folder) {
     const cardMeta = document.createElement('div');
     cardMeta.className = 'card-meta';
 
-    // Episode row
+    // Episode row with progress info
     const episodeRow = document.createElement('div');
     episodeRow.className = 'card-meta-row';
-    const currentEpisode = folder.lastOpenedNumber ? `EP ${folder.lastOpenedNumber}` : 'Not started';
+    const watchedCount = folder.watchedEpisodes || 0;
+    const progressText = watchedCount > 0 ? `${folder.overallProgress}% watched` : 'Not started';
     episodeRow.innerHTML = `
         <span class="card-duration">${folder.videoCount} Episodes</span>
         <span>•</span>
-        <span class="card-last-viewed">${currentEpisode}</span>
+        <span class="card-last-viewed">${progressText}</span>
     `;
 
     // Last viewed row
@@ -341,11 +339,8 @@ function renderFolderCard(folder) {
     const progressBar = document.createElement('div');
     progressBar.className = 'card-progress-bar';
 
-    // Calculate watched percentage
-    let watchedPercent = 0;
-    if (folder.videoCount && folder.lastOpenedNumber) {
-        watchedPercent = Math.max(0, ((folder.lastOpenedNumber - 1) / folder.videoCount) * 100);
-    }
+    // Use overall progress from backend (based on actual watch progress)
+    const watchedPercent = folder.overallProgress || 0;
     progressBar.style.width = watchedPercent + '%';
 
     progressContainer.appendChild(progressBar);

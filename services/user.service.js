@@ -503,16 +503,19 @@ class UserService {
                         const { resolveActualFolderName } = require('../utils/folderUtils');
 
                         let totalVideosInFolder = 0;
+                        let actualFolderPath = null;
+                        let actualFolderName = seriesName; // Default to sanitized name
 
                         try {
                             // Resolve the actual folder name (handles special characters)
-                            const actualFolderName = resolveActualFolderName(seriesName);
+                            actualFolderName = resolveActualFolderName(seriesName);
                             // Resolving series folder
 
                             const folderPath = path.join(VIDEOS_DIR, actualFolderName);
                             // Checking series folder path
 
                             if (fs.existsSync(folderPath)) {
+                                actualFolderPath = folderPath;
                                 const files = fs.readdirSync(folderPath);
                                 // Files in series folder
                                 totalVideosInFolder = files.filter(file =>
@@ -528,8 +531,16 @@ class UserService {
                             totalVideosInFolder = videos.length; // Fallback
                         }
 
-                        // Simple calculation: count watched episodes
+                        // Filter out deleted videos and count watched episodes
                         const watchedVideos = videos.filter(video => {
+                            // Check if video file exists
+                            if (actualFolderPath) {
+                                const videoPath = path.join(actualFolderPath, video.video_id);
+                                if (!fs.existsSync(videoPath)) {
+                                    // Video file deleted, skip it
+                                    return false;
+                                }
+                            }
                             return video.watch_time && video.watch_time !== '0' && video.watch_time !== '';
                         }).length;
 
@@ -537,26 +548,57 @@ class UserService {
                         const overallProgress = totalVideosInFolder > 0 ?
                             Math.round((watchedVideos / totalVideosInFolder) * 100) : 0;
 
-                        // Create a single series card
-                        const seriesCard = {
-                            video_id: seriesName, // Use series name as the ID
-                            series: seriesName,
-                            current_time: videos[0].watch_time, // Use the most recent
-                            last_opened: videos[0].last_opened, // Use the most recent
-                            completion_percentage: overallProgress,
-                            total_episodes: totalVideosInFolder,
-                            watched_episodes: watchedVideos,
-                            is_series: true
-                        };
+                        // Only add to continue watching if:
+                        // 1. Has watched episodes (not all deleted)
+                        // 2. Not fully watched (less than 100%)
+                        if (watchedVideos > 0 && overallProgress < 100) {
+                            // Find the most recent video that still exists
+                            let mostRecentVideo = null;
+                            for (const video of videos) {
+                                if (actualFolderPath) {
+                                    const videoPath = path.join(actualFolderPath, video.video_id);
+                                    if (fs.existsSync(videoPath)) {
+                                        mostRecentVideo = video;
+                                        break; // videos are already sorted by last_opened DESC
+                                    }
+                                } else {
+                                    mostRecentVideo = video;
+                                    break;
+                                }
+                            }
 
-                        // Series card created
-                        continueWatching.push(seriesCard);
+                            // Only add series card if we found at least one existing video
+                            if (mostRecentVideo) {
+                                // Create a single series card using actual folder name
+                                const seriesCard = {
+                                    video_id: actualFolderName, // Use actual folder name for display
+                                    series: actualFolderName, // Use actual folder name (not sanitized DB name)
+                                    current_time: mostRecentVideo.watch_time, // Use the most recent
+                                    last_opened: mostRecentVideo.last_opened, // Use the most recent
+                                    completion_percentage: overallProgress,
+                                    total_episodes: totalVideosInFolder,
+                                    watched_episodes: watchedVideos,
+                                    is_series: true
+                                };
+
+                                // Series card created
+                                continueWatching.push(seriesCard);
+                            }
+                        }
                     } else {
                         // This is a movie (from home.sqlite3) - show individual cards
                         // Process videos sequentially to handle async duration fetching
                         const processedVideos = [];
+                        const VIDEOS_DIR = process.env.VIDEO_DIR;
 
                         for (const video of videos) {
+                            // Check if video file actually exists (movies are in root VIDEOS_DIR)
+                            const videoPath = path.join(VIDEOS_DIR, video.video_id);
+                            if (!fs.existsSync(videoPath)) {
+                                // Video file deleted, skip it
+                                continue;
+                            }
+
                             // Processing video for continue watching
                             video.series = 'home'; // Set series to 'home' for movies
                             video.is_series = false;
@@ -619,10 +661,14 @@ class UserService {
                                 video.completion_percentage = 0;
                             }
 
-                            processedVideos.push(video);
+                            // Only add to continue watching if not fully watched (less than 95%)
+                            // 95% threshold accounts for skipping credits
+                            if (video.completion_percentage < 95) {
+                                processedVideos.push(video);
+                            }
                         }
 
-                        // Movies added to continue watching
+                        // Movies added to continue watching (excluding fully watched)
                         continueWatching = continueWatching.concat(processedVideos);
                     }
                 }
