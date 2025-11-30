@@ -899,17 +899,21 @@ fetch(`/api/videos/${series}`, {
   .catch(err => console.error('Error loading videos:', err));
 
 videoPlayer.addEventListener('timeupdate', () => {
+  // alert("Initiating event");
   // Throttle the updates (e.g., update every 5 seconds)
   if (progressUpdateTimeout) return;
 
   progressUpdateTimeout = setTimeout(() => {
+    // alert("Interval trigger");
     const current_time = videoPlayer.currentTime;
     const updatedCurrTime = parseInt(startTime) + parseInt(current_time);
+    // alert("series " + series);
+    // alert("updatedCurrTime up " + updatedCurrTime);
     console.log("📢[:163]: updatedCurrTime: ", updatedCurrTime);
     console.log("📢[:165]: currentVideoDuration: ", currentVideoDuration);
     const watchedPercentage = (updatedCurrTime / currentVideoDuration) * 100;
-    if (updatedCurrTime == 0) return;
-    if (currentVideoId) {
+    // if (updatedCurrTime == 0) return;
+    if (currentVideoId && updatedCurrTime>0) {
       fetch('/api/watch-progress', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'x-db-name': series },

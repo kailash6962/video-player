@@ -10,6 +10,7 @@ class MetadataService {
   }
 
   saveWatchProgress(req, res) {
+    console.log("watchprogress ", req.body);
     const { video_id, current_time, size } = req.body;
     const userId = req.cookies.user_id || 'guest';
 
