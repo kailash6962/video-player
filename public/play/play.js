@@ -913,7 +913,7 @@ videoPlayer.addEventListener('timeupdate', () => {
     console.log("📢[:165]: currentVideoDuration: ", currentVideoDuration);
     const watchedPercentage = (updatedCurrTime / currentVideoDuration) * 100;
     // if (updatedCurrTime == 0) return;
-    if (currentVideoId && updatedCurrTime>0) {
+    if (currentVideoId && updatedCurrTime > 0) {
       fetch('/api/watch-progress', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'x-db-name': series },
@@ -1509,20 +1509,25 @@ function switchAudioTrack(trackIndex) {
   // Hide menu after selection
   audioTrackMenu.style.display = 'none';
 
-  // Update video source with new audio track
+  // Calculate current absolute time
+  const absoluteTime = parseInt(startTime) + parseInt(videoPlayer.currentTime);
+
+  // Update video source with new audio track and current time
   const url = new URL(videoPlayer.src);
   url.searchParams.set('audioTrack', trackIndex);
+  url.searchParams.set('start', absoluteTime);
   console.log('New video URL:', url.toString());
   videoPlayer.src = url.toString();
 
+  // Update global startTime
+  startTime = absoluteTime;
+
   // Restore playback state
-  videoPlayer.addEventListener('loadeddata', function restorePlayback() {
-    videoPlayer.currentTime = currentTime;
-    if (wasPlaying) {
+  if (wasPlaying) {
+    videoPlayer.addEventListener('loadedmetadata', function onLoaded() {
       videoPlayer.play();
-    }
-    videoPlayer.removeEventListener('loadeddata', restorePlayback);
-  }, { once: true });
+    }, { once: true });
+  }
 
   videoPlayer.load();
 }
